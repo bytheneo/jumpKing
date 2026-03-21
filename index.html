@@ -1,0 +1,2829 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跳棋遊戲 - 線上對戰</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        /* 開始介面樣式 */
+        .start-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+
+        .start-screen h1 {
+            font-size: 48px;
+            color: #333;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .start-screen p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .mode-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .mode-btn {
+            padding: 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .mode-btn.ai {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .mode-btn.ai:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .mode-btn.pvp {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .mode-btn.pvp:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(245, 87, 108, 0.4);
+        }
+
+        .mode-btn.online {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .mode-btn.online:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(79, 172, 254, 0.4);
+        }
+
+        .mode-btn.rules {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+        }
+
+        .mode-btn.rules:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(132, 250, 176, 0.4);
+        }
+
+        .mode-btn-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        /* 房間設定介面 */
+        .room-setup-screen {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+
+        .room-setup-screen h2 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .room-setup-group {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .room-setup-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .room-setup-item label {
+            font-size: 14px;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .room-setup-item input,
+        .room-setup-item select {
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .room-setup-item input:focus,
+        .room-setup-item select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .room-setup-item input::placeholder {
+            color: #bbb;
+        }
+
+        .game-mode-selection {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .game-mode-option {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            background: white;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .game-mode-option:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .game-mode-option.selected {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+
+        .timer-toggle {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .timer-toggle label {
+            flex: 1;
+            font-size: 16px;
+            color: #333;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .checkbox {
+            position: relative;
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .checkbox input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .checkbox-checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 24px;
+            width: 24px;
+            background-color: #eee;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .checkbox:hover input ~ .checkbox-checkmark {
+            background-color: #f0f0f0;
+            border-color: #667eea;
+        }
+
+        .checkbox input:checked ~ .checkbox-checkmark {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+
+        .checkbox-checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 7px;
+            top: 3px;
+            width: 6px;
+            height: 12px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .checkbox input:checked ~ .checkbox-checkmark:after {
+            display: block;
+        }
+
+        .room-setup-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .room-setup-buttons button {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-start {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-back {
+            background: #ccc;
+            color: #333;
+        }
+
+        .btn-back:hover {
+            background: #bbb;
+            transform: translateY(-2px);
+        }
+
+        /* 規則介面 */
+        .rules-screen {
+            display: none;
+            flex-direction: column;
+            min-height: 400px;
+        }
+
+        .rules-screen h2 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .rules-content {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .rules-content h3 {
+            color: #333;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .rules-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .rules-content ul {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .rules-content li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+            color: #555;
+        }
+
+        .rules-buttons {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .rules-buttons button {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-back-rules {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-back-rules:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        /* 線上模式等待介面 */
+        .online-wait-screen {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+
+        .online-wait-screen h2 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .room-info {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .room-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .room-info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .room-info-label {
+            font-weight: bold;
+            color: #666;
+        }
+
+        .room-id {
+            background: #e8f5e9;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #2e7d32;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .room-id:hover {
+            background: #c8e6c9;
+        }
+
+        .copy-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .player-list {
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .player-list h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .player-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .player-item.p2 {
+            border-left-color: #f093fb;
+        }
+
+        .player-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 12px;
+            background: #ffc107;
+        }
+
+        .player-status.online {
+            background: #4caf50;
+        }
+
+        .player-name {
+            flex: 1;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .player-id {
+            font-size: 12px;
+            color: #999;
+            font-family: monospace;
+        }
+
+        .waiting-spinner {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .spinner-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #667eea;
+            animation: bounce 1.4s infinite;
+        }
+
+        .spinner-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .spinner-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .waiting-text {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .online-buttons {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            flex-direction: column;
+        }
+
+        .online-buttons button {
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-share {
+            background: #4facfe;
+            color: white;
+        }
+
+        .btn-share:hover {
+            background: #3fa3ee;
+            transform: translateY(-2px);
+        }
+
+        .btn-leave {
+            background: #ccc;
+            color: #333;
+        }
+
+        .btn-leave:hover {
+            background: #bbb;
+            transform: translateY(-2px);
+        }
+
+        /* 遊戲介面樣式 */
+        .game-screen {
+            display: none;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .info-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-item.player-name-info {
+            text-align: left;
+            font-size: 12px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .player-name-display {
+            font-size: 14px;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 5px;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .player1-info {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .player2-info {
+            color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.1);
+        }
+
+        .pvp-p2-info {
+            color: #9c27b0;
+            background: rgba(156, 39, 176, 0.1);
+        }
+
+        .timer-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+        }
+
+        .timer-display.warning {
+            color: #ff9800;
+            animation: timer-pulse 0.5s infinite;
+        }
+
+        .timer-display.critical {
+            color: #f44336;
+            animation: timer-pulse 0.3s infinite;
+        }
+
+        .timer-display.disabled {
+            color: #999;
+        }
+
+        @keyframes timer-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes critical-flash {
+            0%, 100% { background: white; }
+            50% { background: #ffcdd2; }
+        }
+
+        .board-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+            background: #ddd;
+            padding: 10px;
+            border-radius: 10px;
+            position: relative;
+            animation-play-state: paused;
+            min-height: 400px;
+            overflow: auto;
+        }
+
+        .board-container.critical-time {
+            animation: critical-flash 0.3s infinite;
+        }
+
+        .board {
+            display: grid;
+            gap: 2px;
+            background: #999;
+            padding: 2px;
+            position: relative;
+            width: fit-content;
+        }
+
+        .square {
+            background: #ccc;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            user-select: none;
+            -webkit-user-select: none;
+            aspect-ratio: 1;
+        }
+
+        .square:hover {
+            transform: scale(0.95);
+        }
+
+        .square.valid {
+            background: #fff59d;
+            border-color: #fbc02d;
+            animation: pulse 0.6s infinite;
+        }
+
+        .square.valid-jump {
+            background: #ffb74d;
+            border-color: #ff9800;
+            animation: pulse-jump 0.6s infinite;
+        }
+
+        .square.selected {
+            background: #81c784;
+            border-color: #388e3c;
+        }
+
+        .square.special-tile {
+            background: linear-gradient(135deg, #ffeb3b, #fbc02d);
+            position: relative;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 5px rgba(255, 235, 59, 0.5);
+            }
+            to {
+                box-shadow: 0 0 20px rgba(255, 183, 77, 0.8);
+            }
+        }
+
+        .square.special-player {
+            background: linear-gradient(135deg, #ff6b6b, #ff5252);
+        }
+
+        .square.special-player::before {
+            content: '★';
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .square.special-ai {
+            background: linear-gradient(135deg, #4ecdc4, #26bfa4);
+        }
+
+        .square.special-ai::before {
+            content: '★';
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .square.special-pvp-p2 {
+            background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+        }
+
+        .square.special-pvp-p2::before {
+            content: '★';
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(251, 192, 45, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(251, 192, 45, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(251, 192, 45, 0); }
+        }
+
+        @keyframes pulse-jump {
+            0% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 152, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0); }
+        }
+
+        .piece {
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            user-select: none;
+            -webkit-user-select: none;
+            font-size: 18px;
+        }
+
+        .piece:hover {
+            transform: scale(1.1);
+        }
+
+        .piece.player {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+        }
+
+        .piece.ai {
+            background: linear-gradient(135deg, #4ecdc4, #44a3a0);
+        }
+
+        .piece.pvp-p2 {
+            background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+        }
+
+        .piece.king {
+            font-size: 16px;
+        }
+
+        .status-panel {
+            text-align: center;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            min-height: 60px;
+        }
+
+        .status-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .current-player-indicator {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+
+        .current-player-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .current-player-name.player1 {
+            color: #ff6b6b;
+        }
+
+        .current-player-name.player2 {
+            color: #9c27b0;
+        }
+
+        .status-text.waiting {
+            color: #ff9800;
+        }
+
+        .status-text.jumping {
+            color: #f44336;
+        }
+
+        .status-text.thinking {
+            color: #2196f3;
+        }
+
+        .status-text.winner {
+            color: #4caf50;
+            font-size: 24px;
+            animation: bounce 0.6s infinite;
+        }
+
+        .status-text.loser {
+            color: #f44336;
+            font-size: 24px;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .btn-reset {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-reset:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-end-jump {
+            background: #ff9800;
+            color: white;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .btn-end-jump:hover {
+            background: #f57c00;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+        }
+
+        .btn-end-jump:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-menu {
+            background: #666;
+            color: white;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .btn-menu:hover {
+            background: #555;
+            transform: translateY(-2px);
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .legend-item {
+            display: flex;
+            alignItems: center;
+            gap: 5px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid;
+        }
+
+        .legend-color.move {
+            background: #fff59d;
+            border-color: #fbc02d;
+        }
+
+        .legend-color.jump {
+            background: #ffb74d;
+            border-color: #ff9800;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-content h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-content p {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .modal-content .share-link {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #333;
+            margin: 15px 0;
+            word-break: break-all;
+            border: 1px solid #ddd;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .modal-buttons .btn-copy {
+            background: #667eea;
+            color: white;
+        }
+
+        .modal-buttons .btn-copy:hover {
+            background: #5568d3;
+        }
+
+        .modal-buttons .btn-close {
+            background: #ccc;
+            color: #333;
+        }
+
+        .modal-buttons .btn-close:hover {
+            background: #bbb;
+        }
+
+        .board-info {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        /* 星星粒子特效 */
+        .star-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background-color: gold;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-10px) rotate(180deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(0) rotate(360deg);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- 開始介面 -->
+        <div class="start-screen" id="startScreen">
+            <h1>♟️ 跳棋遊戲</h1>
+            <p>選擇遊戲模式開始</p>
+            <div class="mode-buttons">
+                <button class="mode-btn ai" onclick="selectMode('ai')">
+                    <span class="mode-btn-icon">🤖</span>和AI對戰
+                </button>
+                <button class="mode-btn pvp" onclick="selectMode('pvp')">
+                    <span class="mode-btn-icon">👥</span>本地主機對戰
+                </button>
+                <button class="mode-btn online" onclick="selectMode('online')">
+                    <span class="mode-btn-icon">🌐</span>線上玩家對戰
+                </button>
+                <button class="mode-btn rules" onclick="showRulesScreen()">
+                    <span class="mode-btn-icon">📖</span>遊戲玩法規則
+                </button>
+            </div>
+        </div>
+
+        <!-- 房間設定介面 -->
+        <div class="room-setup-screen" id="roomSetupScreen">
+            <h2 id="roomSetupTitle">房間設定</h2>
+            <div class="room-setup-group">
+                <div class="room-setup-item">
+                    <label for="setupPlayerName1">玩家1名稱</label>
+                    <input type="text" id="setupPlayerName1" placeholder="輸入您的名稱" maxlength="20">
+                </div>
+                <div class="room-setup-item" id="setupPlayerName2Item" style="display: none;">
+                    <label for="setupPlayerName2">玩家2名稱</label>
+                    <input type="text" id="setupPlayerName2" placeholder="輸入玩家2的名稱" maxlength="20">
+                </div>
+                <div class="room-setup-item">
+                    <label>遊戲模式</label>
+                    <div class="game-mode-selection">
+                        <div class="game-mode-option selected" data-mode="standard" onclick="selectGameMode('standard', this)">
+                            📐 9×9 標準
+                        </div>
+                        <div class="game-mode-option" data-mode="special" onclick="selectGameMode('special', this)">
+                            ✨ 特殊戰
+                        </div>
+                    </div>
+                </div>
+                <div class="timer-toggle" id="setupTimerToggle" style="display: none;">
+                    <label for="setupEnableTimer">啟用時間限制</label>
+                    <label class="checkbox">
+                        <input type="checkbox" id="setupEnableTimer" checked>
+                        <span class="checkbox-checkmark"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="room-setup-buttons">
+                <button class="btn-start" onclick="confirmRoomSetup()">開始遊戲</button>
+                <button class="btn-back" onclick="backToStart()">返回</button>
+            </div>
+        </div>
+
+        <!-- 規則介面 -->
+        <div class="rules-screen" id="rulesScreen">
+            <h2>遊戲玩法規則</h2>
+            <div class="rules-content">
+                <h3>🎮 基本介紹</h3>
+                <ul>
+                    <li>這是一款策略遊戲，分為兩種棋盤模式</li>
+                    <li>🔴 紅色棋子是玩家1（頂部）</li>
+                    <li>🔵 青色/紫色棋子是玩家2/AI（底部）</li>
+                    <li>每一方都有13枚棋子</li>
+                </ul>
+
+                <h3>⚙️ 遊戲模式</h3>
+                <ul>
+                    <li><strong>9×9 標準跳棋</strong>：傳統9×9棋盤</li>
+                    <li><strong>特殊戰</strong>：隨機棋盤大小（10-15之間），每局不同</li>
+                </ul>
+
+                <h3>🎯 基本規則</h3>
+                <ul>
+                    <li><strong>棋子移動</strong>：棋子可向8個方向移動一步到相鄰的空位（黃色高亮）</li>
+                    <li><strong>跳躍規則</strong>：跳過相鄰的棋子著陸在其後方的空位（橙色高亮）</li>
+                    <li><strong>連續跳躍</strong>：進行第一次跳躍後，可以選擇繼續跳躍或結束</li>
+                    <li><strong>消滅敵棋</strong>：跳過敵方棋子時會摧毀該棋子</li>
+                </ul>
+
+                <h3>⭐ 勝利條件</h3>
+                <ul>
+                    <li>將棋子移動到敵方後排最中心的特殊格子★</li>
+                    <li>摧毀對方全部棋子</li>
+                </ul>
+
+                <h3>💡 遊戲技巧</h3>
+                <ul>
+                    <li>優先考慮跳躍消滅敵方棋子</li>
+                    <li>保護己方棋子免被跳躍消滅</li>
+                    <li>向敵方陣營推進以爭取到達特殊格子</li>
+                    <li>連續跳躍時需要規劃路徑以最大化消滅敵棋</li>
+                </ul>
+            </div>
+            <div class="rules-buttons">
+                <button class="btn-back-rules" onclick="backToStart()">返回菜單</button>
+            </div>
+        </div>
+
+        <!-- 線上模式等待介面 -->
+        <div class="online-wait-screen" id="onlineWaitScreen">
+            <h2>等待對手加入</h2>
+            <div class="room-info">
+                <div class="room-info-item">
+                    <span class="room-info-label">房間ID：</span>
+                    <span class="room-id" id="roomId" onclick="copyRoomId()">加載中...</span>
+                </div>
+                <div class="copy-hint">點擊房間ID可複製分享連結</div>
+                <div class="room-info-item" style="margin-top: 15px;">
+                    <span class="room-info-label">你的名稱：</span>
+                    <span id="onlinePlayerName">-</span>
+                </div>
+            </div>
+            <div class="player-list">
+                <h3>玩家列表</h3>
+                <div class="player-item">
+                    <div class="player-status online"></div>
+                    <div>
+                        <div class="player-name" id="onlineP1Name">加載中...</div>
+                        <div class="player-id" id="onlineP1Id">玩家1</div>
+                    </div>
+                </div>
+                <div class="player-item p2" id="onlineP2Item" style="opacity: 0.5;">
+                    <div class="player-status"></div>
+                    <div>
+                        <div class="player-name">等待中...</div>
+                        <div class="player-id">玩家2</div>
+                    </div>
+                </div>
+            </div>
+            <div class="waiting-spinner">
+                <div class="spinner-dot"></div>
+                <div class="spinner-dot"></div>
+                <div class="spinner-dot"></div>
+            </div>
+            <div class="waiting-text" id="waitingText">等待玩家2加入...</div>
+            <div class="online-buttons">
+                <button class="btn-share" onclick="shareRoom()">📋 複製分享連結</button>
+                <button class="btn-leave" onclick="leaveRoom()">返回菜單</button>
+            </div>
+        </div>
+
+        <!-- 遊戲介面 -->
+        <div class="game-screen" id="gameScreen">
+            <h1 id="gameTitle">♟️ 跳棋遊戲</h1>
+
+            <div class="info-panel">
+                <div class="info-item player-name-info">
+                    <div class="player-name-display player1-info" id="displayName1">玩家1</div>
+                    <div class="info-label">棋子數</div>
+                    <div class="info-value player1-info" id="playerPieces">13</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">時間</div>
+                    <div class="timer-display" id="timerDisplay">8</div>
+                </div>
+                <div class="info-item player-name-info">
+                    <div class="player-name-display player2-info" id="displayName2">玩家2</div>
+                    <div class="info-label">棋子數</div>
+                    <div class="info-value player2-info" id="aiPieces">13</div>
+                </div>
+            </div>
+
+            <div class="status-panel">
+                <div class="status-text" id="statusText">你的回合 - 選擇棋子開始</div>
+                <div class="current-player-indicator" id="currentPlayerIndicator" style="display: none;">
+                    當前玩家：<span class="current-player-name player1" id="currentPlayerName">玩家1</span>
+                </div>
+                <div class="legend" id="legend" style="display: none;">
+                    <div class="legend-item">
+                        <div class="legend-color move"></div>
+                        <span>移動</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color jump"></div>
+                        <span>跳躍</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="board-container" id="boardContainer">
+                <div class="board" id="board"></div>
+            </div>
+            <div class="board-info" id="boardInfo"></div>
+
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetGame()">重新開始</button>
+                <button class="btn-menu" onclick="returnToMenu()">返回菜單</button>
+                <button class="btn-end-jump" id="endJumpBtn" onclick="endJumpSequence()" style="display: none;">結束跳躍並結束回合</button>
+            </div>
+
+            <div class="rules">
+                <h3>遊戲規則：</h3>
+                <ul>
+                    <li>🔴 紅色棋子是玩家1，其他顏色棋子是玩家2/AI</li>
+                    <li>⏱️ <strong>時間限制依遊戲模式而定</strong></li>
+                    <li>普通移動：棋子可以向8個方位移動一步到空位（黃色高亮）</li>
+                    <li>跳躍移動：跳過相鄰的另一枚棋子進行移動（橙色高亮）</li>
+                    <li>進行第一次跳躍後，會進入連續跳躍模式</li>
+                    <li>時間到或自行結束回合後，換對方回合</li>
+                    <li>跳過敵方棋子會摧毀該敵方棋子</li>
+                    <li>⭐ 將棋子移動到敵方後排最中心的特殊格子即可立刻獲勝</li>
+                    <li>或摧毀全部敵人棋子也可獲勝</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分享連結模態框 -->
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <h2>分享遊戲連結</h2>
+            <p>將以下連結分享給你的朋友，他們可以直接複製連結加入遊戲：</p>
+            <div class="share-link" id="shareLink">加載中...</div>
+            <p id="shareHint" style="font-size: 12px; color: #999;">複製連結後分享給朋友開啟即可</p>
+            <div class="modal-buttons">
+                <button class="btn-copy" onclick="copyShareLink()">📋 複製連結</button>
+                <button class="btn-close" onclick="closeShareModal()">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 音效 -->
+    <script>
+        // 創建音效上下文
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            try {
+                const now = audioContext.currentTime;
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+
+                switch(type) {
+                    case 'move':
+                        osc.frequency.value = 400;
+                        gain.gain.setValueAtTime(0.1, now);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                        osc.start(now);
+                        osc.stop(now + 0.1);
+                        break;
+                    case 'capture':
+                        osc.frequency.value = 600;
+                        gain.gain.setValueAtTime(0.15, now);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                        osc.start(now);
+                        osc.stop(now + 0.15);
+                        break;
+                    case 'jump':
+                        osc.frequency.value = 800;
+                        gain.gain.setValueAtTime(0.12, now);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+                        osc.start(now);
+                        osc.stop(now + 0.12);
+                        break;
+                    case 'win':
+                        osc.frequency.value = 1000;
+                        gain.gain.setValueAtTime(0.2, now);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                        osc.start(now);
+                        osc.stop(now + 0.5);
+                        break;
+                    case 'tick':
+                        osc.frequency.value = 1200;
+                        gain.gain.setValueAtTime(0.08, now);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                        osc.start(now);
+                        osc.stop(now + 0.08);
+                        break;
+                    case 'warning':
+                        osc.frequency.value = 1500;
+                        gain.gain.setValueAtTime(0.12, now);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                        osc.start(now);
+                        osc.stop(now + 0.15);
+                        break;
+                    case 'timeout':
+                        osc.frequency.value = 800;
+                        gain.gain.setValueAtTime(0.15, now);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                        osc.start(now);
+                        osc.stop(now + 0.3);
+                        break;
+                }
+            } catch(e) {
+                // 音效失敗，忽略
+            }
+        }
+    </script>
+
+    <script>
+        // 遊戲配置
+        const PLAYER1 = 1;
+        const PLAYER2 = 2;
+        const EMPTY = 0;
+        const PIECES_PER_PLAYER = 13;
+        const TURN_TIME_AI = 8;
+        const TURN_TIME_ONLINE = 8;
+        const TURN_TIME_PVP = 10;
+
+        // 遊戲狀態
+        let board = [];
+        let selectedPiece = null;
+        let validMoves = [];
+        let currentPlayer = PLAYER1;
+        let gameOver = false;
+        let gameWinner = null;
+        let isAIThinking = false;
+        let waitingForJump = false;
+        let inJumpSequence = false;
+        let currentJumpRow = -1;
+        let currentJumpCol = -1;
+        let capturedInSequence = [];
+        let visitedInJump = [];
+        
+        // 計時相關
+        let timeLeft = TURN_TIME_AI;
+        let timerInterval = null;
+        let enableTimer = true;
+        let currentTurnTime = TURN_TIME_AI;
+        
+        // 遊戲模式
+        let gameMode = 'ai'; // 'ai', 'pvp', 'online'
+        let boardMode = 'standard'; // 'standard', 'special'
+        let boardRowSize = 9; // 棋盤行數
+        let boardColSize = 9; // 棋盤列數
+        let playerName1 = '玩家1';
+        let playerName2 = '玩家2/AI';
+        
+        // 線上模式相關
+        let roomId = null;
+        let playerId = null;
+        let isHost = false; // 是否為房間主機
+        let players = {}; // 存儲玩家資訊
+        let gameStarted = false; // 遊戲是否開始
+
+        // 生成隨機ID
+        function generateId() {
+            return Math.random().toString(36).substr(2, 9);
+        }
+
+        // 生成房間ID
+        function generateRoomId() {
+            return Math.random().toString(36).substr(2, 6).toUpperCase();
+        }
+
+        // 生成隨機棋盤大小 (10-15之間)
+        function generateRandomBoardSize() {
+            const min = 10;
+            const max = 15;
+            const rows = Math.floor(Math.random() * (max - min + 1)) + min;
+            const cols = Math.floor(Math.random() * (max - min + 1)) + min;
+            return { rows, cols };
+        }
+
+        // 顯示/隱藏畫面
+        function showStartScreen() {
+            document.getElementById('startScreen').style.display = 'flex';
+            document.getElementById('roomSetupScreen').style.display = 'none';
+            document.getElementById('rulesScreen').style.display = 'none';
+            document.getElementById('onlineWaitScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'none';
+        }
+
+        function showRoomSetupScreen(mode) {
+            const title = {
+                'ai': '和AI對戰 - 房間設定',
+                'pvp': '本地主機對戰 - 房間設定',
+                'online': '線上玩家對戰 - 房間設定'
+            }[mode];
+            
+            document.getElementById('roomSetupTitle').textContent = title;
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('roomSetupScreen').style.display = 'flex';
+            document.getElementById('rulesScreen').style.display = 'none';
+            document.getElementById('onlineWaitScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'none';
+            
+            // 重置表單
+            document.getElementById('setupPlayerName1').value = '';
+            document.getElementById('setupPlayerName2').value = '';
+            document.getElementById('setupEnableTimer').checked = true;
+            boardMode = 'standard';
+            boardRowSize = 9;
+            boardColSize = 9;
+            updateGameModeSelection('standard');
+            
+            const p2Item = document.getElementById('setupPlayerName2Item');
+            const timerToggle = document.getElementById('setupTimerToggle');
+            if (mode === 'ai') {
+                p2Item.style.display = 'none';
+                timerToggle.style.display = 'none';
+            } else if (mode === 'pvp') {
+                p2Item.style.display = 'flex';
+                timerToggle.style.display = 'flex';
+            } else {
+                p2Item.style.display = 'none';
+                timerToggle.style.display = 'none';
+            }
+        }
+
+        function showRulesScreen() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('roomSetupScreen').style.display = 'none';
+            document.getElementById('rulesScreen').style.display = 'flex';
+            document.getElementById('onlineWaitScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'none';
+        }
+
+        function showOnlineWaitScreen() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('roomSetupScreen').style.display = 'none';
+            document.getElementById('rulesScreen').style.display = 'none';
+            document.getElementById('onlineWaitScreen').style.display = 'flex';
+            document.getElementById('gameScreen').style.display = 'none';
+        }
+
+        function showGameScreen() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('roomSetupScreen').style.display = 'none';
+            document.getElementById('rulesScreen').style.display = 'none';
+            document.getElementById('onlineWaitScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+        }
+
+        // 返回菜單
+        function backToStart() {
+            showStartScreen();
+        }
+
+        // 選擇遊戲模式
+        function selectMode(mode) {
+            gameMode = mode;
+            showRoomSetupScreen(mode);
+        }
+
+        // 更新遊戲模式選擇
+        function updateGameModeSelection(mode) {
+            document.querySelectorAll('.game-mode-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('selected');
+        }
+
+        // 選擇遊戲模式
+        function selectGameMode(mode, element) {
+            boardMode = mode;
+            if (mode === 'special') {
+                const size = generateRandomBoardSize();
+                boardRowSize = size.rows;
+                boardColSize = size.cols;
+            } else {
+                boardRowSize = 9;
+                boardColSize = 9;
+            }
+            updateGameModeSelection(mode);
+        }
+
+        // 確認房間設定
+        function confirmRoomSetup() {
+            const name1 = document.getElementById('setupPlayerName1').value.trim();
+            
+            if (!name1) {
+                alert('請輸入玩家1的名稱');
+                return;
+            }
+            
+            playerName1 = name1 || '玩家1';
+            
+            if (gameMode === 'ai') {
+                playerName2 = 'AI';
+                currentTurnTime = TURN_TIME_AI;
+                startGame();
+            } else if (gameMode === 'pvp') {
+                const name2 = document.getElementById('setupPlayerName2').value.trim();
+                if (!name2) {
+                    alert('請輸入玩家2的名稱');
+                    return;
+                }
+                playerName2 = name2 || '玩家2';
+                enableTimer = document.getElementById('setupEnableTimer').checked;
+                currentTurnTime = enableTimer ? TURN_TIME_PVP : 999999;
+                startGame();
+            } else if (gameMode === 'online') {
+                playerName2 = '等待對手';
+                playerId = generateId();
+                roomId = generateRoomId();
+                enableTimer = true;
+                currentTurnTime = TURN_TIME_ONLINE;
+                isHost = true; // 創建房間者為主機
+                players = {
+                    [playerId]: {
+                        id: playerId,
+                        name: playerName1,
+                        role: PLAYER1
+                    }
+                };
+                showOnlineWaitScreen();
+                setupOnlineGame();
+            }
+        }
+
+        // 設置線上遊戲
+        function setupOnlineGame() {
+            const p1Id = playerId.substr(0, 8);
+            document.getElementById('roomId').textContent = roomId;
+            document.getElementById('onlinePlayerName').textContent = playerName1;
+            document.getElementById('onlineP1Name').textContent = playerName1;
+            document.getElementById('onlineP1Id').textContent = `ID: ${p1Id}`;
+            
+            // 模擬等待對手加入
+            document.getElementById('waitingText').textContent = '等待玩家2加入...';
+            
+            // 檢查是否有對手加入的模擬邏輯
+            // 在實際應用中，這裡應該連接到WebSocket或其他實時通信方式
+            simulateOpponentJoin();
+        }
+
+        // 模擬對手加入
+        function simulateOpponentJoin() {
+            // 模擬對手加入房間
+            setTimeout(() => {
+                if (!gameStarted) {
+                    // 如果遊戲還沒開始，假設對手加入了
+                    const opponentId = generateId();
+                    players[opponentId] = {
+                        id: opponentId,
+                        name: '玩家2',
+                        role: PLAYER2
+                    };
+                    
+                    document.getElementById('onlineP2Item').style.opacity = '1';
+                    document.getElementById('onlineP2Item').querySelector('.player-status').classList.add('online');
+                    document.getElementById('onlineP2Item').querySelector('.player-name').textContent = '玩家2';
+                    document.getElementById('onlineP2Item').querySelector('.player-id').textContent = `ID: ${opponentId.substring(0, 8)}`;
+                    document.getElementById('waitingText').textContent = '玩家2已加入，點擊按鈕開始遊戲';
+                    
+                    // 添加開始遊戲按鈕
+                    const startBtn = document.createElement('button');
+                    startBtn.className = 'btn-share';
+                    startBtn.textContent = '▶️ 開始遊戲';
+                    startBtn.onclick = () => {
+                        playerName2 = '玩家2';
+                        gameStarted = true;
+                        startGame();
+                    };
+                    document.querySelector('.online-buttons').insertBefore(startBtn, document.querySelector('.btn-leave'));
+                }
+            }, 5000);
+        }
+
+        // 複製房間ID
+        function copyRoomId() {
+            const url = window.location.href.split('?')[0] + `?room=${roomId}&player=${playerId}`;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('連結已複製到剪貼板！');
+            }).catch(() => {
+                alert('複製失敗，請手動複製');
+            });
+        }
+
+        // 分享房間
+        function shareRoom() {
+            const url = window.location.href.split('?')[0] + `?room=${roomId}&player=${playerId}`;
+            document.getElementById('shareLink').textContent = url;
+            document.getElementById('shareModal').classList.add('show');
+        }
+
+        // 複製分享連結
+        function copyShareLink() {
+            const url = document.getElementById('shareLink').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('連結已複製到剪貼板！');
+            }).catch(() => {
+                alert('複製失敗，請手動複製');
+            });
+        }
+
+        // 關閉分享模態框
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.remove('show');
+        }
+
+        // 離開房間
+        function leaveRoom() {
+            roomId = null;
+            playerId = null;
+            isHost = false;
+            players = {};
+            gameStarted = false;
+            showStartScreen();
+        }
+
+        // 開始遊戲
+        function startGame() {
+            showGameScreen();
+            
+            // 更新標題
+            if (gameMode === 'online') {
+                document.getElementById('gameTitle').textContent = '♟️ 跳棋遊戲 - 線上對戰';
+            } else if (gameMode === 'pvp') {
+                document.getElementById('gameTitle').textContent = '♟️ 跳棋遊戲 - 本地主機對戰';
+            } else {
+                document.getElementById('gameTitle').textContent = '♟️ 跳棋遊戲 - 對戰AI';
+            }
+            
+            // 更新玩家名稱顯示
+            document.getElementById('displayName1').textContent = playerName1;
+            document.getElementById('displayName2').textContent = playerName2;
+            
+            // 本地主機對戰顯示當前玩家指示器
+            const indicator = document.getElementById('currentPlayerIndicator');
+            if (gameMode === 'pvp') {
+                indicator.style.display = 'block';
+            } else {
+                indicator.style.display = 'none';
+            }
+            
+            initGame();
+        }
+
+        // 初始化遊戲
+        function initGame() {
+            board = Array(boardRowSize).fill(null).map(() => Array(boardColSize).fill(EMPTY));
+            
+            // 根據遊戲模式初始化棋子
+            if (boardMode === 'special') {
+                // 特殊戰模式：生成鏡像分布的棋子
+                placePiecesMirrorStyle();
+            } else {
+                // 標準模式：放置玩家1棋子（頂部 3 行）
+                let p1Count = 0;
+                for (let row = 0; row < 3 && p1Count < PIECES_PER_PLAYER; row++) {
+                    for (let col = 0; col < boardColSize && p1Count < PIECES_PER_PLAYER; col++) {
+                        if ((row + col) % 2 === 1) {
+                            board[row][col] = PLAYER1;
+                            p1Count++;
+                        }
+                    }
+                }
+
+                // 放置玩家2/AI棋子（底部 3 行）
+                let p2Count = 0;
+                for (let row = boardRowSize - 3; row < boardRowSize && p2Count < PIECES_PER_PLAYER; row++) {
+                    for (let col = 0; col < boardColSize && p2Count < PIECES_PER_PLAYER; col++) {
+                        if ((row + col) % 2 === 1) {
+                            board[row][col] = PLAYER2;
+                            p2Count++;
+                        }
+                    }
+                }
+            }
+
+            selectedPiece = null;
+            validMoves = [];
+            currentPlayer = PLAYER1;
+            gameOver = false;
+            gameWinner = null;
+            isAIThinking = false;
+            waitingForJump = false;
+            inJumpSequence = false;
+            currentJumpRow = -1;
+            currentJumpCol = -1;
+            capturedInSequence = [];
+            visitedInJump = [];
+            document.getElementById('endJumpBtn').style.display = 'none';
+            document.getElementById('legend').style.display = 'none';
+            
+            // 開始計時
+            startTurnTimer();
+            updateCurrentPlayerDisplay();
+            render();
+            
+            // FIX: 確保初始狀態正確顯示
+            if (gameMode === 'ai') {
+                updateStatus('你的回合 - 選擇棋子開始', 'waiting');
+            } else if (gameMode === 'pvp') {
+                updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
+            } else if (gameMode === 'online') {
+                updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
+            }
+        }
+
+        // 在特殊戰模式下放置鏡像分布的棋子
+        function placePiecesMirrorStyle() {
+            // 確定己方和對方的後三排
+            const player1BackRows = [0, 1, 2]; // 己方後三排（靠近己方的前三排）
+            const player2BackRows = [boardRowSize - 3, boardRowSize - 2, boardRowSize - 1]; // 對方後三排
+            
+            // 在己方後三排隨機生成棋子位置
+            const player1Positions = generateRandomPositionsInArea(PIECES_PER_PLAYER, player1BackRows, boardColSize);
+            
+            // 根據己方的位置生成上下鏡像的對方位置
+            const player2Positions = player1Positions.map(pos => ({
+                row: boardRowSize - 1 - pos.row,
+                col: pos.col  // 只做上下鏡像，不左右鏡像
+            }));
+            
+            // 放置己方棋子（玩家1）
+            for (const pos of player1Positions) {
+                board[pos.row][pos.col] = PLAYER1;
+            }
+            
+            // 放置對方棋子（玩家2/AI）
+            for (const pos of player2Positions) {
+                board[pos.row][pos.col] = PLAYER2;
+            }
+        }
+
+        // 在指定區域內生成隨機位置（確保不會重複）
+        function generateRandomPositionsInArea(count, rows, cols) {
+            const positions = [];
+            const occupied = new Set();
+            
+            // 建立可用位置列表
+            const availablePositions = [];
+            for (const row of rows) {
+                for (let col = 0; col < cols; col++) {
+                    // 只有在棋盤格子為奇數位置時才放置棋子（類似於標準跳棋的規則）
+                    if ((row + col) % 2 === 1) {
+                        availablePositions.push({ row, col });
+                    }
+                }
+            }
+            
+            // 隨機選取位置
+            while (positions.length < count && availablePositions.length > 0) {
+                const randomIndex = Math.floor(Math.random() * availablePositions.length);
+                const pos = availablePositions[randomIndex];
+                
+                if (!occupied.has(`${pos.row},${pos.col}`)) {
+                    positions.push(pos);
+                    occupied.add(`${pos.row},${pos.col}`);
+                }
+                
+                // 移除已選取的位置
+                availablePositions.splice(randomIndex, 1);
+            }
+            
+            return positions;
+        }
+
+        // 更新當前玩家顯示
+        function updateCurrentPlayerDisplay() {
+            if (gameMode === 'pvp' || gameMode === 'online') {
+                const indicator = document.getElementById('currentPlayerIndicator');
+                const nameElement = document.getElementById('currentPlayerName');
+                if (currentPlayer === PLAYER1) {
+                    nameElement.textContent = playerName1;
+                    nameElement.className = 'current-player-name player1';
+                } else {
+                    nameElement.textContent = playerName2;
+                    nameElement.className = 'current-player-name player2';
+                }
+                indicator.style.display = 'block';
+            }
+        }
+
+        // 開始回合計時
+        function startTurnTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+
+            timeLeft = currentTurnTime;
+            updateTimerDisplay();
+
+            if (!enableTimer) {
+                return;
+            }
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                playSound('tick');
+                updateTimerDisplay();
+
+                if (timeLeft <= 3 && timeLeft > 0) {
+                    playSound('warning');
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    playSound('timeout');
+                    forceEndTurn();
+                }
+            }, 1000);
+        }
+
+        // 更新計時器顯示
+        function updateTimerDisplay() {
+            const timerDisplay = document.getElementById('timerDisplay');
+            const boardContainer = document.getElementById('boardContainer');
+            
+            if (!enableTimer) {
+                timerDisplay.className = 'timer-display disabled';
+                timerDisplay.textContent = '∞';
+                boardContainer.classList.remove('critical-time');
+                return;
+            }
+
+            timerDisplay.textContent = timeLeft;
+
+            if (timeLeft <= 3 && timeLeft > 0) {
+                timerDisplay.className = 'timer-display critical';
+                boardContainer.classList.add('critical-time');
+            } else if (timeLeft <= 5) {
+                timerDisplay.className = 'timer-display warning';
+                boardContainer.classList.remove('critical-time');
+            } else {
+                timerDisplay.className = 'timer-display';
+                boardContainer.classList.remove('critical-time');
+            }
+        }
+
+        // 強制結束回合
+        function forceEndTurn() {
+            if (gameOver || !enableTimer) return;
+            endPlayerTurn();
+        }
+
+        // 結束當前玩家回合 - FIX：修復顯示問題
+        function endPlayerTurn() {
+            inJumpSequence = false;
+            currentJumpRow = -1;
+            currentJumpCol = -1;
+            capturedInSequence = [];
+            visitedInJump = [];
+            selectedPiece = null;
+            validMoves = [];
+            document.getElementById('endJumpBtn').style.display = 'none';
+            document.getElementById('legend').style.display = 'none';
+
+            const winner = checkWin();
+            if (winner) {
+                gameOver = true;
+                gameWinner = winner;
+                if (winner === PLAYER1) {
+                    updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
+                } else {
+                    updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
+                }
+                playSound('win');
+                if (enableTimer) {
+                    clearInterval(timerInterval);
+                }
+                render();
+                return;
+            }
+
+            // 切換玩家
+            currentPlayer = (currentPlayer === PLAYER1) ? PLAYER2 : PLAYER1;
+            updateCurrentPlayerDisplay();
+            startTurnTimer();
+            
+            // FIX：在切換玩家前先清空狀態，然後重新渲染
+            render();
+            
+            if (gameMode === 'ai' && currentPlayer === PLAYER2) {
+                updateStatus('AI 正在思考...', 'thinking');
+                setTimeout(() => makeAIMove(), 500);
+            } else if (gameMode === 'pvp') {
+                const currentPlayerName = (currentPlayer === PLAYER1) ? playerName1 : playerName2;
+                updateStatus(`${currentPlayerName}的回合 - 選擇棋子開始`, 'waiting');
+            } else if (gameMode === 'online') {
+                const currentPlayerName = (currentPlayer === PLAYER1) ? playerName1 : playerName2;
+                if (currentPlayer === PLAYER1) {
+                    updateStatus(`${currentPlayerName}的回合 - 選擇棋子開始`, 'waiting');
+                } else {
+                    updateStatus(`等待${currentPlayerName}行動...`, 'thinking');
+                }
+            }
+        }
+
+        // 獲取普通移動
+        function getNormalMoves(row, col) {
+            const moves = [];
+            const piece = getBoardCell(row, col);
+
+            if (piece === EMPTY) return moves;
+
+            const directions = [
+                [-1, -1], [-1, 0], [-1, 1],
+                [0, -1],           [0, 1],
+                [1, -1],  [1, 0],  [1, 1]
+            ];
+
+            for (const [dRow, dCol] of directions) {
+                const newRow = row + dRow;
+                const newCol = col + dCol;
+
+                if (isInBoundsCell(newRow, newCol) && getBoardCell(newRow, newCol) === EMPTY) {
+                    moves.push({
+                        row: newRow,
+                        col: newCol,
+                        isCapture: false,
+                        capturedPieces: [],
+                        type: 'normal',
+                        moveType: 'move'
+                    });
+                }
+            }
+
+            return moves;
+        }
+
+        // 獲取跳躍移動
+        function getJumpMoves(row, col, capturedList = [], visitedList = []) {
+            const moves = [];
+            const piece = getBoardCell(row, col);
+
+            if (piece === EMPTY) return moves;
+
+            const directions = [
+                [-1, -1], [-1, 0], [-1, 1],
+                [0, -1],           [0, 1],
+                [1, -1],  [1, 0],  [1, 1]
+            ];
+
+            for (const [dRow, dCol] of directions) {
+                const jumpRow = row + dRow;
+                const jumpCol = col + dCol;
+                const landRow = row + dRow * 2;
+                const landCol = col + dCol * 2;
+
+                if (isInBoundsCell(jumpRow, jumpCol) && getBoardCell(jumpRow, jumpCol) !== EMPTY) {
+                    const jumpedPiece = getBoardCell(jumpRow, jumpCol);
+                    const isEnemyPiece = jumpedPiece !== piece;
+
+                    const alreadyJumped = capturedList.some(cp => cp.row === jumpRow && cp.col === jumpCol);
+                    if (alreadyJumped) continue;
+
+                    if (isInBoundsCell(landRow, landCol) && getBoardCell(landRow, landCol) === EMPTY) {
+                        const alreadyVisited = visitedList.some(v => v.row === landRow && v.col === landCol);
+                        if (alreadyVisited) continue;
+
+                        const newCaptured = [...capturedList];
+                        if (isEnemyPiece) {
+                            newCaptured.push({row: jumpRow, col: jumpCol});
+                        }
+
+                        const newVisited = [...visitedList, {row, col}, {row: landRow, col: landCol}, {row: jumpRow, col: jumpCol}];
+
+                        moves.push({
+                            row: landRow,
+                            col: landCol,
+                            isCapture: true,
+                            capturedPieces: newCaptured,
+                            type: 'jump',
+                            visitedInJump: newVisited,
+                            moveType: 'jump'
+                        });
+                    }
+                }
+            }
+
+            return moves;
+        }
+
+        // 獲取棋盤格子
+        function getBoardCell(row, col) {
+            if (row >= 0 && row < boardRowSize && col >= 0 && col < boardColSize) {
+                return board[row][col];
+            }
+            return undefined;
+        }
+
+        // 設置棋盤格子
+        function setBoardCell(row, col, value) {
+            if (row >= 0 && row < boardRowSize && col >= 0 && col < boardColSize) {
+                board[row][col] = value;
+            }
+        }
+
+        // 檢查位置是否在棋盤內
+        function isInBoundsCell(row, col) {
+            return row >= 0 && row < boardRowSize && col >= 0 && col < boardColSize;
+        }
+
+        // 移動棋子
+        function movePiece(fromRow, fromCol, toRow, toCol, move) {
+            const piece = getBoardCell(fromRow, fromCol);
+            setBoardCell(toRow, toCol, piece);
+            setBoardCell(fromRow, fromCol, EMPTY);
+
+            for (const captured of move.capturedPieces) {
+                setBoardCell(captured.row, captured.col, EMPTY);
+                playSound('capture');
+            }
+
+            if (move.isCapture) {
+                playSound('jump');
+            } else {
+                playSound('move');
+            }
+        }
+
+        // 檢查是否獲勝
+        function checkWin() {
+            const centerCol = Math.floor(boardColSize / 2);
+            
+            // 檢查特殊格子
+            if (getBoardCell(boardRowSize - 1, centerCol) === PLAYER1) {
+                return PLAYER1;
+            }
+            if (getBoardCell(0, centerCol) === PLAYER2) {
+                return PLAYER2;
+            }
+
+            // 檢查棋子數量
+            const player1Pieces = countPieces(PLAYER1);
+            const player2Pieces = countPieces(PLAYER2);
+
+            if (player1Pieces === 0) {
+                return PLAYER2;
+            }
+            if (player2Pieces === 0) {
+                return PLAYER1;
+            }
+
+            return null;
+        }
+
+        // 計算棋子數量
+        function countPieces(player) {
+            let count = 0;
+            for (let row = 0; row < boardRowSize; row++) {
+                for (let col = 0; col < boardColSize; col++) {
+                    if (board[row][col] === player) count++;
+                }
+            }
+            return count;
+        }
+
+        // 獲取所有可能的移動
+        function getAllPossibleMoves(player) {
+            const moves = [];
+
+            // 收集所有跳躍移動
+            for (let row = 0; row < boardRowSize; row++) {
+                for (let col = 0; col < boardColSize; col++) {
+                    if (getBoardCell(row, col) === player) {
+                        const jumpMoves = getJumpMoves(row, col, [], []);
+                        if (jumpMoves.length > 0) {
+                            for (const move of jumpMoves) {
+                                moves.push({
+                                    fromRow: row,
+                                    fromCol: col,
+                                    toRow: move.row,
+                                    toCol: move.col,
+                                    move: move,
+                                    type: 'jump'
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (moves.length > 0) {
+                return moves;
+            }
+
+            // 收集所有普通移動
+            for (let row = 0; row < boardRowSize; row++) {
+                for (let col = 0; col < boardColSize; col++) {
+                    if (getBoardCell(row, col) === player) {
+                        const normalMoves = getNormalMoves(row, col);
+                        for (const move of normalMoves) {
+                            moves.push({
+                                fromRow: row,
+                                fromCol: col,
+                                toRow: move.row,
+                                toCol: move.col,
+                                move: move,
+                                type: 'normal'
+                            });
+                        }
+                    }
+                }
+            }
+
+            return moves;
+        }
+
+        // 評估移動
+        function evaluateMove(moveInfo, player) {
+            let score = 0;
+
+            if (moveInfo.move.capturedPieces.length > 0) {
+                score += moveInfo.move.capturedPieces.length * 100;
+            }
+
+            const centerCol = Math.floor(boardColSize / 2);
+            if ((player === PLAYER2 && moveInfo.toRow === 0 && moveInfo.toCol === centerCol) || 
+                (player === PLAYER1 && moveInfo.toRow === boardRowSize - 1 && moveInfo.toCol === centerCol)) {
+                score += 1000;
+            }
+
+            if (player === PLAYER2) {
+                score += (boardRowSize - 1 - moveInfo.toRow) * 10;
+            } else {
+                score += moveInfo.toRow * 10;
+            }
+
+            return score + Math.random() * 10;
+        }
+
+        // AI移動
+        async function makeAIMove() {
+            if (isAIThinking || gameOver || currentPlayer !== PLAYER2 || gameMode !== 'ai') return;
+            isAIThinking = true;
+
+            const allMoves = getAllPossibleMoves(PLAYER2);
+
+            if (allMoves.length === 0) {
+                gameOver = true;
+                gameWinner = PLAYER1;
+                updateStatus(`${playerName1}獲勝了！AI 無法移動`, 'winner');
+                playSound('win');
+                if (enableTimer) {
+                    clearInterval(timerInterval);
+                }
+                isAIThinking = false;
+                render();
+                return;
+            }
+
+            let bestMove = allMoves[0];
+            let bestScore = evaluateMove(bestMove, PLAYER2);
+
+            for (const move of allMoves) {
+                const score = evaluateMove(move, PLAYER2);
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = move;
+                }
+            }
+
+            await performAIMove(bestMove);
+
+            isAIThinking = false;
+        }
+
+        // 執行AI移動
+        async function performAIMove(moveInfo) {
+            movePiece(moveInfo.fromRow, moveInfo.fromCol, moveInfo.toRow, moveInfo.toCol, moveInfo.move);
+            let finalRow = moveInfo.toRow;
+            let finalCol = moveInfo.toCol;
+            let capturedPieces = [...moveInfo.move.capturedPieces];
+            let visitedPositions = moveInfo.move.visitedInJump || [];
+
+            // 檢查勝利條件
+            if (checkWinCondition(finalRow, finalCol)) {
+                gameOver = true;
+                gameWinner = PLAYER2;
+                updateStatus('AI 獲勝了！', 'winner');
+                playSound('win');
+                if (enableTimer) {
+                    clearInterval(timerInterval);
+                }
+                render();
+                return;
+            }
+
+            if (!moveInfo.move.isCapture) {
+                render();
+
+                const winner = checkWin();
+                if (winner) {
+                    gameOver = true;
+                    gameWinner = winner;
+                    if (winner === PLAYER1) {
+                        updateStatus(`${playerName1}獲勝了！`, 'winner');
+                    } else {
+                        updateStatus('AI 獲勝了！', 'winner');
+                    }
+                    playSound('win');
+                    if (enableTimer) {
+                        clearInterval(timerInterval);
+                    }
+                } else {
+                    endPlayerTurn();
+                }
+                return;
+            }
+
+            let shouldContinue = true;
+            while (shouldContinue && !gameOver) {
+                await new Promise(resolve => setTimeout(resolve, 300));
+                render();
+
+                const furtherMoves = getJumpMoves(finalRow, finalCol, capturedPieces, visitedPositions);
+
+                if (furtherMoves.length > 0) {
+                    let bestJump = furtherMoves[0];
+                    let bestScore = evaluateMove({
+                        fromRow: finalRow,
+                        fromCol: finalCol,
+                        toRow: bestJump.row,
+                        toCol: bestJump.col,
+                        move: bestJump
+                    }, PLAYER2);
+
+                    for (const jump of furtherMoves) {
+                        const score = evaluateMove({
+                            fromRow: finalRow,
+                            fromCol: finalCol,
+                            toRow: jump.row,
+                            toCol: jump.col,
+                            move: jump
+                        }, PLAYER2);
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestJump = jump;
+                        }
+                    }
+
+                    movePiece(finalRow, finalCol, bestJump.row, bestJump.col, bestJump);
+                    capturedPieces.push(...bestJump.capturedPieces);
+                    visitedPositions = bestJump.visitedInJump || visitedPositions;
+                    finalRow = bestJump.row;
+                    finalCol = bestJump.col;
+
+                    if (checkWinCondition(finalRow, finalCol)) {
+                        gameOver = true;
+                        gameWinner = PLAYER2;
+                        updateStatus('AI 獲勝了！', 'winner');
+                        playSound('win');
+                        if (enableTimer) {
+                            clearInterval(timerInterval);
+                        }
+                        render();
+                        return;
+                    }
+
+                    shouldContinue = Math.random() > 0.3;
+                } else {
+                    shouldContinue = false;
+                }
+            }
+
+            render();
+
+            const winner = checkWin();
+            if (winner) {
+                gameOver = true;
+                gameWinner = winner;
+                if (winner === PLAYER1) {
+                    updateStatus(`${playerName1}獲勝了！`, 'winner');
+                } else {
+                    updateStatus('AI 獲勝了！', 'winner');
+                }
+                playSound('win');
+                if (enableTimer) {
+                    clearInterval(timerInterval);
+                }
+            } else {
+                endPlayerTurn();
+            }
+        }
+
+        // 檢查勝利條件
+        function checkWinCondition(row, col) {
+            const centerCol = Math.floor(boardColSize / 2);
+            return (getBoardCell(row, col) === PLAYER1 && row === boardRowSize - 1 && col === centerCol) ||
+                   (getBoardCell(row, col) === PLAYER2 && row === 0 && col === centerCol);
+        }
+
+        // 結束跳躍
+        function endJumpSequence() {
+            if (!inJumpSequence) return;
+
+            inJumpSequence = false;
+            currentJumpRow = -1;
+            currentJumpCol = -1;
+            capturedInSequence = [];
+            visitedInJump = [];
+            selectedPiece = null;
+            validMoves = [];
+            document.getElementById('endJumpBtn').style.display = 'none';
+            document.getElementById('legend').style.display = 'none';
+
+            endPlayerTurn();
+        }
+
+        // 處理點擊
+        async function handleSquareClick(row, col) {
+            if (gameOver || waitingForJump) return;
+            
+            if (isAIThinking) return;
+
+            // 在線上模式中，確保是當前玩家才能操作
+            if (gameMode === 'online' && currentPlayer !== PLAYER1) {
+                return; // 不是當前玩家的操作
+            }
+
+            if (selectedPiece) {
+                const move = validMoves.find(m => m.row === row && m.col === col);
+                if (move) {
+                    movePiece(selectedPiece.row, selectedPiece.col, row, col, move);
+                    let finalRow = row;
+                    let finalCol = col;
+
+                    if (checkWinCondition(finalRow, finalCol)) {
+                        gameOver = true;
+                        gameWinner = currentPlayer;
+                        if (currentPlayer === PLAYER1) {
+                            updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
+                        } else {
+                            updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
+                        }
+                        playSound('win');
+                        if (enableTimer) {
+                            clearInterval(timerInterval);
+                        }
+                        selectedPiece = null;
+                        validMoves = [];
+                        document.getElementById('endJumpBtn').style.display = 'none';
+                        document.getElementById('legend').style.display = 'none';
+                        render();
+                        return;
+                    }
+
+                    if (!move.isCapture) {
+                        selectedPiece = null;
+                        validMoves = [];
+                        inJumpSequence = false;
+                        currentJumpRow = -1;
+                        currentJumpCol = -1;
+                        capturedInSequence = [];
+                        visitedInJump = [];
+                        document.getElementById('endJumpBtn').style.display = 'none';
+                        document.getElementById('legend').style.display = 'none';
+
+                        const winner = checkWin();
+                        if (winner) {
+                            gameOver = true;
+                            gameWinner = winner;
+                            if (winner === PLAYER1) {
+                                updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
+                            } else {
+                                updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
+                            }
+                            playSound('win');
+                            if (enableTimer) {
+                                clearInterval(timerInterval);
+                            }
+                            render();
+                            return;
+                        }
+
+                        endPlayerTurn();
+                        return;
+                    }
+
+                    let capturedPieces = [...move.capturedPieces];
+                    let visitedPositions = move.visitedInJump || [];
+
+                    inJumpSequence = true;
+                    currentJumpRow = finalRow;
+                    currentJumpCol = finalCol;
+                    capturedInSequence = capturedPieces;
+                    visitedInJump = visitedPositions;
+
+                    let canContinueJump = true;
+
+                    while (canContinueJump) {
+                        const furtherMoves = getJumpMoves(finalRow, finalCol, capturedPieces, visitedPositions);
+
+                        if (furtherMoves.length > 0) {
+                            validMoves = furtherMoves;
+                            selectedPiece = { row: finalRow, col: finalCol };
+                            document.getElementById('endJumpBtn').style.display = 'inline-block';
+                            document.getElementById('legend').style.display = 'none';
+                            updateStatus('連續跳躍中 - 選擇下一個跳躍位置或點擊結束', 'jumping');
+                            render();
+
+                            const nextMove = await waitForPlayerJump(finalRow, finalCol, furtherMoves);
+                            if (nextMove) {
+                                movePiece(finalRow, finalCol, nextMove.row, nextMove.col, nextMove);
+                                capturedPieces.push(...nextMove.capturedPieces);
+                                visitedPositions = nextMove.visitedInJump || visitedPositions;
+                                finalRow = nextMove.row;
+                                finalCol = nextMove.col;
+
+                                currentJumpRow = finalRow;
+                                currentJumpCol = finalCol;
+                                capturedInSequence = capturedPieces;
+                                visitedInJump = visitedPositions;
+
+                                if (checkWinCondition(finalRow, finalCol)) {
+                                    gameOver = true;
+                                    gameWinner = currentPlayer;
+                                    if (currentPlayer === PLAYER1) {
+                                        updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
+                                    } else {
+                                        updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
+                                    }
+                                    playSound('win');
+                                    if (enableTimer) {
+                                        clearInterval(timerInterval);
+                                    }
+                                    selectedPiece = null;
+                                    validMoves = [];
+                                    document.getElementById('endJumpBtn').style.display = 'none';
+                                    document.getElementById('legend').style.display = 'none';
+                                    inJumpSequence = false;
+                                    render();
+                                    return;
+                                }
+                            } else {
+                                canContinueJump = false;
+                            }
+                        } else {
+                            canContinueJump = false;
+                        }
+                    }
+
+                    const winner = checkWin();
+                    if (winner) {
+                        gameOver = true;
+                        gameWinner = winner;
+                        if (winner === PLAYER1) {
+                            updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
+                        } else {
+                            updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
+                        }
+                        playSound('win');
+                        if (enableTimer) {
+                            clearInterval(timerInterval);
+                        }
+                        selectedPiece = null;
+                        validMoves = [];
+                        document.getElementById('endJumpBtn').style.display = 'none';
+                        document.getElementById('legend').style.display = 'none';
+                        inJumpSequence = false;
+                        render();
+                        return;
+                    }
+
+                    inJumpSequence = false;
+                    currentJumpRow = -1;
+                    currentJumpCol = -1;
+                    capturedInSequence = [];
+                    visitedInJump = [];
+                    selectedPiece = null;
+                    validMoves = [];
+                    document.getElementById('endJumpBtn').style.display = 'none';
+                    document.getElementById('legend').style.display = 'none';
+
+                    endPlayerTurn();
+                    return;
+                }
+            }
+
+            if (getBoardCell(row, col) === currentPlayer) {
+                selectedPiece = { row, col };
+
+                const normalMoves = getNormalMoves(row, col);
+                const jumpMoves = getJumpMoves(row, col, [], []);
+
+                if (inJumpSequence) {
+                    validMoves = getJumpMoves(row, col, capturedInSequence, visitedInJump);
+                    document.getElementById('legend').style.display = 'none';
+                } else {
+                    validMoves = [];
+                    
+                    for (const move of normalMoves) {
+                        validMoves.push({...move, moveType: 'move'});
+                    }
+                    
+                    for (const move of jumpMoves) {
+                        validMoves.push({...move, moveType: 'jump'});
+                    }
+
+                    if (normalMoves.length > 0 && jumpMoves.length > 0) {
+                        document.getElementById('legend').style.display = 'flex';
+                        updateStatus('選擇移動（黃色）或跳躍（橙色）', 'waiting');
+                    } else if (jumpMoves.length > 0) {
+                        document.getElementById('legend').style.display = 'none';
+                        updateStatus('選擇跳躍位置', 'waiting');
+                    } else if (normalMoves.length > 0) {
+                        document.getElementById('legend').style.display = 'none';
+                        updateStatus('選擇移動位置', 'waiting');
+                    } else {
+                        selectedPiece = null;
+                        validMoves = [];
+                        document.getElementById('legend').style.display = 'none';
+                        updateStatus('此棋子無法移動', 'waiting');
+                    }
+                }
+            } else {
+                selectedPiece = null;
+                validMoves = [];
+                document.getElementById('legend').style.display = 'none';
+            }
+
+            render();
+        }
+
+        // 等待玩家跳躍
+        function waitForPlayerJump(row, col, possibleJumps) {
+            return new Promise((resolve) => {
+                waitingForJump = true;
+
+                const handleJumpClick = (jumpRow, jumpCol) => {
+                    if (jumpRow === row && jumpCol === col) return;
+
+                    const move = possibleJumps.find(m => m.row === jumpRow && m.col === jumpCol);
+                    if (move) {
+                        waitingForJump = false;
+                        window.jumpClickHandler = null;
+                        resolve(move);
+                    }
+                };
+
+                window.jumpClickHandler = handleJumpClick;
+
+                setTimeout(() => {
+                    if (waitingForJump) {
+                        waitingForJump = false;
+                        window.jumpClickHandler = null;
+                        resolve(null);
+                    }
+                }, 8000);
+            });
+        }
+
+        // 更新狀態
+        function updateStatus(text, className = '') {
+            const statusText = document.getElementById('statusText');
+            statusText.textContent = text;
+            statusText.className = 'status-text ' + className;
+        }
+
+        // 渲染棋盤
+        function render() {
+            const boardElement = document.getElementById('board');
+            boardElement.innerHTML = '';
+
+            // 動態設置 grid-template-columns
+            boardElement.style.gridTemplateColumns = `repeat(${boardColSize}, 1fr)`;
+            
+            renderBoard(boardElement);
+
+            // 更新棋子計數
+            const player1Pieces = countPieces(PLAYER1);
+            const player2Pieces = countPieces(PLAYER2);
+            document.getElementById('playerPieces').textContent = player1Pieces;
+            document.getElementById('aiPieces').textContent = player2Pieces;
+
+            // 特殊戰不顯示棋盤大小信息
+            document.getElementById('boardInfo').textContent = '';
+        }
+
+        // 渲染棋盤
+        function renderBoard(boardElement) {
+            const centerCol = Math.floor(boardColSize / 2);
+
+            for (let row = 0; row < boardRowSize; row++) {
+                for (let col = 0; col < boardColSize; col++) {
+                    const square = createSquareElement(row, col);
+
+                    if (row === 0 && col === centerCol) {
+                        if (gameMode === 'pvp' || gameMode === 'online') {
+                            square.classList.add('square', 'special-tile', 'special-pvp-p2');
+                        } else {
+                            square.classList.add('square', 'special-tile', 'special-ai');
+                        }
+                        // 添加星星粒子特效
+                        createStarParticles(square, 20);
+                    } else if (row === boardRowSize - 1 && col === centerCol) {
+                        square.classList.add('square', 'special-tile', 'special-player');
+                        // 添加星星粒子特效
+                        createStarParticles(square, 20);
+                    } else {
+                        square.classList.add('square');
+                    }
+
+                    addSquareClickHandler(square, row, col);
+                    addValidMoveHighlight(square, row, col);
+                    addPieceDisplay(square, row, col);
+                    addSelectedHighlight(square, row, col);
+
+                    boardElement.appendChild(square);
+                }
+            }
+        }
+
+        // 創建星星粒子特效
+        function createStarParticles(container, count) {
+            // 清除現有的粒子
+            const existingParticles = container.querySelectorAll('.star-particle');
+            existingParticles.forEach(particle => particle.remove());
+            
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('star-particle');
+                
+                // 隨機位置
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                particle.style.left = `${x}%`;
+                particle.style.top = `${y}%`;
+                
+                // 隨機大小
+                const size = 2 + Math.random() * 3;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // 隨機透明度
+                particle.style.opacity = 0.6 + Math.random() * 0.4;
+                
+                // 隨機顏色
+                const colors = ['#FFD700', '#FFA500', '#FFFF00', '#F0E68C', '#FFFACD'];
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // 隨機動畫延遲
+                const delay = Math.random() * 3;
+                particle.style.animationDelay = `${delay}s`;
+                
+                container.appendChild(particle);
+            }
+        }
+
+        // 創建格子元素
+        function createSquareElement(row, col) {
+            const square = document.createElement('div');
+            square.className = 'square';
+            return square;
+        }
+
+        // 添加點擊處理器
+        function addSquareClickHandler(square, row, col) {
+            square.onclick = () => {
+                if (window.jumpClickHandler) {
+                    window.jumpClickHandler(row, col);
+                } else {
+                    handleSquareClick(row, col);
+                }
+            };
+        }
+
+        // 添加有效移動高亮
+        function addValidMoveHighlight(square, row, col) {
+            if (validMoves.length > 0) {
+                const moveAtPosition = validMoves.find(m => m.row === row && m.col === col);
+                if (moveAtPosition) {
+                    if (moveAtPosition.moveType === 'move') {
+                        square.classList.add('valid');
+                    } else if (moveAtPosition.moveType === 'jump') {
+                        square.classList.add('valid-jump');
+                    }
+                }
+            }
+        }
+
+        // 添加棋子顯示
+        function addPieceDisplay(square, row, col) {
+            const piece = getBoardCell(row, col);
+            if (piece === PLAYER1) {
+                const pieceDiv = document.createElement('div');
+                pieceDiv.className = 'piece player';
+                pieceDiv.textContent = '●';
+                square.appendChild(pieceDiv);
+            } else if (piece === PLAYER2) {
+                const pieceDiv = document.createElement('div');
+                pieceDiv.className = `piece ${(gameMode === 'pvp' || gameMode === 'online') ? 'pvp-p2' : 'ai'}`;
+                pieceDiv.textContent = '●';
+                square.appendChild(pieceDiv);
+            }
+        }
+
+        // 添加選中高亮
+        function addSelectedHighlight(square, row, col) {
+            if (selectedPiece && selectedPiece.row === row && selectedPiece.col === col) {
+                square.classList.add('selected');
+            }
+        }
+
+        // 重置遊戲
+        function resetGame() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            isAIThinking = false;
+            waitingForJump = false;
+            window.jumpClickHandler = null;
+            initGame();
+            if (gameMode === 'ai') {
+                updateStatus('你的回合 - 選擇棋子開始', 'waiting');
+            } else if (gameMode === 'pvp') {
+                updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
+            } else if (gameMode === 'online') {
+                updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
+            }
+        }
+
+        // 返回菜單
+        function returnToMenu() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            isAIThinking = false;
+            waitingForJump = false;
+            window.jumpClickHandler = null;
+            showStartScreen();
+        }
+
+        // 初始化
+        showStartScreen();
+    </script>
+</body>
+</html>
