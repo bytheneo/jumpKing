@@ -1323,14 +1323,14 @@
             <div class="player-list">
                 <h3>玩家列表</h3>
                 <div class="player-item">
-                    <div class="player-status online"></div>
+                    <div class="player-status online" id="p1Status"></div>
                     <div>
                         <div class="player-name" id="onlineP1Name">加載中...</div>
                         <div class="player-id" id="onlineP1Id">玩家1</div>
                     </div>
                 </div>
                 <div class="player-item p2" id="onlineP2Item" style="opacity: 0.5;">
-                    <div class="player-status"></div>
+                    <div class="player-status" id="p2Status"></div>
                     <div>
                         <div class="player-name" id="onlineP2Name">等待中...</div>
                         <div class="player-id" id="onlineP2Id">玩家2</div>
@@ -1579,6 +1579,7 @@
         let players = {}; // 存儲玩家資訊
         let gameStarted = false; // 遊戲是否開始
         let ws = null; // WebSocket連接
+        let connectionState = 'disconnected'; // 'disconnected', 'connecting', 'connected'
 
         // 追蹤已處理的被摧毀棋子，防止重複觸發特效
         let processedCaptures = new Set();
@@ -1663,6 +1664,7 @@
             document.getElementById('joinRoomScreen').style.display = 'none';
             document.getElementById('rulesScreen').style.display = 'none';
             document.getElementById('onlineWaitScreen').style.display = 'flex';
+            document.getElementById('gameScreen').style.display = 'none';
         }
 
         function showGameScreen() {
@@ -1679,6 +1681,7 @@
             if (ws) {
                 ws.close();
             }
+            connectionState = 'disconnected';
             showStartScreen();
         }
 
@@ -1806,56 +1809,75 @@
                 document.getElementById('waitingText').textContent = '正在加入房間...';
             }
             
-            // 嘗試連接到WebSocket服務器
+            // 連接到WebSocket服務器
             connectToServer();
         }
 
         // 連接到WebSocket服務器
         function connectToServer() {
-            // 模擬WebSocket連接和服務器邏輯
-            ws = {
-                connected: true,
-                send: function(data) {
-                    console.log("發送數據:", data);
-                    // 模擬服務器處理
-                    setTimeout(() => {
-                        handleServerMessage(JSON.parse(data));
-                    }, 100);
-                },
-                close: function() {
-                    console.log("WebSocket連接已關閉");
-                    this.connected = false;
-                }
-            };
+            // 使用本地WebSocket服務器進行測試
+            const serverUrl = 'ws://localhost:8080';
+            connectionState = 'connecting';
             
-            if (isHost) {
-                // 主機創建房間
-                ws.send(JSON.stringify({
-                    type: 'create_room',
-                    roomId: roomId,
-                    playerId: playerId,
-                    playerName: playerName1
-                }));
-            } else {
-                // 加入者加入房間
-                ws.send(JSON.stringify({
-                    type: 'join_room',
-                    roomId: roomId,
-                    playerId: playerId,
-                    playerName: playerName1
-                }));
+            try {
+                ws = new WebSocket(serverUrl);
+                
+                ws.onopen = function(event) {
+                    console.log("WebSocket連接已建立");
+                    connectionState = 'connected';
+                    
+                    if (isHost) {
+                        // 發送創建房間請求
+                        ws.send(JSON.stringify({
+                            type: 'create_room',
+                            roomId: roomId,
+                            playerId: playerId,
+                            playerName: playerName1
+                        }));
+                    } else {
+                        // 發送加入房間請求
+                        ws.send(JSON.stringify({
+                            type: 'join_room',
+                            roomId: roomId,
+                            playerId: playerId,
+                            playerName: playerName1
+                        }));
+                    }
+                };
+                
+                ws.onmessage = function(event) {
+                    try {
+                        const message = JSON.parse(event.data);
+                        handleServerMessage(message);
+                    } catch (e) {
+                        console.error("處理消息時發生錯誤:", e);
+                    }
+                };
+                
+                ws.onclose = function(event) {
+                    console.log("WebSocket連接已關閉", event);
+                    connectionState = 'disconnected';
+                    document.getElementById('waitingText').textContent = '連接已斷開，請重新嘗試';
+                };
+                
+                ws.onerror = function(error) {
+                    console.error("WebSocket錯誤:", error);
+                    connectionState = 'disconnected';
+                    document.getElementById('waitingText').textContent = '連接錯誤，請重試';
+                };
+                
+            } catch (e) {
+                console.error("WebSocket連接失敗:", e);
+                document.getElementById('waitingText').textContent = '連接失敗，請確保本地WebSocket服務器運行中 (ws://localhost:8080)';
             }
         }
 
         // 處理服務器消息
         function handleServerMessage(message) {
-            console.log("收到服務器消息:", message);
             switch(message.type) {
-                case 'create_room':
-                    // 主機創建房間成功
+                case 'room_created':
                     document.getElementById('waitingText').textContent = '房間已創建，等待玩家2加入...';
                     break;
-                    
                 case 'player_joined':
                     // 主機端接收玩家2加入的消息
                     if (isHost) {
@@ -1866,12 +1888,13 @@
                         };
                         
                         document.getElementById('onlineP2Item').style.opacity = '1';
-                        document.getElementById('onlineP2Item').querySelector('.player-status').classList.add('online');
+                        document.getElementById('p2Status').classList.add('online');
                         document.getElementById('onlineP2Name').textContent = message.playerName;
                         document.getElementById('onlineP2Id').textContent = `ID: ${message.playerId.substring(0, 8)}`;
                         document.getElementById('waitingText').textContent = '玩家2已加入，點擊按鈕開始遊戲';
                         
                         // 添加開始遊戲按鈕
+                        const buttonsContainer = document.querySelector('.online-buttons');
                         const startBtn = document.createElement('button');
                         startBtn.className = 'btn-share';
                         startBtn.textContent = '▶️ 開始遊戲';
@@ -1880,7 +1903,7 @@
                             gameStarted = true;
                             startGame();
                         };
-                        document.querySelector('.online-buttons').insertBefore(startBtn, document.querySelector('.btn-leave'));
+                        buttonsContainer.insertBefore(startBtn, document.querySelector('.btn-leave'));
                     } else {
                         // 加入者端接收房間信息
                         players[message.hostId] = {
@@ -1890,20 +1913,13 @@
                         };
                         
                         document.getElementById('onlineP1Item').style.opacity = '1';
-                        document.getElementById('onlineP1Item').querySelector('.player-status').classList.add('online');
+                        document.getElementById('p1Status').classList.add('online');
                         document.getElementById('onlineP1Name').textContent = message.hostName;
                         document.getElementById('onlineP1Id').textContent = `ID: ${message.hostId.substring(0, 8)}`;
-                        document.getElementById('waitingText').textContent = '已加入房間，等待遊戲開始...';
-                        
-                        // 如果是玩家2，等待遊戲開始
-                        if (!gameStarted) {
-                            document.getElementById('waitingText').textContent = '已加入房間，等待遊戲開始...';
-                        }
+                        document.getElementById('waitingText').textContent = '已成功加入房間，等待遊戲開始...';
                     }
                     break;
-                    
                 case 'game_start':
-                    // 接收遊戲開始消息
                     gameStarted = true;
                     if (isHost) {
                         playerName2 = message.playerName2;
@@ -1912,26 +1928,54 @@
                     }
                     startGame();
                     break;
-                    
                 case 'move':
                     // 接收其他玩家的移動
                     handleRemoteMove(message);
                     break;
-                    
                 case 'turn_change':
                     // 接收回合變化
                     handleRemoteTurnChange(message);
                     break;
-                    
                 case 'game_over':
                     // 接收遊戲結束
                     handleRemoteGameOver(message);
                     break;
-                    
                 case 'error':
                     // 接收錯誤信息
                     document.getElementById('waitingText').textContent = message.message;
                     break;
+                case 'sync_state':
+                    // 同步遊戲狀態
+                    syncGameState(message.state);
+                    break;
+            }
+        }
+
+        // 同步遊戲狀態
+        function syncGameState(state) {
+            board = state.board;
+            currentPlayer = state.currentPlayer;
+            gameOver = state.gameOver;
+            gameWinner = state.gameWinner;
+            timeLeft = state.timeLeft;
+            
+            updateCurrentPlayerDisplay();
+            updateTimerDisplay();
+            render();
+            
+            if (gameOver) {
+                if (gameWinner === PLAYER1) {
+                    updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
+                } else {
+                    updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
+                }
+                playSound('win');
+            } else {
+                if (currentPlayer === PLAYER1) {
+                    updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
+                } else {
+                    updateStatus(`等待${playerName2}行動...`, 'thinking');
+                }
             }
         }
 
@@ -2005,7 +2049,7 @@
 
         // 發送移動到服務器
         function sendMoveToServer(fromRow, fromCol, toRow, toCol, moveData) {
-            if (gameMode !== 'online' || !ws) return;
+            if (gameMode !== 'online' || !ws || connectionState !== 'connected') return;
             
             ws.send(JSON.stringify({
                 type: 'move',
@@ -2015,27 +2059,42 @@
                 toCol: toCol,
                 capturedPieces: moveData.capturedPieces || [],
                 isJump: moveData.type === 'jump',
-                canContinueJump: moveData.type === 'jump' && getJumpMoves(toRow, toCol, moveData.capturedPieces || []).length > 0
+                canContinueJump: moveData.type === 'jump' && getJumpMoves(toRow, toCol, moveData.capturedPieces || []).length > 0,
+                roomId: roomId
             }));
         }
 
         // 發送回合變化到服務器
         function sendTurnChangeToServer() {
-            if (gameMode !== 'online' || !ws) return;
+            if (gameMode !== 'online' || !ws || connectionState !== 'connected') return;
             
             ws.send(JSON.stringify({
                 type: 'turn_change',
-                currentPlayer: currentPlayer
+                currentPlayer: currentPlayer,
+                roomId: roomId
             }));
         }
 
         // 發送遊戲結束到服務器
         function sendGameOverToServer(winner) {
-            if (gameMode !== 'online' || !ws) return;
+            if (gameMode !== 'online' || !ws || connectionState !== 'connected') return;
             
             ws.send(JSON.stringify({
                 type: 'game_over',
-                winner: winner
+                winner: winner,
+                roomId: roomId
+            }));
+        }
+
+        // 發送遊戲開始到服務器
+        function sendGameStartToServer() {
+            if (gameMode !== 'online' || !ws || connectionState !== 'connected') return;
+            
+            ws.send(JSON.stringify({
+                type: 'game_start',
+                roomId: roomId,
+                playerName1: playerName1,
+                playerName2: playerName2
             }));
         }
 
@@ -2073,9 +2132,15 @@
 
         // 離開房間
         function leaveRoom() {
-            if (ws) {
+            if (ws && connectionState === 'connected') {
+                ws.send(JSON.stringify({
+                    type: 'leave_room',
+                    roomId: roomId,
+                    playerId: playerId
+                }));
                 ws.close();
             }
+            connectionState = 'disconnected';
             roomId = null;
             playerId = null;
             isHost = false;
@@ -2113,12 +2178,7 @@
             
             // 如果是線上對戰，通知服務器遊戲開始
             if (gameMode === 'online' && gameStarted) {
-                ws.send(JSON.stringify({
-                    type: 'start_game',
-                    roomId: roomId,
-                    player1: playerName1,
-                    player2: playerName2
-                }));
+                sendGameStartToServer();
             }
         }
 
@@ -2356,7 +2416,7 @@
                 }
                 
                 // 如果是線上對戰，發送遊戲結束消息
-                if (gameMode === 'online' && ws) {
+                if (gameMode === 'online' && ws && connectionState === 'connected') {
                     sendGameOverToServer(winner);
                 }
                 
@@ -2387,7 +2447,7 @@
                 }
                 
                 // 如果是線上對戰，發送回合變化消息
-                if (ws) {
+                if (ws && connectionState === 'connected') {
                     sendTurnChangeToServer();
                 }
             }
@@ -2607,7 +2667,7 @@
             render();
             
             // 如果是線上對戰，發送移動到服務器
-            if (gameMode === 'online' && ws) {
+            if (gameMode === 'online' && ws && connectionState === 'connected') {
                 sendMoveToServer(fromRow, fromCol, toRow, toCol, move);
             }
         }
@@ -3565,9 +3625,10 @@
             window.jumpClickHandler = null;
             processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
             usedJumpPaths.clear(); // 清空已使用的跳躍路徑記錄
-            if (ws) {
+            if (ws && connectionState === 'connected') {
                 ws.close();
             }
+            connectionState = 'disconnected';
             showStartScreen();
         }
 
