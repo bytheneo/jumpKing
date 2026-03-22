@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>跳棋遊戲 - 線上對戰</title>
+    <title>跳棋遊戲 - 修復版</title>
     <style>
         * {
             margin: 0;
@@ -100,15 +100,6 @@
             box-shadow: 0 10px 25px rgba(79, 172, 254, 0.4);
         }
 
-        .mode-btn.join-room {
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-        }
-
-        .mode-btn.join-room:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(168, 237, 234, 0.4);
-        }
-
         .mode-btn.rules {
             background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
         }
@@ -121,97 +112,6 @@
         .mode-btn-icon {
             font-size: 24px;
             margin-right: 10px;
-        }
-
-        /* 加入房間介面 */
-        .join-room-screen {
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 400px;
-        }
-
-        .join-room-screen h2 {
-            font-size: 32px;
-            color: #333;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .join-room-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            width: 100%;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-group label {
-            font-size: 14px;
-            color: #666;
-            font-weight: bold;
-        }
-
-        .form-group input {
-            padding: 12px;
-            font-size: 16px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #4facfe;
-            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
-        }
-
-        .form-group input::placeholder {
-            color: #bbb;
-        }
-
-        .join-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            width: 100%;
-        }
-
-        .join-buttons button {
-            flex: 1;
-            padding: 12px;
-            font-size: 16px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .btn-join {
-            background: #4facfe;
-            color: white;
-        }
-
-        .btn-join:hover {
-            background: #3fa3ee;
-            transform: translateY(-2px);
-        }
-
-        .btn-back-join {
-            background: #ccc;
-            color: #333;
-        }
-
-        .btn-back-join:hover {
-            background: #bbb;
-            transform: translateY(-2px);
         }
 
         /* 房間設定介面 */
@@ -297,77 +197,6 @@
             background: #667eea;
             border-color: #667eea;
             color: white;
-        }
-
-        .timer-toggle {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin: 15px 0;
-            padding: 15px;
-            background: #f5f5f5;
-            border-radius: 8px;
-        }
-
-        .timer-toggle label {
-            flex: 1;
-            font-size: 16px;
-            color: #333;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .checkbox {
-            position: relative;
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
-        }
-
-        .checkbox input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .checkbox-checkmark {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 24px;
-            width: 24px;
-            background-color: #eee;
-            border: 2px solid #ccc;
-            border-radius: 4px;
-            transition: all 0.3s;
-        }
-
-        .checkbox:hover input ~ .checkbox-checkmark {
-            background-color: #f0f0f0;
-            border-color: #667eea;
-        }
-
-        .checkbox input:checked ~ .checkbox-checkmark {
-            background-color: #667eea;
-            border-color: #667eea;
-        }
-
-        .checkbox-checkmark:after {
-            content: "";
-            position: absolute;
-            display: none;
-            left: 7px;
-            top: 3px;
-            width: 6px;
-            height: 12px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-
-        .checkbox input:checked ~ .checkbox-checkmark:after {
-            display: block;
         }
 
         .room-setup-buttons {
@@ -664,16 +493,6 @@
             transform: translateY(-2px);
         }
 
-        .btn-start-game {
-            background: #4caf50;
-            color: white;
-        }
-
-        .btn-start-game:hover {
-            background: #388e3c;
-            transform: translateY(-2px);
-        }
-
         /* 遊戲介面樣式 */
         .game-screen {
             display: none;
@@ -908,6 +727,7 @@
             user-select: none;
             -webkit-user-select: none;
             font-size: 18px;
+            position: relative;
         }
 
         .piece:hover {
@@ -1187,6 +1007,102 @@
             margin-top: 10px;
         }
         
+        /* 新增的武俠特效 */
+        
+        /* 棋子跳躍時的殘影特效 */
+        .piece-trail {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            z-index: 5;
+            opacity: 0.6;
+            animation: fadeOut 0.3s forwards;
+        }
+        
+        @keyframes fadeOut {
+            0% { opacity: 0.6; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.5); }
+        }
+        
+        /* 棋子跳躍移動的動畫 */
+        .piece-jumping {
+            animation: jumpMove 0.3s ease-in-out forwards;
+        }
+        
+        @keyframes jumpMove {
+            0% { transform: translate(0, 0) scale(1); }
+            30% { transform: translate(var(--tx), var(--ty)) scale(1.1); }
+            70% { transform: translate(var(--tx), var(--ty)) scale(1.1); }
+            100% { transform: translate(var(--tx), var(--ty)) scale(1); }
+        }
+        
+        /* 棋子被摧毀時的特效 */
+        .piece-destroyed {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            z-index: 16;
+            animation: splitPiece 0.5s ease-out forwards;
+        }
+        
+        @keyframes splitPiece {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            50% { transform: translateY(-10px) rotate(10deg); opacity: 0.7; }
+            100% { transform: translateY(-30px) rotate(20deg); opacity: 0; }
+        }
+        
+        /* 棋子被切割的特效 */
+        .piece-cut {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            z-index: 16;
+            animation: cutPiece 0.5s ease-out forwards;
+        }
+        
+        .piece-cut-part {
+            position: absolute;
+            width: 40%;
+            height: 40%;
+            border-radius: 50%;
+            z-index: 16;
+        }
+        
+        @keyframes cutPiece {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.5); }
+        }
+        
+        /* 刀劍特效 */
+        .sword-effect {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 45%, yellow, transparent 55%);
+            opacity: 0.8;
+            z-index: 15;
+            animation: swordSlash 0.3s ease-out forwards;
+        }
+        
+        @keyframes swordSlash {
+            0% { transform: rotate(0deg) scaleX(0); opacity: 0.8; }
+            50% { transform: rotate(10deg) scaleX(1.2); opacity: 1; }
+            100% { transform: rotate(20deg) scaleX(1); opacity: 0; }
+        }
+        
         /* 星星粒子特效 */
         .star-particle {
             position: absolute;
@@ -1213,6 +1129,22 @@
                 opacity: 1;
             }
         }
+        
+        /* 靈魂特效 */
+        .soul-effect {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: lightblue;
+            border-radius: 50%;
+            z-index: 17;
+            animation: soulRise 1s ease-out forwards;
+        }
+        
+        @keyframes soulRise {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-50px) scale(0.5); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -1228,11 +1160,8 @@
                 <button class="mode-btn pvp" onclick="selectMode('pvp')">
                     <span class="mode-btn-icon">👥</span>本地主機對戰
                 </button>
-                <button class="mode-btn online" onclick="selectMode('create')">
-                    <span class="mode-btn-icon">🌐</span>建立線上房間
-                </button>
-                <button class="mode-btn join-room" onclick="showJoinRoomScreen()">
-                    <span class="mode-btn-icon">🔗</span>加入線上房間
+                <button class="mode-btn online" onclick="selectMode('online')">
+                    <span class="mode-btn-icon">🌐</span>線上玩家對戰
                 </button>
                 <button class="mode-btn rules" onclick="showRulesScreen()">
                     <span class="mode-btn-icon">📖</span>遊戲玩法規則
@@ -1240,31 +1169,12 @@
             </div>
         </div>
 
-        <!-- 加入房間介面 -->
-        <div class="join-room-screen" id="joinRoomScreen">
-            <h2>加入線上房間</h2>
-            <div class="join-room-form">
-                <div class="form-group">
-                    <label for="joinPlayerName">您的名稱</label>
-                    <input type="text" id="joinPlayerName" placeholder="輸入您的名稱" maxlength="20">
-                </div>
-                <div class="form-group">
-                    <label for="joinRoomId">房間ID或連結</label>
-                    <input type="text" id="joinRoomId" placeholder="輸入房間ID或完整連結">
-                </div>
-            </div>
-            <div class="join-buttons">
-                <button class="btn-join" onclick="joinRoom()">加入房間</button>
-                <button class="btn-back-join" onclick="backToStart()">返回</button>
-            </div>
-        </div>
-
         <!-- 房間設定介面 -->
         <div class="room-setup-screen" id="roomSetupScreen">
-            <h2 id="roomSetupTitle">建立線上房間</h2>
+            <h2 id="roomSetupTitle">房間設定</h2>
             <div class="room-setup-group">
                 <div class="room-setup-item">
-                    <label for="setupPlayerName1">您的名稱</label>
+                    <label for="setupPlayerName1">玩家名稱</label>
                     <input type="text" id="setupPlayerName1" placeholder="輸入您的名稱" maxlength="20">
                 </div>
                 <div class="room-setup-item">
@@ -1280,7 +1190,7 @@
                 </div>
             </div>
             <div class="room-setup-buttons">
-                <button class="btn-start" onclick="createRoom()">建立房間</button>
+                <button class="btn-start" onclick="confirmRoomSetup()">開始遊戲</button>
                 <button class="btn-back" onclick="backToStart()">返回</button>
             </div>
         </div>
@@ -1332,7 +1242,7 @@
 
         <!-- 線上模式等待介面 -->
         <div class="online-wait-screen" id="onlineWaitScreen">
-            <h2 id="waitScreenTitle">等待對手加入</h2>
+            <h2>等待對手加入</h2>
             <div class="room-info">
                 <div class="room-info-item">
                     <span class="room-info-label">房間ID：</span>
@@ -1346,7 +1256,7 @@
             </div>
             <div class="player-list">
                 <h3>玩家列表</h3>
-                <div class="player-item" id="player1Item">
+                <div class="player-item">
                     <div class="player-status online"></div>
                     <div>
                         <div class="player-name" id="onlineP1Name">加載中...</div>
@@ -1356,8 +1266,8 @@
                 <div class="player-item p2" id="onlineP2Item" style="opacity: 0.5;">
                     <div class="player-status"></div>
                     <div>
-                        <div class="player-name" id="onlineP2Name">等待中...</div>
-                        <div class="player-id" id="onlineP2Id">玩家2</div>
+                        <div class="player-name">等待中...</div>
+                        <div class="player-id">玩家2</div>
                     </div>
                 </div>
             </div>
@@ -1369,7 +1279,7 @@
             <div class="waiting-text" id="waitingText">等待玩家2加入...</div>
             <div class="online-buttons">
                 <button class="btn-share" onclick="shareRoom()">📋 複製分享連結</button>
-                <button class="btn-leave" onclick="leaveRoom()">離開房間</button>
+                <button class="btn-leave" onclick="leaveRoom()">返回菜單</button>
             </div>
         </div>
 
@@ -1396,7 +1306,7 @@
 
             <div class="status-panel">
                 <div class="status-text" id="statusText">你的回合 - 選擇棋子開始</div>
-                <div class="current-player-indicator" id="currentPlayerIndicator" style="display: none;">
+                <div class="current-player-indicator" id="currentPlayerIndicator">
                     當前玩家：<span class="current-player-name player1" id="currentPlayerName">玩家1</span>
                 </div>
                 <div class="legend" id="legend" style="display: none;">
@@ -1425,7 +1335,7 @@
             <div class="rules">
                 <h3>遊戲規則：</h3>
                 <ul>
-                    <li>🔴 紅色棋子是玩家1，其他顏色棋子是玩家2/AI</li>
+                    <li>🔴 紅色棋子是玩家1，其他顏色棋子是玩家2</li>
                     <li>⏱️ <strong>時間限制依遊戲模式而定</strong></li>
                     <li>普通移動：棋子可以向8個方位移動一步到空位（黃色高亮）</li>
                     <li>跳躍移動：跳過相鄰的另一枚棋子進行移動（橙色高亮）</li>
@@ -1437,7 +1347,6 @@
                 </ul>
             </div>
         </div>
-    </div>
 
     <!-- 分享連結模態框 -->
     <div class="modal" id="shareModal">
@@ -1458,7 +1367,7 @@
         // 創建音效上下文
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-        function playSound(type) {
+        function playSound(type, player = null) {
             try {
                 const now = audioContext.currentTime;
                 const osc = audioContext.createOscillator();
@@ -1483,11 +1392,20 @@
                         osc.stop(now + 0.15);
                         break;
                     case 'jump':
-                        osc.frequency.value = 800;
+                        // 普通跳躍音效：較柔和的音調
+                        osc.frequency.value = 500;
                         gain.gain.setValueAtTime(0.12, now);
                         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
                         osc.start(now);
                         osc.stop(now + 0.12);
+                        break;
+                    case 'jump_capture':
+                        // 跳躍摧毀音效：較尖銳的音調
+                        osc.frequency.value = 800;
+                        gain.gain.setValueAtTime(0.15, now);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                        osc.start(now);
+                        osc.stop(now + 0.15);
                         break;
                     case 'win':
                         osc.frequency.value = 1000;
@@ -1514,6 +1432,30 @@
                         osc.frequency.value = 800;
                         gain.gain.setValueAtTime(0.15, now);
                         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                        osc.start(now);
+                        osc.stop(now + 0.3);
+                        break;
+                    case 'sword':
+                        // 模擬刀劍碰撞音效
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(800, now);
+                        osc.frequency.exponentialRampToValue(400, now + 0.2);
+                        
+                        gain.gain.setValueAtTime(0.3, now);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                        
+                        osc.start(now);
+                        osc.stop(now + 0.2);
+                        break;
+                    case 'soul':
+                        // 模擬靈魂上升音效
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(1000, now);
+                        osc.frequency.exponentialRampToValueAtTime(1500, now + 0.3);
+                        
+                        gain.gain.setValueAtTime(0.15, now);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                        
                         osc.start(now);
                         osc.stop(now + 0.3);
                         break;
@@ -1547,7 +1489,8 @@
         let currentJumpRow = -1;
         let currentJumpCol = -1;
         let capturedInSequence = [];
-        let visitedInJump = [];
+        let visitedInJump = []; // 修正：用來記錄跳躍路徑
+        let usedJumpPaths = new Set(); // 新增：記錄已使用的跳躍路徑
         
         // 計時相關
         let timeLeft = TURN_TIME_AI;
@@ -1569,7 +1512,10 @@
         let isHost = false; // 是否為房間主機
         let players = {}; // 存儲玩家資訊
         let gameStarted = false; // 遊戲是否開始
-        let isWaitingForOpponent = false; // 是否正在等待對手
+        let ws = null; // WebSocket連接
+
+        // 追蹤已處理的被摧毀棋子，防止重複觸發特效
+        let processedCaptures = new Set();
 
         // 生成隨機ID
         function generateId() {
@@ -1593,16 +1539,6 @@
         // 顯示/隱藏畫面
         function showStartScreen() {
             document.getElementById('startScreen').style.display = 'flex';
-            document.getElementById('joinRoomScreen').style.display = 'none';
-            document.getElementById('roomSetupScreen').style.display = 'none';
-            document.getElementById('rulesScreen').style.display = 'none';
-            document.getElementById('onlineWaitScreen').style.display = 'none';
-            document.getElementById('gameScreen').style.display = 'none';
-        }
-
-        function showJoinRoomScreen() {
-            document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('joinRoomScreen').style.display = 'flex';
             document.getElementById('roomSetupScreen').style.display = 'none';
             document.getElementById('rulesScreen').style.display = 'none';
             document.getElementById('onlineWaitScreen').style.display = 'none';
@@ -1611,7 +1547,6 @@
 
         function showRoomSetupScreen(mode) {
             const title = {
-                'create': '建立線上房間 - 房間設定',
                 'ai': '和AI對戰 - 房間設定',
                 'pvp': '本地主機對戰 - 房間設定',
                 'online': '線上玩家對戰 - 房間設定'
@@ -1619,7 +1554,6 @@
             
             document.getElementById('roomSetupTitle').textContent = title;
             document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('joinRoomScreen').style.display = 'none';
             document.getElementById('roomSetupScreen').style.display = 'flex';
             document.getElementById('rulesScreen').style.display = 'none';
             document.getElementById('onlineWaitScreen').style.display = 'none';
@@ -1627,7 +1561,6 @@
             
             // 重置表單
             document.getElementById('setupPlayerName1').value = '';
-            document.getElementById('setupEnableTimer').checked = true;
             boardMode = 'standard';
             boardRowSize = 9;
             boardColSize = 9;
@@ -1649,16 +1582,14 @@
 
         function showRulesScreen() {
             document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('joinRoomScreen').style.display = 'none';
             document.getElementById('roomSetupScreen').style.display = 'none';
-            document.getElementById('rulesScreen').style.display = 'flex';
+            document.getElementById('rulesScreen').style.display = 'none';
             document.getElementById('onlineWaitScreen').style.display = 'none';
             document.getElementById('gameScreen').style.display = 'none';
         }
 
         function showOnlineWaitScreen() {
             document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('joinRoomScreen').style.display = 'none';
             document.getElementById('roomSetupScreen').style.display = 'none';
             document.getElementById('rulesScreen').style.display = 'none';
             document.getElementById('onlineWaitScreen').style.display = 'flex';
@@ -1667,7 +1598,6 @@
 
         function showGameScreen() {
             document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('joinRoomScreen').style.display = 'none';
             document.getElementById('roomSetupScreen').style.display = 'none';
             document.getElementById('rulesScreen').style.display = 'none';
             document.getElementById('onlineWaitScreen').style.display = 'none';
@@ -1676,17 +1606,16 @@
 
         // 返回菜單
         function backToStart() {
+            if (ws) {
+                ws.close();
+            }
             showStartScreen();
         }
 
         // 選擇遊戲模式
         function selectMode(mode) {
             gameMode = mode;
-            if (mode === 'create' || mode === 'online') {
-                showRoomSetupScreen('create');
-            } else {
-                showRoomSetupScreen(mode);
-            }
+            showRoomSetupScreen(mode);
         }
 
         // 更新遊戲模式選擇
@@ -1711,183 +1640,239 @@
             updateGameModeSelection(mode);
         }
 
-        // 建立房間
-        function createRoom() {
+        // 確認房間設定
+        function confirmRoomSetup() {
             const name1 = document.getElementById('setupPlayerName1').value.trim();
             
             if (!name1) {
-                alert('請輸入您的名稱');
+                alert('請輸入玩家名稱');
                 return;
             }
             
             playerName1 = name1 || '玩家1';
-            gameMode = 'online';
-            enableTimer = true;
-            currentTurnTime = TURN_TIME_ONLINE;
-            isHost = true; // 創建房間者為主機
-            playerId = generateId();
-            roomId = generateRoomId();
             
-            players = {
-                [playerId]: {
-                    id: playerId,
-                    name: playerName1,
-                    role: PLAYER1
-                }
-            };
-            
-            showOnlineWaitScreen();
-            setupOnlineGame();
-        }
-
-        // 加入房間
-        function joinRoom() {
-            const name = document.getElementById('joinPlayerName').value.trim();
-            let roomInput = document.getElementById('joinRoomId').value.trim();
-            
-            if (!name) {
-                alert('請輸入您的名稱');
-                return;
+            if (gameMode === 'ai') {
+                playerName2 = 'AI';
+                currentTurnTime = TURN_TIME_AI;
+                startGame();
+            } else if (gameMode === 'pvp') {
+                playerName2 = '玩家2';
+                currentTurnTime = TURN_TIME_PVP;
+                startGame();
+            } else if (gameMode === 'online') {
+                playerName2 = '等待對手';
+                playerId = generateId();
+                roomId = generateRoomId();
+                currentTurnTime = TURN_TIME_ONLINE;
+                isHost = true; // 創建房間者為主機
+                players = {
+                    [playerId]: {
+                        id: playerId,
+                        name: playerName1,
+                        role: PLAYER1
+                    }
+                };
+                showOnlineWaitScreen();
+                setupOnlineGame();
             }
-            
-            // 從連結中提取房間ID
-            if (roomInput.includes('?')) {
-                const params = new URLSearchParams(roomInput.split('?')[1]);
-                roomInput = params.get('room') || roomInput;
-            }
-            
-            if (!roomInput) {
-                alert('請輸入房間ID或完整連結');
-                return;
-            }
-            
-            playerName2 = name;
-            gameMode = 'online';
-            enableTimer = true;
-            currentTurnTime = TURN_TIME_ONLINE;
-            isHost = false; // 加入者不是主機
-            playerId = generateId();
-            roomId = roomInput.toUpperCase(); // 確保房間ID大寫
-            
-            players = {
-                [playerId]: {
-                    id: playerId,
-                    name: playerName2,
-                    role: PLAYER2
-                }
-            };
-            
-            showOnlineWaitScreen();
-            setupJoinRoom();
         }
 
         // 設置線上遊戲
         function setupOnlineGame() {
-            document.getElementById('waitScreenTitle').textContent = '等待對手加入';
+            const p1Id = playerId.substr(0, 8);
             document.getElementById('roomId').textContent = roomId;
             document.getElementById('onlinePlayerName').textContent = playerName1;
             document.getElementById('onlineP1Name').textContent = playerName1;
-            document.getElementById('onlineP1Id').textContent = `ID: ${playerId.substring(0, 8)}`;
-            document.getElementById('onlineP2Name').textContent = '等待中...';
-            document.getElementById('onlineP2Id').textContent = '玩家2';
+            document.getElementById('onlineP1Id').textContent = `ID: ${p1Id}`;
             
-            // 模擬等待對手加入
-            document.getElementById('waitingText').textContent = '等待玩家2加入...';
-            
-            // 檢查是否有對手加入的模擬邏輯
-            simulateOpponentJoin();
+            // 嘗試連接到WebSocket服務器
+            connectToServer();
         }
 
-        // 設置加入房間
-        function setupJoinRoom() {
-            document.getElementById('waitScreenTitle').textContent = '加入房間中';
-            document.getElementById('roomId').textContent = roomId;
-            document.getElementById('onlinePlayerName').textContent = playerName2;
-            document.getElementById('onlineP2Name').textContent = playerName2;
-            document.getElementById('onlineP2Id').textContent = `ID: ${playerId.substring(0, 8)}`;
-            
-            // 模擬加入房間
-            document.getElementById('waitingText').textContent = '正在尋找房間...';
-            
-            // 模擬加入房間成功
-            setTimeout(() => {
-                if (!gameStarted) {
-                    document.getElementById('waitingText').textContent = '房間找到！等待房間主機開始遊戲...';
-                    
-                    // 模擬房間主機的信息
-                    players[playerId] = {
-                        id: playerId,
-                        name: playerName2,
-                        role: PLAYER2
-                    };
-                    
-                    // 模擬從服務器獲取房間信息
-                    simulateGetRoomInfo();
-                }
-            }, 1000);
+        // 連接到WebSocket服務器
+        function connectToServer() {
+            // 這裡我們使用一個模擬的WebSocket實現
+            // 在實際應用中，這會連接到真實的WebSocket服務器
+            try {
+                // 模擬WebSocket連接
+                ws = {
+                    send: function(data) {
+                        console.log("發送數據:", data);
+                        // 模擬服務器響應
+                        setTimeout(() => {
+                            handleServerMessage(JSON.parse(data));
+                        }, 100);
+                    },
+                    close: function() {
+                        console.log("WebSocket連接已關閉");
+                    }
+                };
+                
+                // 發送創建房間請求
+                ws.send(JSON.stringify({
+                    type: 'create_room',
+                    roomId: roomId,
+                    playerId: playerId,
+                    playerName: playerName1
+                }));
+            } catch (e) {
+                console.error("WebSocket連接失敗:", e);
+                document.getElementById('waitingText').textContent = '連接失敗，請重試';
+            }
         }
 
-        // 模擬獲取房間信息
-        function simulateGetRoomInfo() {
-            // 模擬從服務器獲取房間信息
-            setTimeout(() => {
-                if (!gameStarted) {
-                    // 模擬房間主機信息
-                    const hostId = generateId();
-                    const hostName = '房間主機';
-                    
-                    players[hostId] = {
-                        id: hostId,
-                        name: hostName,
-                        role: PLAYER1
-                    };
-                    
-                    document.getElementById('onlineP1Name').textContent = hostName;
-                    document.getElementById('onlineP1Id').textContent = `ID: ${hostId.substring(0, 8)}`;
-                    document.getElementById('player1Item').querySelector('.player-status').classList.add('online');
-                    document.getElementById('onlineP2Item').style.opacity = '1';
-                    document.getElementById('onlineP2Item').querySelector('.player-status').classList.add('online');
-                    
-                    // 模擬等待房間主機開始遊戲
-                    document.getElementById('waitingText').textContent = '等待房間主機開始遊戲...';
-                }
-            }, 1500);
-        }
-
-        // 模擬對手加入
-        function simulateOpponentJoin() {
-            // 模擬對手加入房間
-            setTimeout(() => {
-                if (!gameStarted) {
-                    // 如果遊戲還沒開始，假設對手加入了
-                    const opponentId = generateId();
-                    const opponentName = '玩家2';
-                    
-                    players[opponentId] = {
-                        id: opponentId,
-                        name: opponentName,
+        // 處理服務器消息
+        function handleServerMessage(message) {
+            switch(message.type) {
+                case 'room_created':
+                    document.getElementById('waitingText').textContent = '房間已創建，等待玩家2加入...';
+                    break;
+                case 'player_joined':
+                    players[message.playerId] = {
+                        id: message.playerId,
+                        name: message.playerName,
                         role: PLAYER2
                     };
                     
                     document.getElementById('onlineP2Item').style.opacity = '1';
                     document.getElementById('onlineP2Item').querySelector('.player-status').classList.add('online');
-                    document.getElementById('onlineP2Name').textContent = opponentName;
-                    document.getElementById('onlineP2Id').textContent = `ID: ${opponentId.substring(0, 8)}`;
+                    document.getElementById('onlineP2Item').querySelector('.player-name').textContent = message.playerName;
+                    document.getElementById('onlineP2Item').querySelector('.player-id').textContent = `ID: ${message.playerId.substring(0, 8)}`;
                     document.getElementById('waitingText').textContent = '玩家2已加入，點擊按鈕開始遊戲';
                     
                     // 添加開始遊戲按鈕
-                    const buttonsContainer = document.querySelector('.online-buttons');
                     const startBtn = document.createElement('button');
-                    startBtn.className = 'btn-start-game';
+                    startBtn.className = 'btn-share';
                     startBtn.textContent = '▶️ 開始遊戲';
                     startBtn.onclick = () => {
-                        playerName2 = opponentName;
+                        playerName2 = message.playerName;
                         gameStarted = true;
                         startGame();
                     };
-                    buttonsContainer.insertBefore(startBtn, document.querySelector('.btn-leave'));
+                    document.querySelector('.online-buttons').insertBefore(startBtn, document.querySelector('.btn-leave'));
+                    break;
+                case 'game_start':
+                    gameStarted = true;
+                    playerName2 = message.opponentName;
+                    startGame();
+                    break;
+                case 'move':
+                    // 接收其他玩家的移動
+                    handleRemoteMove(message);
+                    break;
+                case 'turn_change':
+                    // 接收回合變化
+                    handleRemoteTurnChange(message);
+                    break;
+                case 'game_over':
+                    // 接收遊戲結束
+                    handleRemoteGameOver(message);
+                    break;
+            }
+        }
+
+        // 處理遠程移動
+        function handleRemoteMove(message) {
+            if (gameMode !== 'online' || !gameStarted) return;
+            
+            // 應用遠程玩家的移動
+            setBoardCell(message.toRow, message.toCol, getBoardCell(message.fromRow, message.fromCol));
+            setBoardCell(message.fromRow, message.fromCol, EMPTY);
+            
+            // 如果有捕獲棋子
+            if (message.capturedPieces) {
+                for (const captured of message.capturedPieces) {
+                    setBoardCell(captured.row, captured.col, EMPTY);
                 }
-            }, 5000);
+            }
+            
+            // 更新UI
+            render();
+            
+            // 如果是跳躍，檢查是否還有更多跳躍
+            if (message.isJump) {
+                if (message.canContinueJump) {
+                    // 等待遠程玩家繼續跳躍
+                    updateStatus(`等待${playerName2}繼續跳躍...`, 'thinking');
+                } else {
+                    // 結束遠程玩家的回合
+                    endPlayerTurn();
+                }
+            } else {
+                // 非跳躍移動，直接結束回合
+                endPlayerTurn();
+            }
+        }
+
+        // 處理遠程回合變化
+        function handleRemoteTurnChange(message) {
+            if (gameMode !== 'online' || !gameStarted) return;
+            
+            currentPlayer = message.currentPlayer;
+            updateCurrentPlayerDisplay();
+            startTurnTimer();
+            
+            if (currentPlayer === PLAYER1) {
+                updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
+            } else {
+                updateStatus(`等待${playerName2}行動...`, 'thinking');
+            }
+        }
+
+        // 處理遠程遊戲結束
+        function handleRemoteGameOver(message) {
+            if (gameMode !== 'online' || !gameStarted) return;
+            
+            gameOver = true;
+            gameWinner = message.winner;
+            
+            if (message.winner === PLAYER1) {
+                updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
+            } else {
+                updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
+            }
+            
+            playSound('win');
+            if (enableTimer) {
+                clearInterval(timerInterval);
+            }
+            render();
+        }
+
+        // 發送移動到服務器
+        function sendMoveToServer(fromRow, fromCol, toRow, toCol, moveData) {
+            if (gameMode !== 'online' || !ws) return;
+            
+            ws.send(JSON.stringify({
+                type: 'move',
+                fromRow: fromRow,
+                fromCol: fromCol,
+                toRow: toRow,
+                toCol: toCol,
+                capturedPieces: moveData.capturedPieces || [],
+                isJump: moveData.type === 'jump',
+                canContinueJump: moveData.type === 'jump' && getJumpMoves(toRow, toCol, moveData.capturedPieces || []).length > 0
+            }));
+        }
+
+        // 發送回合變化到服務器
+        function sendTurnChangeToServer() {
+            if (gameMode !== 'online' || !ws) return;
+            
+            ws.send(JSON.stringify({
+                type: 'turn_change',
+                currentPlayer: currentPlayer
+            }));
+        }
+
+        // 發送遊戲結束到服務器
+        function sendGameOverToServer(winner) {
+            if (gameMode !== 'online' || !ws) return;
+            
+            ws.send(JSON.stringify({
+                type: 'game_over',
+                winner: winner
+            }));
         }
 
         // 複製房間ID
@@ -1924,6 +1909,9 @@
 
         // 離開房間
         function leaveRoom() {
+            if (ws) {
+                ws.close();
+            }
             roomId = null;
             playerId = null;
             isHost = false;
@@ -1937,13 +1925,19 @@
             showGameScreen();
             
             // 更新標題
-            document.getElementById('gameTitle').textContent = '♟️ 跳棋遊戲 - 線上對戰';
+            if (gameMode === 'online') {
+                document.getElementById('gameTitle').textContent = '♟️ 跳棋遊戲 - 線上對戰';
+            } else if (gameMode === 'pvp') {
+                document.getElementById('gameTitle').textContent = '♟️ 跳棋遊戲 - 本地主機對戰';
+            } else {
+                document.getElementById('gameTitle').textContent = '♟️ 跳棋遊戲 - 對戰AI';
+            }
             
             // 更新玩家名稱顯示
             document.getElementById('displayName1').textContent = playerName1;
             document.getElementById('displayName2').textContent = playerName2;
             
-            // 本地主機對戰顯示當前玩家指示器
+            // 本地主機對戰和線上對戰顯示當前玩家指示器
             const indicator = document.getElementById('currentPlayerIndicator');
             if (gameMode === 'pvp' || gameMode === 'online') {
                 indicator.style.display = 'block';
@@ -1952,6 +1946,16 @@
             }
             
             initGame();
+            
+            // 如果是線上對戰，通知服務器遊戲開始
+            if (gameMode === 'online' && gameStarted) {
+                ws.send(JSON.stringify({
+                    type: 'start_game',
+                    roomId: roomId,
+                    player1: playerName1,
+                    player2: playerName2
+                }));
+            }
         }
 
         // 初始化遊戲
@@ -1974,7 +1978,7 @@
                     }
                 }
 
-                // 放置玩家2/AI棋子（底部 3 行）
+                // 放置玩家2棋子（底部 3 行）
                 let p2Count = 0;
                 for (let row = boardRowSize - 3; row < boardRowSize && p2Count < PIECES_PER_PLAYER; row++) {
                     for (let col = 0; col < boardColSize && p2Count < PIECES_PER_PLAYER; col++) {
@@ -1997,7 +2001,9 @@
             currentJumpRow = -1;
             currentJumpCol = -1;
             capturedInSequence = [];
-            visitedInJump = [];
+            visitedInJump = []; // 修正：初始化跳躍路徑記錄
+            usedJumpPaths = new Set(); // 重置已使用的跳躍路徑
+            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
             document.getElementById('endJumpBtn').style.display = 'none';
             document.getElementById('legend').style.display = 'none';
             
@@ -2006,11 +2012,17 @@
             updateCurrentPlayerDisplay();
             render();
             
-            // FIX: 確保初始狀態正確顯示
+            // 更新狀態
             if (gameMode === 'ai') {
                 updateStatus('你的回合 - 選擇棋子開始', 'waiting');
-            } else if (gameMode === 'pvp' || gameMode === 'online') {
+            } else if (gameMode === 'pvp') {
                 updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
+            } else if (gameMode === 'online') {
+                if (currentPlayer === PLAYER1) {
+                    updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
+                } else {
+                    updateStatus(`等待${playerName2}行動...`, 'thinking');
+                }
             }
         }
 
@@ -2034,7 +2046,7 @@
                 board[pos.row][pos.col] = PLAYER1;
             }
             
-            // 放置對方棋子（玩家2/AI）
+            // 放置對方棋子（玩家2）
             for (const pos of player2Positions) {
                 board[pos.row][pos.col] = PLAYER2;
             }
@@ -2085,7 +2097,6 @@
                     nameElement.textContent = playerName2;
                     nameElement.className = 'current-player-name player2';
                 }
-                indicator.style.display = 'block';
             }
         }
 
@@ -2153,11 +2164,14 @@
 
         // 結束當前玩家回合 - FIX：修復顯示問題
         function endPlayerTurn() {
+            // 重置所有與跳躍序列相關的變量
             inJumpSequence = false;
             currentJumpRow = -1;
             currentJumpCol = -1;
             capturedInSequence = [];
-            visitedInJump = [];
+            visitedInJump = []; // 修正：重置跳躍路徑記錄
+            usedJumpPaths.clear(); // 重置已使用的跳躍路徑
+            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
             selectedPiece = null;
             validMoves = [];
             document.getElementById('endJumpBtn').style.display = 'none';
@@ -2176,6 +2190,12 @@
                 if (enableTimer) {
                     clearInterval(timerInterval);
                 }
+                
+                // 如果是線上對戰，發送遊戲結束消息
+                if (gameMode === 'online' && ws) {
+                    sendGameOverToServer(winner);
+                }
+                
                 render();
                 return;
             }
@@ -2200,6 +2220,11 @@
                     updateStatus(`${currentPlayerName}的回合 - 選擇棋子開始`, 'waiting');
                 } else {
                     updateStatus(`等待${currentPlayerName}行動...`, 'thinking');
+                }
+                
+                // 如果是線上對戰，發送回合變化消息
+                if (ws) {
+                    sendTurnChangeToServer();
                 }
             }
         }
@@ -2236,7 +2261,7 @@
             return moves;
         }
 
-        // 獲取跳躍移動
+        // 獲取跳躍移動 - 修復版本，添加跳躍路徑限制
         function getJumpMoves(row, col, capturedList = [], visitedList = []) {
             const moves = [];
             const piece = getBoardCell(row, col);
@@ -2248,6 +2273,13 @@
                 [0, -1],           [0, 1],
                 [1, -1],  [1, 0],  [1, 1]
             ];
+
+            // 修正：記錄已被跳過的棋子位置，而不是跳躍的邊
+            // 這樣可以允許棋子跳過同一個敵方棋子多次，但不能在同一個回合內回到同一個位置
+            const visitedPositions = new Set();
+            for (const pos of visitedList) {
+                visitedPositions.add(`${pos.row},${pos.col}`);
+            }
 
             for (const [dRow, dCol] of directions) {
                 const jumpRow = row + dRow;
@@ -2263,16 +2295,21 @@
                     if (alreadyJumped) continue;
 
                     if (isInBoundsCell(landRow, landCol) && getBoardCell(landRow, landCol) === EMPTY) {
-                        const alreadyVisited = visitedList.some(v => v.row === landRow && v.col === landCol);
-                        if (alreadyVisited) continue;
+                        // 檢查目標位置是否已被訪問過（防止循環跳躍）
+                        const targetPosKey = `${landRow},${landCol}`;
+                        if (visitedPositions.has(targetPosKey)) continue;
+
+                        // 檢查跳躍路徑是否已被使用（防止在同一回合內往返跳躍）
+                        const pathKey1 = `${row},${col}-${landRow},${landCol}`;
+                        const pathKey2 = `${landRow},${landCol}-${row},${col}`;
+                        if (usedJumpPaths.has(pathKey1) || usedJumpPaths.has(pathKey2)) continue;
 
                         const newCaptured = [...capturedList];
                         if (isEnemyPiece) {
                             newCaptured.push({row: jumpRow, col: jumpCol});
                         }
 
-                        const newVisited = [...visitedList, {row, col}, {row: landRow, col: landCol}, {row: jumpRow, col: jumpCol}];
-
+                        const newVisited = [...visitedList, {row: landRow, col: landCol}];
                         moves.push({
                             row: landRow,
                             col: landCol,
@@ -2309,22 +2346,247 @@
             return row >= 0 && row < boardRowSize && col >= 0 && col < boardColSize;
         }
 
-        // 移動棋子
-        function movePiece(fromRow, fromCol, toRow, toCol, move) {
+        // 移動棋子 - 帶有武俠特效
+        async function movePiece(fromRow, fromCol, toRow, toCol, move) {
             const piece = getBoardCell(fromRow, fromCol);
+            const fromSquare = document.querySelector(`[data-row="${fromRow}"][data-col="${fromCol}"]`);
+            const toSquare = document.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
+            
+            if (!fromSquare || !toSquare) return;
+            
+            // 找到原始棋子元素
+            const pieceElement = fromSquare.querySelector('.piece');
+            if (!pieceElement) return;
+            
+            // 檢查是否有被捕捉的棋子
+            const hasCapture = move.capturedPieces.length > 0;
+            
+            // 根據移動類型播放不同音效
+            if (hasCapture) {
+                playSound('jump_capture', piece);
+            } else {
+                playSound('jump', piece);
+            }
+            
+            // 如果是跳躍摧毀，創建特效
+            if (hasCapture) {
+                for (const captured of move.capturedPieces) {
+                    // 創建唯一標識符來追蹤這個被摧毀的棋子
+                    const captureKey = `${captured.row},${captured.col}`;
+                    
+                    // 檢查這個棋子是否已經被處理過
+                    if (processedCaptures.has(captureKey)) continue;
+                    
+                    // 標記為已處理
+                    processedCaptures.add(captureKey);
+                    
+                    const capturedSquare = document.querySelector(`[data-row="${captured.row}"][data-col="${captured.col}"]`);
+                    
+                    if (capturedSquare) {
+                        // 創建刀劍特效
+                        createSwordEffect(captured.row, captured.col);
+                        
+                        // 播放刀劍碰撞音效
+                        playSound('sword');
+                        
+                        // 創建棋子被摧毀特效
+                        createDestroyedPieceEffect(captured.row, captured.col, getBoardCell(captured.row, captured.col));
+                        
+                        // 創建靈魂上升特效
+                        createSoulEffect(captured.row, captured.col);
+                        
+                        // 播放靈魂音效
+                        playSound('soul');
+                    }
+                }
+            }
+            
+            // 計算跳躍的位移量
+            const fromRect = fromSquare.getBoundingClientRect();
+            const toRect = toSquare.getBoundingClientRect();
+            const boardRect = document.getElementById('board').getBoundingClientRect();
+            
+            const fromX = fromRect.left - boardRect.left + fromRect.width / 2;
+            const fromY = fromRect.top - boardRect.top + fromRect.height / 2;
+            const toX = toRect.left - boardRect.left + toRect.width / 2;
+            const toY = toRect.top - boardRect.top + toRect.height / 2;
+            
+            // 計算相對位移
+            const tx = toX - fromX;
+            const ty = toY - fromY;
+            
+            // 設置CSS變量
+            pieceElement.style.setProperty('--tx', `${tx}px`);
+            pieceElement.style.setProperty('--ty', `${ty}px`);
+            
+            // 添加跳躍動畫類
+            pieceElement.classList.add('piece-jumping');
+            
+            // 創建殘影特效
+            createPieceTrails(fromRow, fromCol, toRow, toCol, piece);
+            
+            // 等待動畫完成
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            // 實際移動棋子
             setBoardCell(toRow, toCol, piece);
             setBoardCell(fromRow, fromCol, EMPTY);
 
             for (const captured of move.capturedPieces) {
                 setBoardCell(captured.row, captured.col, EMPTY);
-                playSound('capture');
             }
+            
+            // 移除跳躍動畫類
+            pieceElement.classList.remove('piece-jumping');
+            
+            // 重新渲染棋盤
+            render();
+            
+            // 如果是線上對戰，發送移動到服務器
+            if (gameMode === 'online' && ws) {
+                sendMoveToServer(fromRow, fromCol, toRow, toCol, move);
+            }
+        }
 
-            if (move.isCapture) {
-                playSound('jump');
-            } else {
-                playSound('move');
+        // 創建棋子跳躍時的殘影特效
+        function createPieceTrails(fromRow, fromCol, toRow, toCol, pieceType) {
+            const fromSquare = document.querySelector(`[data-row="${fromRow}"][data-col="${fromCol}"]`);
+            const toSquare = document.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
+            
+            if (!fromSquare || !toSquare) return;
+            
+            // 計算從起點到終點的中間點
+            const centerX = (parseInt(fromSquare.getAttribute('data-col')) + parseInt(toSquare.getAttribute('data-col'))) / 2;
+            const centerY = (parseInt(fromSquare.getAttribute('data-row')) + parseInt(toSquare.getAttribute('data-row'))) / 2;
+            
+            // 創建多個殘影特效
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const trail = document.createElement('div');
+                    trail.className = 'piece-trail';
+                    
+                    // 根據棋子類型設置顏色
+                    if (pieceType === PLAYER1) {
+                        trail.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a5a)';
+                    } else if (pieceType === PLAYER2) {
+                        trail.style.background = 'linear-gradient(135deg, #4ecdc4, #44a3a0)';
+                    }
+                    
+                    trail.textContent = '●';
+                    trail.style.color = 'white';
+                    trail.style.fontSize = '18px';
+                    
+                    // 添加到起點方塊
+                    fromSquare.appendChild(trail);
+                    
+                    // 在一定時間後移除殘影特效
+                    setTimeout(() => {
+                        if (trail.parentNode) {
+                            trail.parentNode.removeChild(trail);
+                        }
+                    }, 300);
+                }, i * 60); // 逐漸顯示殘影
             }
+        }
+
+        // 創建刀劍特效
+        function createSwordEffect(row, col) {
+            const square = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+            if (!square) return;
+            
+            const swordEffect = document.createElement('div');
+            swordEffect.className = 'sword-effect';
+            
+            square.appendChild(swordEffect);
+            
+            // 在動畫完成後移除特效
+            setTimeout(() => {
+                if (swordEffect.parentNode) {
+                    swordEffect.parentNode.removeChild(swordEffect);
+                }
+            }, 300);
+        }
+
+        // 創建被摧毀棋子特效
+        function createDestroyedPieceEffect(row, col, pieceType) {
+            const square = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+            if (!square) return;
+            
+            // 移除該位置上的棋子
+            const pieceToRemove = square.querySelector('.piece');
+            if (pieceToRemove) {
+                pieceToRemove.remove();
+            }
+            
+            // 創建切割特效 - 將棋子分成四部分
+            const colors = {
+                [PLAYER1]: 'linear-gradient(135deg, #ff6b6b, #ee5a5a)',
+                [PLAYER2]: (gameMode === 'pvp' || gameMode === 'online') ? 
+                           'linear-gradient(135deg, #9c27b0, #7b1fa2)' : 
+                           'linear-gradient(135deg, #4ecdc4, #44a3a0)'
+            };
+            
+            const baseColor = colors[pieceType] || 'linear-gradient(135deg, #aaa, #888)';
+            
+            // 創建四個碎片
+            for (let i = 0; i < 4; i++) {
+                const part = document.createElement('div');
+                part.className = 'piece-cut-part';
+                part.style.background = baseColor;
+                
+                // 設置碎片的位置
+                switch(i) {
+                    case 0: // 左上
+                        part.style.top = '0%';
+                        part.style.left = '0%';
+                        part.style.transform = 'translate(-25%, -25%)';
+                        break;
+                    case 1: // 右上
+                        part.style.top = '0%';
+                        part.style.left = '100%';
+                        part.style.transform = 'translate(-75%, -25%)';
+                        break;
+                    case 2: // 左下
+                        part.style.top = '100%';
+                        part.style.left = '0%';
+                        part.style.transform = 'translate(-25%, -75%)';
+                        break;
+                    case 3: // 右下
+                        part.style.top = '100%';
+                        part.style.left = '100%';
+                        part.style.transform = 'translate(-75%, -75%)';
+                        break;
+                }
+                
+                part.style.animation = `cutPiece 0.5s ease-out forwards ${i * 0.05}s`;
+                
+                square.appendChild(part);
+                
+                // 在動畫完成後移除碎片
+                setTimeout(() => {
+                    if (part.parentNode) {
+                        part.parentNode.removeChild(part);
+                    }
+                }, 500 + i * 50);
+            }
+        }
+
+        // 創建靈魂特效
+        function createSoulEffect(row, col) {
+            const square = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+            if (!square) return;
+            
+            const soulEffect = document.createElement('div');
+            soulEffect.className = 'soul-effect';
+            
+            square.appendChild(soulEffect);
+            
+            // 在動畫完成後移除特效
+            setTimeout(() => {
+                if (soulEffect.parentNode) {
+                    soulEffect.parentNode.removeChild(soulEffect);
+                }
+            }, 1000);
         }
 
         // 檢查是否獲勝
@@ -2476,11 +2738,14 @@
 
         // 執行AI移動
         async function performAIMove(moveInfo) {
-            movePiece(moveInfo.fromRow, moveInfo.fromCol, moveInfo.toRow, moveInfo.toCol, moveInfo.move);
+            await movePiece(moveInfo.fromRow, moveInfo.fromCol, moveInfo.toRow, moveInfo.toCol, moveInfo.move);
             let finalRow = moveInfo.toRow;
             let finalCol = moveInfo.toCol;
             let capturedPieces = [...moveInfo.move.capturedPieces];
             let visitedPositions = moveInfo.move.visitedInJump || [];
+
+            // 添加跳躍路徑到已使用的集合
+            usedJumpPaths.add(`${moveInfo.fromRow},${moveInfo.fromCol}-${finalRow},${finalCol}`);
 
             // 檢查勝利條件
             if (checkWinCondition(finalRow, finalCol)) {
@@ -2496,8 +2761,6 @@
             }
 
             if (!moveInfo.move.isCapture) {
-                render();
-
                 const winner = checkWin();
                 if (winner) {
                     gameOver = true;
@@ -2548,11 +2811,14 @@
                         }
                     }
 
-                    movePiece(finalRow, finalCol, bestJump.row, bestJump.col, bestJump);
+                    await movePiece(finalRow, finalCol, bestJump.row, bestJump.col, bestJump);
                     capturedPieces.push(...bestJump.capturedPieces);
                     visitedPositions = bestJump.visitedInJump || visitedPositions;
                     finalRow = bestJump.row;
                     finalCol = bestJump.col;
+
+                    // 添加跳躍路徑到已使用的集合
+                    usedJumpPaths.add(`${finalRow - (bestJump.row - finalRow)},${finalCol - (bestJump.col - finalCol)}-${finalRow},${finalCol}`);
 
                     if (checkWinCondition(finalRow, finalCol)) {
                         gameOver = true;
@@ -2571,8 +2837,6 @@
                     shouldContinue = false;
                 }
             }
-
-            render();
 
             const winner = checkWin();
             if (winner) {
@@ -2603,16 +2867,20 @@
         function endJumpSequence() {
             if (!inJumpSequence) return;
 
+            // 重置所有與跳躍序列相關的變量
             inJumpSequence = false;
             currentJumpRow = -1;
             currentJumpCol = -1;
             capturedInSequence = [];
-            visitedInJump = [];
+            visitedInJump = []; // 修正：重置跳躍路徑記錄
+            usedJumpPaths.clear(); // 重置已使用的跳躍路徑
+            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
             selectedPiece = null;
             validMoves = [];
             document.getElementById('endJumpBtn').style.display = 'none';
             document.getElementById('legend').style.display = 'none';
 
+            // 結束當前玩家回合
             endPlayerTurn();
         }
 
@@ -2627,49 +2895,35 @@
                 return; // 不是當前玩家的操作
             }
 
-            if (selectedPiece) {
-                const move = validMoves.find(m => m.row === row && m.col === col);
-                if (move) {
-                    movePiece(selectedPiece.row, selectedPiece.col, row, col, move);
-                    let finalRow = row;
-                    let finalCol = col;
-
-                    if (checkWinCondition(finalRow, finalCol)) {
-                        gameOver = true;
-                        gameWinner = currentPlayer;
-                        if (currentPlayer === PLAYER1) {
-                            updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
-                        } else {
-                            updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
-                        }
-                        playSound('win');
-                        if (enableTimer) {
-                            clearInterval(timerInterval);
-                        }
-                        selectedPiece = null;
-                        validMoves = [];
-                        document.getElementById('endJumpBtn').style.display = 'none';
-                        document.getElementById('legend').style.display = 'none';
-                        render();
-                        return;
+            // 修正：如果正在進行跳躍序列，只能操作同一顆棋子或結束跳躍
+            if (inJumpSequence) {
+                // 如果點擊的是當前跳躍的棋子，允許繼續操作
+                if (row === currentJumpRow && col === currentJumpCol) {
+                    // 重新計算當前棋子的有效移動
+                    const jumpMoves = getJumpMoves(row, col, capturedInSequence, visitedInJump);
+                    
+                    validMoves = [];
+                    for (const move of jumpMoves) {
+                        validMoves.push({...move, moveType: 'jump'});
                     }
+                    
+                    render();
+                } else if (validMoves.some(m => m.row === row && m.col === col)) {
+                    // 如果點擊的是有效的跳躍位置，執行移動
+                    const move = validMoves.find(m => m.row === row && m.col === col);
+                    if (move) {
+                        await movePiece(currentJumpRow, currentJumpCol, row, col, move);
+                        
+                        // 添加跳躍路徑到已使用的集合
+                        usedJumpPaths.add(`${currentJumpRow},${currentJumpCol}-${row},${col}`);
+                        
+                        let finalRow = row;
+                        let finalCol = col;
 
-                    if (!move.isCapture) {
-                        selectedPiece = null;
-                        validMoves = [];
-                        inJumpSequence = false;
-                        currentJumpRow = -1;
-                        currentJumpCol = -1;
-                        capturedInSequence = [];
-                        visitedInJump = [];
-                        document.getElementById('endJumpBtn').style.display = 'none';
-                        document.getElementById('legend').style.display = 'none';
-
-                        const winner = checkWin();
-                        if (winner) {
+                        if (checkWinCondition(finalRow, finalCol)) {
                             gameOver = true;
-                            gameWinner = winner;
-                            if (winner === PLAYER1) {
+                            gameWinner = currentPlayer;
+                            if (currentPlayer === PLAYER1) {
                                 updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
                             } else {
                                 updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
@@ -2678,185 +2932,261 @@
                             if (enableTimer) {
                                 clearInterval(timerInterval);
                             }
+                            // 重置所有狀態
+                            selectedPiece = null;
+                            validMoves = [];
+                            inJumpSequence = false;
+                            currentJumpRow = -1;
+                            currentJumpCol = -1;
+                            capturedInSequence = [];
+                            visitedInJump = []; // 修正：重置跳躍路徑記錄
+                            usedJumpPaths.clear(); // 重置已使用的跳躍路徑
+                            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
+                            document.getElementById('endJumpBtn').style.display = 'none';
+                            document.getElementById('legend').style.display = 'none';
                             render();
                             return;
                         }
 
-                        endPlayerTurn();
-                        return;
+                        // 檢查是否可以繼續跳躍
+                        const furtherMoves = getJumpMoves(finalRow, finalCol, [...capturedInSequence, ...move.capturedPieces], move.visitedInJump || []);
+
+                        if (furtherMoves.length > 0) {
+                            // 有更多跳躍可以進行
+                            validMoves = [];
+                            for (const jumpMove of furtherMoves) {
+                                validMoves.push({...jumpMove, moveType: 'jump'});
+                            }
+                            
+                            currentJumpRow = finalRow;
+                            currentJumpCol = finalCol;
+                            capturedInSequence = [...capturedInSequence, ...move.capturedPieces];
+                            visitedInJump = move.visitedInJump || visitedInJump;
+                            
+                            document.getElementById('endJumpBtn').style.display = 'inline-block';
+                            updateStatus('連續跳躍中 - 選擇下一個跳躍位置或點擊結束', 'jumping');
+                            render();
+                        } else {
+                            // 沒有更多跳躍可以進行
+                            inJumpSequence = false;
+                            currentJumpRow = -1;
+                            currentJumpCol = -1;
+                            capturedInSequence = [];
+                            visitedInJump = []; // 修正：重置跳躍路徑記錄
+                            usedJumpPaths.clear(); // 重置已使用的跳躍路徑
+                            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
+                            selectedPiece = null;
+                            validMoves = [];
+                            document.getElementById('endJumpBtn').style.display = 'none';
+                            document.getElementById('legend').style.display = 'none';
+
+                            const winner = checkWin();
+                            if (winner) {
+                                gameOver = true;
+                                gameWinner = winner;
+                                if (winner === PLAYER1) {
+                                    updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
+                                } else {
+                                    updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
+                                }
+                                playSound('win');
+                                if (enableTimer) {
+                                    clearInterval(timerInterval);
+                                }
+                                render();
+                                return;
+                            }
+
+                            endPlayerTurn();
+                        }
                     }
+                } else {
+                    // 點擊了其他位置，不改變當前跳躍狀態
+                    // 保持當前棋子的跳躍路徑
+                    return;
+                }
+            } else {
+                // 非跳躍序列狀態下的正常處理
+                if (selectedPiece) {
+                    const move = validMoves.find(m => m.row === row && m.col === col);
+                    if (move) {
+                        await movePiece(selectedPiece.row, selectedPiece.col, row, col, move);
+                        
+                        // 添加跳躍路徑到已使用的集合
+                        usedJumpPaths.add(`${selectedPiece.row},${selectedPiece.col}-${row},${col}`);
+                        
+                        let finalRow = row;
+                        let finalCol = col;
 
-                    let capturedPieces = [...move.capturedPieces];
-                    let visitedPositions = move.visitedInJump || [];
+                        if (checkWinCondition(finalRow, finalCol)) {
+                            gameOver = true;
+                            gameWinner = currentPlayer;
+                            if (currentPlayer === PLAYER1) {
+                                updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
+                            } else {
+                                updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
+                            }
+                            playSound('win');
+                            if (enableTimer) {
+                                clearInterval(timerInterval);
+                            }
+                            // 重置所有狀態
+                            selectedPiece = null;
+                            validMoves = [];
+                            inJumpSequence = false;
+                            currentJumpRow = -1;
+                            currentJumpCol = -1;
+                            capturedInSequence = [];
+                            visitedInJump = []; // 修正：重置跳躍路徑記錄
+                            usedJumpPaths.clear(); // 重置已使用的跳躍路徑
+                            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
+                            document.getElementById('endJumpBtn').style.display = 'none';
+                            document.getElementById('legend').style.display = 'none';
+                            render();
+                            return;
+                        }
 
-                    inJumpSequence = true;
-                    currentJumpRow = finalRow;
-                    currentJumpCol = finalCol;
-                    capturedInSequence = capturedPieces;
-                    visitedInJump = visitedPositions;
+                        if (!move.isCapture) {
+                            // 非跳躍移動，直接結束回合
+                            selectedPiece = null;
+                            validMoves = [];
+                            inJumpSequence = false;
+                            currentJumpRow = -1;
+                            currentJumpCol = -1;
+                            capturedInSequence = [];
+                            visitedInJump = []; // 修正：重置跳躍路徑記錄
+                            usedJumpPaths.clear(); // 重置已使用的跳躍路徑
+                            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
+                            document.getElementById('endJumpBtn').style.display = 'none';
+                            document.getElementById('legend').style.display = 'none';
 
-                    let canContinueJump = true;
+                            const winner = checkWin();
+                            if (winner) {
+                                gameOver = true;
+                                gameWinner = winner;
+                                if (winner === PLAYER1) {
+                                    updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
+                                } else {
+                                    updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
+                                }
+                                playSound('win');
+                                if (enableTimer) {
+                                    clearInterval(timerInterval);
+                                }
+                                render();
+                                return;
+                            }
 
-                    while (canContinueJump) {
+                            endPlayerTurn();
+                            return;
+                        }
+
+                        // 跳躍移動，檢查是否可以繼續跳躍
+                        let capturedPieces = [...move.capturedPieces];
+                        let visitedPositions = move.visitedInJump || [];
+
+                        inJumpSequence = true;
+                        currentJumpRow = finalRow;
+                        currentJumpCol = finalCol;
+                        capturedInSequence = capturedPieces;
+                        visitedInJump = visitedPositions;
+
                         const furtherMoves = getJumpMoves(finalRow, finalCol, capturedPieces, visitedPositions);
 
                         if (furtherMoves.length > 0) {
-                            validMoves = furtherMoves;
+                            // 有更多跳躍可以進行
+                            validMoves = [];
+                            for (const jumpMove of furtherMoves) {
+                                validMoves.push({...jumpMove, moveType: 'jump'});
+                            }
+                            
                             selectedPiece = { row: finalRow, col: finalCol };
                             document.getElementById('endJumpBtn').style.display = 'inline-block';
                             document.getElementById('legend').style.display = 'none';
                             updateStatus('連續跳躍中 - 選擇下一個跳躍位置或點擊結束', 'jumping');
                             render();
+                            return; // 等待玩家選擇下一步或結束跳躍
+                        } else {
+                            // 沒有更多跳躍可以進行
+                            inJumpSequence = false;
+                            currentJumpRow = -1;
+                            currentJumpCol = -1;
+                            capturedInSequence = [];
+                            visitedInJump = []; // 修正：重置跳躍路徑記錄
+                            usedJumpPaths.clear(); // 重置已使用的跳躍路徑
+                            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
+                            selectedPiece = null;
+                            validMoves = [];
+                            document.getElementById('endJumpBtn').style.display = 'none';
+                            document.getElementById('legend').style.display = 'none';
 
-                            const nextMove = await waitForPlayerJump(finalRow, finalCol, furtherMoves);
-                            if (nextMove) {
-                                movePiece(finalRow, finalCol, nextMove.row, nextMove.col, nextMove);
-                                capturedPieces.push(...nextMove.capturedPieces);
-                                visitedPositions = nextMove.visitedInJump || visitedPositions;
-                                finalRow = nextMove.row;
-                                finalCol = nextMove.col;
-
-                                currentJumpRow = finalRow;
-                                currentJumpCol = finalCol;
-                                capturedInSequence = capturedPieces;
-                                visitedInJump = visitedPositions;
-
-                                if (checkWinCondition(finalRow, finalCol)) {
-                                    gameOver = true;
-                                    gameWinner = currentPlayer;
-                                    if (currentPlayer === PLAYER1) {
-                                        updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
-                                    } else {
-                                        updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
-                                    }
-                                    playSound('win');
-                                    if (enableTimer) {
-                                        clearInterval(timerInterval);
-                                    }
-                                    selectedPiece = null;
-                                    validMoves = [];
-                                    document.getElementById('endJumpBtn').style.display = 'none';
-                                    document.getElementById('legend').style.display = 'none';
-                                    inJumpSequence = false;
-                                    render();
-                                    return;
+                            const winner = checkWin();
+                            if (winner) {
+                                gameOver = true;
+                                gameWinner = winner;
+                                if (winner === PLAYER1) {
+                                    updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
+                                } else {
+                                    updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
                                 }
-                            } else {
-                                canContinueJump = false;
+                                playSound('win');
+                                if (enableTimer) {
+                                    clearInterval(timerInterval);
+                                }
+                                render();
+                                return;
                             }
-                        } else {
-                            canContinueJump = false;
+
+                            endPlayerTurn();
+                            return;
                         }
                     }
+                }
 
-                    const winner = checkWin();
-                    if (winner) {
-                        gameOver = true;
-                        gameWinner = winner;
-                        if (winner === PLAYER1) {
-                            updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
-                        } else {
-                            updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
-                        }
-                        playSound('win');
-                        if (enableTimer) {
-                            clearInterval(timerInterval);
-                        }
-                        selectedPiece = null;
-                        validMoves = [];
-                        document.getElementById('endJumpBtn').style.display = 'none';
+                if (getBoardCell(row, col) === currentPlayer) {
+                    selectedPiece = { row, col };
+
+                    const normalMoves = getNormalMoves(row, col);
+                    const jumpMoves = getJumpMoves(row, col, [], []);
+
+                    if (inJumpSequence) {
+                        validMoves = getJumpMoves(row, col, capturedInSequence, visitedInJump);
                         document.getElementById('legend').style.display = 'none';
-                        inJumpSequence = false;
-                        render();
-                        return;
-                    }
+                    } else {
+                        validMoves = [];
+                        
+                        for (const move of normalMoves) {
+                            validMoves.push({...move, moveType: 'move'});
+                        }
+                        
+                        for (const move of jumpMoves) {
+                            validMoves.push({...move, moveType: 'jump'});
+                        }
 
-                    inJumpSequence = false;
-                    currentJumpRow = -1;
-                    currentJumpCol = -1;
-                    capturedInSequence = [];
-                    visitedInJump = [];
+                        if (normalMoves.length > 0 && jumpMoves.length > 0) {
+                            document.getElementById('legend').style.display = 'flex';
+                            updateStatus('選擇移動（黃色）或跳躍（橙色）', 'waiting');
+                        } else if (jumpMoves.length > 0) {
+                            document.getElementById('legend').style.display = 'none';
+                            updateStatus('選擇跳躍位置', 'waiting');
+                        } else if (normalMoves.length > 0) {
+                            document.getElementById('legend').style.display = 'none';
+                            updateStatus('選擇移動位置', 'waiting');
+                        } else {
+                            selectedPiece = null;
+                            validMoves = [];
+                            document.getElementById('legend').style.display = 'none';
+                            updateStatus('此棋子無法移動', 'waiting');
+                        }
+                    }
+                } else {
                     selectedPiece = null;
                     validMoves = [];
-                    document.getElementById('endJumpBtn').style.display = 'none';
                     document.getElementById('legend').style.display = 'none';
-
-                    endPlayerTurn();
-                    return;
                 }
-            }
-
-            if (getBoardCell(row, col) === currentPlayer) {
-                selectedPiece = { row, col };
-
-                const normalMoves = getNormalMoves(row, col);
-                const jumpMoves = getJumpMoves(row, col, [], []);
-
-                if (inJumpSequence) {
-                    validMoves = getJumpMoves(row, col, capturedInSequence, visitedInJump);
-                    document.getElementById('legend').style.display = 'none';
-                } else {
-                    validMoves = [];
-                    
-                    for (const move of normalMoves) {
-                        validMoves.push({...move, moveType: 'move'});
-                    }
-                    
-                    for (const move of jumpMoves) {
-                        validMoves.push({...move, moveType: 'jump'});
-                    }
-
-                    if (normalMoves.length > 0 && jumpMoves.length > 0) {
-                        document.getElementById('legend').style.display = 'flex';
-                        updateStatus('選擇移動（黃色）或跳躍（橙色）', 'waiting');
-                    } else if (jumpMoves.length > 0) {
-                        document.getElementById('legend').style.display = 'none';
-                        updateStatus('選擇跳躍位置', 'waiting');
-                    } else if (normalMoves.length > 0) {
-                        document.getElementById('legend').style.display = 'none';
-                        updateStatus('選擇移動位置', 'waiting');
-                    } else {
-                        selectedPiece = null;
-                        validMoves = [];
-                        document.getElementById('legend').style.display = 'none';
-                        updateStatus('此棋子無法移動', 'waiting');
-                    }
-                }
-            } else {
-                selectedPiece = null;
-                validMoves = [];
-                document.getElementById('legend').style.display = 'none';
             }
 
             render();
-        }
-
-        // 等待玩家跳躍
-        function waitForPlayerJump(row, col, possibleJumps) {
-            return new Promise((resolve) => {
-                waitingForJump = true;
-
-                const handleJumpClick = (jumpRow, jumpCol) => {
-                    if (jumpRow === row && jumpCol === col) return;
-
-                    const move = possibleJumps.find(m => m.row === jumpRow && m.col === jumpCol);
-                    if (move) {
-                        waitingForJump = false;
-                        window.jumpClickHandler = null;
-                        resolve(move);
-                    }
-                };
-
-                window.jumpClickHandler = handleJumpClick;
-
-                setTimeout(() => {
-                    if (waitingForJump) {
-                        waitingForJump = false;
-                        window.jumpClickHandler = null;
-                        resolve(null);
-                    }
-                }, 8000);
-            });
         }
 
         // 更新狀態
@@ -2909,6 +3239,10 @@
                     } else {
                         square.classList.add('square');
                     }
+
+                    // 添加數據屬性以便於定位
+                    square.setAttribute('data-row', row);
+                    square.setAttribute('data-col', col);
 
                     addSquareClickHandler(square, row, col);
                     addValidMoveHighlight(square, row, col);
@@ -2994,11 +3328,33 @@
             if (piece === PLAYER1) {
                 const pieceDiv = document.createElement('div');
                 pieceDiv.className = 'piece player';
+                
+                // 檢查是否在特殊格子上，如果是則調整z-index
+                const centerCol = Math.floor(boardColSize / 2);
+                if ((row === boardRowSize - 1 && col === centerCol) || (row === 0 && col === centerCol)) {
+                    pieceDiv.style.zIndex = '20'; // 確保棋子在星星之上
+                    pieceDiv.style.position = 'absolute'; // 使用絕對定位確保棋子在中心
+                    pieceDiv.style.top = '50%';
+                    pieceDiv.style.left = '50%';
+                    pieceDiv.style.transform = 'translate(-50%, -50%)';
+                }
+                
                 pieceDiv.textContent = '●';
                 square.appendChild(pieceDiv);
             } else if (piece === PLAYER2) {
                 const pieceDiv = document.createElement('div');
                 pieceDiv.className = `piece ${(gameMode === 'pvp' || gameMode === 'online') ? 'pvp-p2' : 'ai'}`;
+                
+                // 檢查是否在特殊格子上，如果是則調整z-index
+                const centerCol = Math.floor(boardColSize / 2);
+                if ((row === boardRowSize - 1 && col === centerCol) || (row === 0 && col === centerCol)) {
+                    pieceDiv.style.zIndex = '20'; // 確保棋子在星星之上
+                    pieceDiv.style.position = 'absolute'; // 使用絕對定位確保棋子在中心
+                    pieceDiv.style.top = '50%';
+                    pieceDiv.style.left = '50%';
+                    pieceDiv.style.transform = 'translate(-50%, -50%)';
+                }
+                
                 pieceDiv.textContent = '●';
                 square.appendChild(pieceDiv);
             }
@@ -3019,11 +3375,19 @@
             isAIThinking = false;
             waitingForJump = false;
             window.jumpClickHandler = null;
+            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
+            usedJumpPaths.clear(); // 清空已使用的跳躍路徑記錄
             initGame();
             if (gameMode === 'ai') {
                 updateStatus('你的回合 - 選擇棋子開始', 'waiting');
-            } else if (gameMode === 'pvp' || gameMode === 'online') {
+            } else if (gameMode === 'pvp') {
                 updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
+            } else if (gameMode === 'online') {
+                if (currentPlayer === PLAYER1) {
+                    updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
+                } else {
+                    updateStatus(`等待${playerName2}行動...`, 'thinking');
+                }
             }
         }
 
@@ -3035,28 +3399,16 @@
             isAIThinking = false;
             waitingForJump = false;
             window.jumpClickHandler = null;
+            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
+            usedJumpPaths.clear(); // 清空已使用的跳躍路徑記錄
+            if (ws) {
+                ws.close();
+            }
             showStartScreen();
         }
 
         // 初始化
         showStartScreen();
-        
-        // 檢查URL參數以自動加入房間
-        window.addEventListener('load', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const roomParam = urlParams.get('room');
-            const playerParam = urlParams.get('player');
-            
-            if (roomParam) {
-                // 自動加入房間
-                document.getElementById('joinRoomId').value = roomParam;
-                if (playerParam) {
-                    // 如果有玩家ID，可能是通過連結加入
-                    document.getElementById('joinPlayerName').value = '玩家' + Math.floor(Math.random() * 100);
-                    showJoinRoomScreen();
-                }
-            }
-        });
     </script>
 </body>
 </html>
