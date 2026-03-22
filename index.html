@@ -1663,7 +1663,6 @@
             document.getElementById('joinRoomScreen').style.display = 'none';
             document.getElementById('rulesScreen').style.display = 'none';
             document.getElementById('onlineWaitScreen').style.display = 'flex';
-            document.getElementById('gameScreen').style.display = 'none';
         }
 
         function showGameScreen() {
@@ -1813,52 +1812,50 @@
 
         // 連接到WebSocket服務器
         function connectToServer() {
-            // 這裡我們使用一個模擬的WebSocket實現
-            // 在實際應用中，這會連接到真實的WebSocket服務器
-            try {
-                // 模擬WebSocket連接
-                ws = {
-                    send: function(data) {
-                        console.log("發送數據:", data);
-                        // 模擬服務器響應
-                        setTimeout(() => {
-                            handleServerMessage(JSON.parse(data));
-                        }, 100);
-                    },
-                    close: function() {
-                        console.log("WebSocket連接已關閉");
-                    }
-                };
-                
-                if (isHost) {
-                    // 發送創建房間請求
-                    ws.send(JSON.stringify({
-                        type: 'create_room',
-                        roomId: roomId,
-                        playerId: playerId,
-                        playerName: playerName1
-                    }));
-                } else {
-                    // 發送加入房間請求
-                    ws.send(JSON.stringify({
-                        type: 'join_room',
-                        roomId: roomId,
-                        playerId: playerId,
-                        playerName: playerName1
-                    }));
+            // 模擬WebSocket連接和服務器邏輯
+            ws = {
+                connected: true,
+                send: function(data) {
+                    console.log("發送數據:", data);
+                    // 模擬服務器處理
+                    setTimeout(() => {
+                        handleServerMessage(JSON.parse(data));
+                    }, 100);
+                },
+                close: function() {
+                    console.log("WebSocket連接已關閉");
+                    this.connected = false;
                 }
-            } catch (e) {
-                console.error("WebSocket連接失敗:", e);
-                document.getElementById('waitingText').textContent = '連接失敗，請重試';
+            };
+            
+            if (isHost) {
+                // 主機創建房間
+                ws.send(JSON.stringify({
+                    type: 'create_room',
+                    roomId: roomId,
+                    playerId: playerId,
+                    playerName: playerName1
+                }));
+            } else {
+                // 加入者加入房間
+                ws.send(JSON.stringify({
+                    type: 'join_room',
+                    roomId: roomId,
+                    playerId: playerId,
+                    playerName: playerName1
+                }));
             }
         }
 
         // 處理服務器消息
         function handleServerMessage(message) {
+            console.log("收到服務器消息:", message);
             switch(message.type) {
-                case 'room_created':
+                case 'create_room':
+                    // 主機創建房間成功
                     document.getElementById('waitingText').textContent = '房間已創建，等待玩家2加入...';
                     break;
+                    
                 case 'player_joined':
                     // 主機端接收玩家2加入的消息
                     if (isHost) {
@@ -1897,9 +1894,16 @@
                         document.getElementById('onlineP1Name').textContent = message.hostName;
                         document.getElementById('onlineP1Id').textContent = `ID: ${message.hostId.substring(0, 8)}`;
                         document.getElementById('waitingText').textContent = '已加入房間，等待遊戲開始...';
+                        
+                        // 如果是玩家2，等待遊戲開始
+                        if (!gameStarted) {
+                            document.getElementById('waitingText').textContent = '已加入房間，等待遊戲開始...';
+                        }
                     }
                     break;
+                    
                 case 'game_start':
+                    // 接收遊戲開始消息
                     gameStarted = true;
                     if (isHost) {
                         playerName2 = message.playerName2;
@@ -1908,18 +1912,22 @@
                     }
                     startGame();
                     break;
+                    
                 case 'move':
                     // 接收其他玩家的移動
                     handleRemoteMove(message);
                     break;
+                    
                 case 'turn_change':
                     // 接收回合變化
                     handleRemoteTurnChange(message);
                     break;
+                    
                 case 'game_over':
                     // 接收遊戲結束
                     handleRemoteGameOver(message);
                     break;
+                    
                 case 'error':
                     // 接收錯誤信息
                     document.getElementById('waitingText').textContent = message.message;
