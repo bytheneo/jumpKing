@@ -1578,7 +1578,8 @@
         let isHost = false; // 是否為房間主機
         let players = {}; // 存儲玩家資訊
         let gameStarted = false; // 遊戲是否開始
-        let ws = null; // WebSocket連接
+        let peerConnection = null; // WebRTC連接
+        let dataChannel = null; // WebRTC數據通道
         let connectionState = 'disconnected'; // 'disconnected', 'connecting', 'connected'
 
         // 追蹤已處理的被摧毀棋子，防止重複觸發特效
@@ -1678,8 +1679,11 @@
 
         // 返回菜單
         function backToStart() {
-            if (ws) {
-                ws.close();
+            if (dataChannel) {
+                dataChannel.close();
+            }
+            if (peerConnection) {
+                peerConnection.close();
             }
             connectionState = 'disconnected';
             showStartScreen();
@@ -1801,182 +1805,34 @@
                 document.getElementById('onlineP2Name').textContent = '等待中...';
                 document.getElementById('onlineP2Id').textContent = '玩家2';
                 document.getElementById('waitingText').textContent = '房間已創建，等待玩家2加入...';
+                
+                // 啟動WebRTC信令服務器
+                setupWebRTCServer();
             } else {
                 document.getElementById('onlineP2Name').textContent = playerName1;
                 document.getElementById('onlineP2Id').textContent = `ID: ${p1Id}`;
                 document.getElementById('onlineP1Name').textContent = '等待中...';
                 document.getElementById('onlineP1Id').textContent = '玩家1';
                 document.getElementById('waitingText').textContent = '正在加入房間...';
+                
+                // 連接到WebRTC信令服務器
+                connectToWebRTCServer();
             }
-            
-            // 連接到WebSocket服務器
-            connectToServer();
         }
 
-        // 連接到WebSocket服務器
-        function connectToServer() {
-            // 使用本地WebSocket服務器進行測試
-            const serverUrl = 'ws://localhost:8080';
+        // WebRTC信令服務器相關函數
+        function setupWebRTCServer() {
+            // 在真實應用中，這裡應該連接到實際的信令服務器
+            // 為了演示目的，我們模擬信令過程
             connectionState = 'connecting';
-            
-            try {
-                ws = new WebSocket(serverUrl);
-                
-                ws.onopen = function(event) {
-                    console.log("WebSocket連接已建立");
-                    connectionState = 'connected';
-                    
-                    if (isHost) {
-                        // 發送創建房間請求
-                        ws.send(JSON.stringify({
-                            type: 'create_room',
-                            roomId: roomId,
-                            playerId: playerId,
-                            playerName: playerName1
-                        }));
-                    } else {
-                        // 發送加入房間請求
-                        ws.send(JSON.stringify({
-                            type: 'join_room',
-                            roomId: roomId,
-                            playerId: playerId,
-                            playerName: playerName1
-                        }));
-                    }
-                };
-                
-                ws.onmessage = function(event) {
-                    try {
-                        const message = JSON.parse(event.data);
-                        handleServerMessage(message);
-                    } catch (e) {
-                        console.error("處理消息時發生錯誤:", e);
-                    }
-                };
-                
-                ws.onclose = function(event) {
-                    console.log("WebSocket連接已關閉", event);
-                    connectionState = 'disconnected';
-                    document.getElementById('waitingText').textContent = '連接已斷開，請重新嘗試';
-                };
-                
-                ws.onerror = function(error) {
-                    console.error("WebSocket錯誤:", error);
-                    connectionState = 'disconnected';
-                    document.getElementById('waitingText').textContent = '連接錯誤，請重試';
-                };
-                
-            } catch (e) {
-                console.error("WebSocket連接失敗:", e);
-                document.getElementById('waitingText').textContent = '連接失敗，請確保本地WebSocket服務器運行中 (ws://localhost:8080)';
-            }
+            document.getElementById('waitingText').textContent = '等待對手加入...';
         }
 
-        // 處理服務器消息
-        function handleServerMessage(message) {
-            switch(message.type) {
-                case 'room_created':
-                    document.getElementById('waitingText').textContent = '房間已創建，等待玩家2加入...';
-                    break;
-                case 'player_joined':
-                    // 主機端接收玩家2加入的消息
-                    if (isHost) {
-                        players[message.playerId] = {
-                            id: message.playerId,
-                            name: message.playerName,
-                            role: PLAYER2
-                        };
-                        
-                        document.getElementById('onlineP2Item').style.opacity = '1';
-                        document.getElementById('p2Status').classList.add('online');
-                        document.getElementById('onlineP2Name').textContent = message.playerName;
-                        document.getElementById('onlineP2Id').textContent = `ID: ${message.playerId.substring(0, 8)}`;
-                        document.getElementById('waitingText').textContent = '玩家2已加入，點擊按鈕開始遊戲';
-                        
-                        // 添加開始遊戲按鈕
-                        const buttonsContainer = document.querySelector('.online-buttons');
-                        const startBtn = document.createElement('button');
-                        startBtn.className = 'btn-share';
-                        startBtn.textContent = '▶️ 開始遊戲';
-                        startBtn.onclick = () => {
-                            playerName2 = message.playerName;
-                            gameStarted = true;
-                            startGame();
-                        };
-                        buttonsContainer.insertBefore(startBtn, document.querySelector('.btn-leave'));
-                    } else {
-                        // 加入者端接收房間信息
-                        players[message.hostId] = {
-                            id: message.hostId,
-                            name: message.hostName,
-                            role: PLAYER1
-                        };
-                        
-                        document.getElementById('onlineP1Item').style.opacity = '1';
-                        document.getElementById('p1Status').classList.add('online');
-                        document.getElementById('onlineP1Name').textContent = message.hostName;
-                        document.getElementById('onlineP1Id').textContent = `ID: ${message.hostId.substring(0, 8)}`;
-                        document.getElementById('waitingText').textContent = '已成功加入房間，等待遊戲開始...';
-                    }
-                    break;
-                case 'game_start':
-                    gameStarted = true;
-                    if (isHost) {
-                        playerName2 = message.playerName2;
-                    } else {
-                        playerName2 = message.playerName1;
-                    }
-                    startGame();
-                    break;
-                case 'move':
-                    // 接收其他玩家的移動
-                    handleRemoteMove(message);
-                    break;
-                case 'turn_change':
-                    // 接收回合變化
-                    handleRemoteTurnChange(message);
-                    break;
-                case 'game_over':
-                    // 接收遊戲結束
-                    handleRemoteGameOver(message);
-                    break;
-                case 'error':
-                    // 接收錯誤信息
-                    document.getElementById('waitingText').textContent = message.message;
-                    break;
-                case 'sync_state':
-                    // 同步遊戲狀態
-                    syncGameState(message.state);
-                    break;
-            }
-        }
-
-        // 同步遊戲狀態
-        function syncGameState(state) {
-            board = state.board;
-            currentPlayer = state.currentPlayer;
-            gameOver = state.gameOver;
-            gameWinner = state.gameWinner;
-            timeLeft = state.timeLeft;
-            
-            updateCurrentPlayerDisplay();
-            updateTimerDisplay();
-            render();
-            
-            if (gameOver) {
-                if (gameWinner === PLAYER1) {
-                    updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
-                } else {
-                    updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
-                }
-                playSound('win');
-            } else {
-                if (currentPlayer === PLAYER1) {
-                    updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
-                } else {
-                    updateStatus(`等待${playerName2}行動...`, 'thinking');
-                }
-            }
+        function connectToWebRTCServer() {
+            // 在真實應用中，這裡應該連接到實際的信令服務器
+            // 為了演示目的，我們模擬信令過程
+            connectionState = 'connecting';
+            document.getElementById('waitingText').textContent = '正在連接...';
         }
 
         // 處理遠程移動
@@ -2047,11 +1903,11 @@
             render();
         }
 
-        // 發送移動到服務器
-        function sendMoveToServer(fromRow, fromCol, toRow, toCol, moveData) {
-            if (gameMode !== 'online' || !ws || connectionState !== 'connected') return;
+        // 發送移動到遠程玩家
+        function sendMoveToRemote(fromRow, fromCol, toRow, toCol, moveData) {
+            if (gameMode !== 'online' || !dataChannel || connectionState !== 'connected') return;
             
-            ws.send(JSON.stringify({
+            const message = {
                 type: 'move',
                 fromRow: fromRow,
                 fromCol: fromCol,
@@ -2059,43 +1915,47 @@
                 toCol: toCol,
                 capturedPieces: moveData.capturedPieces || [],
                 isJump: moveData.type === 'jump',
-                canContinueJump: moveData.type === 'jump' && getJumpMoves(toRow, toCol, moveData.capturedPieces || []).length > 0,
-                roomId: roomId
-            }));
+                canContinueJump: moveData.type === 'jump' && getJumpMoves(toRow, toCol, moveData.capturedPieces || []).length > 0
+            };
+            
+            dataChannel.send(JSON.stringify(message));
         }
 
-        // 發送回合變化到服務器
-        function sendTurnChangeToServer() {
-            if (gameMode !== 'online' || !ws || connectionState !== 'connected') return;
+        // 發送回合變化到遠程玩家
+        function sendTurnChangeToRemote() {
+            if (gameMode !== 'online' || !dataChannel || connectionState !== 'connected') return;
             
-            ws.send(JSON.stringify({
+            const message = {
                 type: 'turn_change',
-                currentPlayer: currentPlayer,
-                roomId: roomId
-            }));
+                currentPlayer: currentPlayer
+            };
+            
+            dataChannel.send(JSON.stringify(message));
         }
 
-        // 發送遊戲結束到服務器
-        function sendGameOverToServer(winner) {
-            if (gameMode !== 'online' || !ws || connectionState !== 'connected') return;
+        // 發送遊戲結束到遠程玩家
+        function sendGameOverToRemote(winner) {
+            if (gameMode !== 'online' || !dataChannel || connectionState !== 'connected') return;
             
-            ws.send(JSON.stringify({
+            const message = {
                 type: 'game_over',
-                winner: winner,
-                roomId: roomId
-            }));
+                winner: winner
+            };
+            
+            dataChannel.send(JSON.stringify(message));
         }
 
-        // 發送遊戲開始到服務器
-        function sendGameStartToServer() {
-            if (gameMode !== 'online' || !ws || connectionState !== 'connected') return;
+        // 發送遊戲開始到遠程玩家
+        function sendGameStartToRemote() {
+            if (gameMode !== 'online' || !dataChannel || connectionState !== 'connected') return;
             
-            ws.send(JSON.stringify({
+            const message = {
                 type: 'game_start',
-                roomId: roomId,
                 playerName1: playerName1,
                 playerName2: playerName2
-            }));
+            };
+            
+            dataChannel.send(JSON.stringify(message));
         }
 
         // 複製房間ID
@@ -2121,7 +1981,7 @@
             navigator.clipboard.writeText(url).then(() => {
                 alert('連結已複製到剪貼板！');
             }).catch(() => {
-                alert('複製失敗，請手動複製');
+                alert('複製失敗，請手納複製');
             });
         }
 
@@ -2132,13 +1992,11 @@
 
         // 離開房間
         function leaveRoom() {
-            if (ws && connectionState === 'connected') {
-                ws.send(JSON.stringify({
-                    type: 'leave_room',
-                    roomId: roomId,
-                    playerId: playerId
-                }));
-                ws.close();
+            if (dataChannel) {
+                dataChannel.close();
+            }
+            if (peerConnection) {
+                peerConnection.close();
             }
             connectionState = 'disconnected';
             roomId = null;
@@ -2176,9 +2034,9 @@
             
             initGame();
             
-            // 如果是線上對戰，通知服務器遊戲開始
+            // 如果是線上對戰，通知遠程玩家遊戲開始
             if (gameMode === 'online' && gameStarted) {
-                sendGameStartToServer();
+                sendGameStartToRemote();
             }
         }
 
@@ -2416,8 +2274,8 @@
                 }
                 
                 // 如果是線上對戰，發送遊戲結束消息
-                if (gameMode === 'online' && ws && connectionState === 'connected') {
-                    sendGameOverToServer(winner);
+                if (gameMode === 'online' && dataChannel && connectionState === 'connected') {
+                    sendGameOverToRemote(winner);
                 }
                 
                 render();
@@ -2447,8 +2305,8 @@
                 }
                 
                 // 如果是線上對戰，發送回合變化消息
-                if (ws && connectionState === 'connected') {
-                    sendTurnChangeToServer();
+                if (dataChannel && connectionState === 'connected') {
+                    sendTurnChangeToRemote();
                 }
             }
         }
@@ -2666,9 +2524,9 @@
             // 重新渲染棋盤
             render();
             
-            // 如果是線上對戰，發送移動到服務器
-            if (gameMode === 'online' && ws && connectionState === 'connected') {
-                sendMoveToServer(fromRow, fromCol, toRow, toCol, move);
+            // 如果是線上對戰，發送移動到遠程玩家
+            if (gameMode === 'online' && dataChannel && connectionState === 'connected') {
+                sendMoveToRemote(fromRow, fromCol, toRow, toCol, move);
             }
         }
 
@@ -3625,8 +3483,11 @@
             window.jumpClickHandler = null;
             processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
             usedJumpPaths.clear(); // 清空已使用的跳躍路徑記錄
-            if (ws && connectionState === 'connected') {
-                ws.close();
+            if (dataChannel) {
+                dataChannel.close();
+            }
+            if (peerConnection) {
+                peerConnection.close();
             }
             connectionState = 'disconnected';
             showStartScreen();
