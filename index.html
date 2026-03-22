@@ -966,7 +966,7 @@
 
         .legend-item {
             display: flex;
-            alignItems: center;
+            align-items: center;
             gap: 5px;
         }
 
@@ -1558,8 +1558,8 @@
     </script>
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script>
         // Firebase 配置 (使用公開測試配置，生產環境需替換為自己的配置)
         const firebaseConfig = {
@@ -1626,6 +1626,7 @@
         let gameRef = null; // Firebase 引用
         let playerRef = null; // 玩家節點引用
         let connectionsRef = null; // 連接狀態引用
+        let onlineGameRef = null; // 線上遊戲引用
         
         // 追蹤已處理的被摧毀棋子，防止重複觸發特效
         let processedCaptures = new Set();
@@ -1736,6 +1737,10 @@
             if (connectionsRef) {
                 connectionsRef.remove();
                 connectionsRef = null;
+            }
+            if (onlineGameRef) {
+                onlineGameRef.off();
+                onlineGameRef = null;
             }
             
             roomId = null;
@@ -1879,15 +1884,16 @@
 
         // 初始化 Firebase 房間
         function initializeFirebaseRoom() {
-            gameRef = database.ref(`games/${roomId}`);
+            // 修復：使用更穩定的引用方式
+            onlineGameRef = database.ref(`games/${roomId}`);
             
             // 檢查房間是否存在且是否已滿
-            gameRef.once('value', (snapshot) => {
+            onlineGameRef.once('value', (snapshot) => {
                 const gameData = snapshot.val();
                 
                 if (isHost) {
                     // 主機創建房間
-                    gameRef.set({
+                    onlineGameRef.set({
                         board: board,
                         currentPlayer: PLAYER1,
                         gameOver: false,
@@ -1926,7 +1932,7 @@
                     }
                     
                     // 加入房間
-                    gameRef.update({
+                    onlineGameRef.update({
                         player2: {
                             id: playerId,
                             name: playerName1,
@@ -1947,9 +1953,10 @@
 
         // 監聽遊戲變化
         function listenToGameChanges() {
-            if (!gameRef) return;
+            if (!onlineGameRef) return;
             
-            gameRef.on('value', (snapshot) => {
+            // 修復：改為更穩定的監聽方式
+            onlineGameRef.on('value', (snapshot) => {
                 const gameData = snapshot.val();
                 
                 if (!gameData) return;
@@ -1986,7 +1993,7 @@
             });
             
             // 監聽房間移除事件
-            gameRef.onDisconnect().remove();
+            onlineGameRef.onDisconnect().remove();
         }
 
         // 更新連接狀態顯示
@@ -2090,80 +2097,12 @@
 
         // 發送遊戲狀態到 Firebase
         function sendGameStateToFirebase(newState) {
-            if (!gameRef || !isHost) return; // 只有主機可以更新遊戲狀態
+            if (!onlineGameRef || !isHost) return; // 只有主機可以更新遊戲狀態
             
-            gameRef.update({
+            onlineGameRef.update({
                 ...newState,
                 lastUpdated: Date.now()
             });
-        }
-
-        // 處理遠程移動
-        function handleRemoteMove(message) {
-            if (gameMode !== 'online' || !gameStarted) return;
-            
-            // 應用遠程玩家的移動
-            setBoardCell(message.toRow, message.toCol, getBoardCell(message.fromRow, message.fromCol));
-            setBoardCell(message.fromRow, message.fromCol, EMPTY);
-            
-            // 如果有捕獲棋子
-            if (message.capturedPieces) {
-                for (const captured of message.capturedPieces) {
-                    setBoardCell(captured.row, captured.col, EMPTY);
-                }
-            }
-            
-            // 更新UI
-            render();
-            
-            // 如果是跳躍，檢查是否還有更多跳躍
-            if (message.isJump) {
-                if (message.canContinueJump) {
-                    // 等待遠程玩家繼續跳躍
-                    updateStatus(`等待${playerName2}繼續跳躍...`, 'thinking');
-                } else {
-                    // 結束遠程玩家的回合
-                    endPlayerTurn();
-                }
-            } else {
-                // 非跳躍移動，直接結束回合
-                endPlayerTurn();
-            }
-        }
-
-        // 處理遠程回合變化
-        function handleRemoteTurnChange(message) {
-            if (gameMode !== 'online' || !gameStarted) return;
-            
-            currentPlayer = message.currentPlayer;
-            updateCurrentPlayerDisplay();
-            startTurnTimer();
-            
-            if (currentPlayer === PLAYER1) {
-                updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
-            } else {
-                updateStatus(`等待${playerName2}行動...`, 'thinking');
-            }
-        }
-
-        // 處理遠程遊戲結束
-        function handleRemoteGameOver(message) {
-            if (gameMode !== 'online' || !gameStarted) return;
-            
-            gameOver = true;
-            gameWinner = message.winner;
-            
-            if (message.winner === PLAYER1) {
-                updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
-            } else {
-                updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
-            }
-            
-            playSound('win');
-            if (enableTimer) {
-                clearInterval(timerInterval);
-            }
-            render();
         }
 
         // 發送移動到遠程玩家
@@ -2254,9 +2193,9 @@
         // 離開房間
         function leaveRoom() {
             // 離開房間並清理 Firebase 引用
-            if (gameRef) {
-                gameRef.off(); // 移除所有監聽器
-                gameRef = null;
+            if (onlineGameRef) {
+                onlineGameRef.off(); // 移除所有監聽器
+                onlineGameRef = null;
             }
             if (playerRef) {
                 playerRef.remove();
@@ -3768,9 +3707,9 @@
             processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
             usedJumpPaths.clear(); // 清空已使用的跳躍路徑記錄
             // 離開房間並清理 Firebase 引用
-            if (gameRef) {
-                gameRef.off(); // 移除所有監聽器
-                gameRef = null;
+            if (onlineGameRef) {
+                onlineGameRef.off(); // 移除所有監聽器
+                onlineGameRef = null;
             }
             if (playerRef) {
                 playerRef.remove();
