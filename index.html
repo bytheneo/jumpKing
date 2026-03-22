@@ -237,6 +237,54 @@
             transform: translateY(-2px);
         }
 
+        /* 加入房間介面 */
+        .join-room-screen {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+
+        .join-room-screen h2 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .join-room-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .join-room-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .join-room-buttons {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .btn-join {
+            background: #4facfe;
+            color: white;
+        }
+
+        .btn-join:hover {
+            background: #3fa3ee;
+            transform: translateY(-2px);
+        }
+
         /* 規則介面 */
         .rules-screen {
             display: none;
@@ -1190,8 +1238,26 @@
                 </div>
             </div>
             <div class="room-setup-buttons">
-                <button class="btn-start" onclick="confirmRoomSetup()">開始遊戲</button>
+                <button class="btn-start" onclick="confirmRoomSetup()">創建房間</button>
+                <button class="btn-start" onclick="showJoinRoomScreen()">加入房間</button>
                 <button class="btn-back" onclick="backToStart()">返回</button>
+            </div>
+        </div>
+
+        <!-- 加入房間介面 -->
+        <div class="join-room-screen" id="joinRoomScreen">
+            <h2>加入房間</h2>
+            <div class="room-setup-item">
+                <label for="joinRoomId">房間ID或連結</label>
+                <input type="text" id="joinRoomId" placeholder="輸入房間ID或完整連結" maxlength="100">
+            </div>
+            <div class="room-setup-item">
+                <label for="joinPlayerName">您的名稱</label>
+                <input type="text" id="joinPlayerName" placeholder="輸入您的名稱" maxlength="20">
+            </div>
+            <div class="join-room-buttons">
+                <button class="btn-join" onclick="joinRoom()">加入房間</button>
+                <button class="btn-back" onclick="showRoomSetupScreen('online')">返回</button>
             </div>
         </div>
 
@@ -1266,8 +1332,8 @@
                 <div class="player-item p2" id="onlineP2Item" style="opacity: 0.5;">
                     <div class="player-status"></div>
                     <div>
-                        <div class="player-name">等待中...</div>
-                        <div class="player-id">玩家2</div>
+                        <div class="player-name" id="onlineP2Name">等待中...</div>
+                        <div class="player-id" id="onlineP2Id">玩家2</div>
                     </div>
                 </div>
             </div>
@@ -1540,6 +1606,7 @@
         function showStartScreen() {
             document.getElementById('startScreen').style.display = 'flex';
             document.getElementById('roomSetupScreen').style.display = 'none';
+            document.getElementById('joinRoomScreen').style.display = 'none';
             document.getElementById('rulesScreen').style.display = 'none';
             document.getElementById('onlineWaitScreen').style.display = 'none';
             document.getElementById('gameScreen').style.display = 'none';
@@ -1555,6 +1622,7 @@
             document.getElementById('roomSetupTitle').textContent = title;
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('roomSetupScreen').style.display = 'flex';
+            document.getElementById('joinRoomScreen').style.display = 'none';
             document.getElementById('rulesScreen').style.display = 'none';
             document.getElementById('onlineWaitScreen').style.display = 'none';
             document.getElementById('gameScreen').style.display = 'none';
@@ -1565,25 +1633,26 @@
             boardRowSize = 9;
             boardColSize = 9;
             updateGameModeSelection('standard');
+        }
+
+        function showJoinRoomScreen() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('roomSetupScreen').style.display = 'none';
+            document.getElementById('joinRoomScreen').style.display = 'flex';
+            document.getElementById('rulesScreen').style.display = 'none';
+            document.getElementById('onlineWaitScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'none';
             
-            const p2Item = document.getElementById('setupPlayerName2Item');
-            const timerToggle = document.getElementById('setupTimerToggle');
-            if (mode === 'ai') {
-                p2Item.style.display = 'none';
-                timerToggle.style.display = 'none';
-            } else if (mode === 'pvp') {
-                p2Item.style.display = 'flex';
-                timerToggle.style.display = 'flex';
-            } else {
-                p2Item.style.display = 'none';
-                timerToggle.style.display = 'none';
-            }
+            // 清空表單
+            document.getElementById('joinRoomId').value = '';
+            document.getElementById('joinPlayerName').value = '';
         }
 
         function showRulesScreen() {
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('roomSetupScreen').style.display = 'none';
-            document.getElementById('rulesScreen').style.display = 'none';
+            document.getElementById('joinRoomScreen').style.display = 'none';
+            document.getElementById('rulesScreen').style.display = 'flex';
             document.getElementById('onlineWaitScreen').style.display = 'none';
             document.getElementById('gameScreen').style.display = 'none';
         }
@@ -1591,6 +1660,7 @@
         function showOnlineWaitScreen() {
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('roomSetupScreen').style.display = 'none';
+            document.getElementById('joinRoomScreen').style.display = 'none';
             document.getElementById('rulesScreen').style.display = 'none';
             document.getElementById('onlineWaitScreen').style.display = 'flex';
             document.getElementById('gameScreen').style.display = 'none';
@@ -1599,6 +1669,7 @@
         function showGameScreen() {
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('roomSetupScreen').style.display = 'none';
+            document.getElementById('joinRoomScreen').style.display = 'none';
             document.getElementById('rulesScreen').style.display = 'none';
             document.getElementById('onlineWaitScreen').style.display = 'none';
             document.getElementById('gameScreen').style.display = 'block';
@@ -1677,13 +1748,64 @@
             }
         }
 
+        // 加入房間
+        function joinRoom() {
+            const roomIdInput = document.getElementById('joinRoomId').value.trim();
+            const playerName = document.getElementById('joinPlayerName').value.trim();
+            
+            if (!roomIdInput) {
+                alert('請輸入房間ID或連結');
+                return;
+            }
+            
+            if (!playerName) {
+                alert('請輸入您的名稱');
+                return;
+            }
+            
+            // 解析連結中的房間ID
+            let extractedRoomId = roomIdInput.toUpperCase();
+            if (roomIdInput.includes('?room=')) {
+                const params = new URLSearchParams(roomIdInput.split('?')[1]);
+                extractedRoomId = params.get('room')?.toUpperCase() || extractedRoomId;
+            }
+            
+            roomId = extractedRoomId;
+            playerName1 = playerName;
+            playerId = generateId();
+            currentTurnTime = TURN_TIME_ONLINE;
+            isHost = false; // 加入房間者不是主機
+            players = {
+                [playerId]: {
+                    id: playerId,
+                    name: playerName1,
+                    role: PLAYER2
+                }
+            };
+            
+            showOnlineWaitScreen();
+            setupOnlineGame();
+        }
+
         // 設置線上遊戲
         function setupOnlineGame() {
             const p1Id = playerId.substr(0, 8);
             document.getElementById('roomId').textContent = roomId;
             document.getElementById('onlinePlayerName').textContent = playerName1;
-            document.getElementById('onlineP1Name').textContent = playerName1;
-            document.getElementById('onlineP1Id').textContent = `ID: ${p1Id}`;
+            
+            if (isHost) {
+                document.getElementById('onlineP1Name').textContent = playerName1;
+                document.getElementById('onlineP1Id').textContent = `ID: ${p1Id}`;
+                document.getElementById('onlineP2Name').textContent = '等待中...';
+                document.getElementById('onlineP2Id').textContent = '玩家2';
+                document.getElementById('waitingText').textContent = '房間已創建，等待玩家2加入...';
+            } else {
+                document.getElementById('onlineP2Name').textContent = playerName1;
+                document.getElementById('onlineP2Id').textContent = `ID: ${p1Id}`;
+                document.getElementById('onlineP1Name').textContent = '等待中...';
+                document.getElementById('onlineP1Id').textContent = '玩家1';
+                document.getElementById('waitingText').textContent = '正在加入房間...';
+            }
             
             // 嘗試連接到WebSocket服務器
             connectToServer();
@@ -1708,13 +1830,23 @@
                     }
                 };
                 
-                // 發送創建房間請求
-                ws.send(JSON.stringify({
-                    type: 'create_room',
-                    roomId: roomId,
-                    playerId: playerId,
-                    playerName: playerName1
-                }));
+                if (isHost) {
+                    // 發送創建房間請求
+                    ws.send(JSON.stringify({
+                        type: 'create_room',
+                        roomId: roomId,
+                        playerId: playerId,
+                        playerName: playerName1
+                    }));
+                } else {
+                    // 發送加入房間請求
+                    ws.send(JSON.stringify({
+                        type: 'join_room',
+                        roomId: roomId,
+                        playerId: playerId,
+                        playerName: playerName1
+                    }));
+                }
             } catch (e) {
                 console.error("WebSocket連接失敗:", e);
                 document.getElementById('waitingText').textContent = '連接失敗，請重試';
@@ -1728,32 +1860,52 @@
                     document.getElementById('waitingText').textContent = '房間已創建，等待玩家2加入...';
                     break;
                 case 'player_joined':
-                    players[message.playerId] = {
-                        id: message.playerId,
-                        name: message.playerName,
-                        role: PLAYER2
-                    };
-                    
-                    document.getElementById('onlineP2Item').style.opacity = '1';
-                    document.getElementById('onlineP2Item').querySelector('.player-status').classList.add('online');
-                    document.getElementById('onlineP2Item').querySelector('.player-name').textContent = message.playerName;
-                    document.getElementById('onlineP2Item').querySelector('.player-id').textContent = `ID: ${message.playerId.substring(0, 8)}`;
-                    document.getElementById('waitingText').textContent = '玩家2已加入，點擊按鈕開始遊戲';
-                    
-                    // 添加開始遊戲按鈕
-                    const startBtn = document.createElement('button');
-                    startBtn.className = 'btn-share';
-                    startBtn.textContent = '▶️ 開始遊戲';
-                    startBtn.onclick = () => {
-                        playerName2 = message.playerName;
-                        gameStarted = true;
-                        startGame();
-                    };
-                    document.querySelector('.online-buttons').insertBefore(startBtn, document.querySelector('.btn-leave'));
+                    // 主機端接收玩家2加入的消息
+                    if (isHost) {
+                        players[message.playerId] = {
+                            id: message.playerId,
+                            name: message.playerName,
+                            role: PLAYER2
+                        };
+                        
+                        document.getElementById('onlineP2Item').style.opacity = '1';
+                        document.getElementById('onlineP2Item').querySelector('.player-status').classList.add('online');
+                        document.getElementById('onlineP2Name').textContent = message.playerName;
+                        document.getElementById('onlineP2Id').textContent = `ID: ${message.playerId.substring(0, 8)}`;
+                        document.getElementById('waitingText').textContent = '玩家2已加入，點擊按鈕開始遊戲';
+                        
+                        // 添加開始遊戲按鈕
+                        const startBtn = document.createElement('button');
+                        startBtn.className = 'btn-share';
+                        startBtn.textContent = '▶️ 開始遊戲';
+                        startBtn.onclick = () => {
+                            playerName2 = message.playerName;
+                            gameStarted = true;
+                            startGame();
+                        };
+                        document.querySelector('.online-buttons').insertBefore(startBtn, document.querySelector('.btn-leave'));
+                    } else {
+                        // 加入者端接收房間信息
+                        players[message.hostId] = {
+                            id: message.hostId,
+                            name: message.hostName,
+                            role: PLAYER1
+                        };
+                        
+                        document.getElementById('onlineP1Item').style.opacity = '1';
+                        document.getElementById('onlineP1Item').querySelector('.player-status').classList.add('online');
+                        document.getElementById('onlineP1Name').textContent = message.hostName;
+                        document.getElementById('onlineP1Id').textContent = `ID: ${message.hostId.substring(0, 8)}`;
+                        document.getElementById('waitingText').textContent = '已加入房間，等待遊戲開始...';
+                    }
                     break;
                 case 'game_start':
                     gameStarted = true;
-                    playerName2 = message.opponentName;
+                    if (isHost) {
+                        playerName2 = message.playerName2;
+                    } else {
+                        playerName2 = message.playerName1;
+                    }
                     startGame();
                     break;
                 case 'move':
@@ -1767,6 +1919,10 @@
                 case 'game_over':
                     // 接收遊戲結束
                     handleRemoteGameOver(message);
+                    break;
+                case 'error':
+                    // 接收錯誤信息
+                    document.getElementById('waitingText').textContent = message.message;
                     break;
             }
         }
@@ -3409,6 +3565,30 @@
 
         // 初始化
         showStartScreen();
+        
+        // 檢查網址參數，自動加入房間
+        window.addEventListener('load', () => {
+            const params = new URLSearchParams(window.location.search);
+            const roomParam = params.get('room');
+            const playerParam = params.get('player');
+            
+            if (roomParam) {
+                // 自動加入房間
+                document.getElementById('joinRoomId').value = roomParam;
+                document.getElementById('joinPlayerName').value = '玩家' + Math.floor(Math.random() * 1000);
+                document.getElementById('startScreen').style.display = 'none';
+                document.getElementById('roomSetupScreen').style.display = 'none';
+                document.getElementById('joinRoomScreen').style.display = 'flex';
+                document.getElementById('rulesScreen').style.display = 'none';
+                document.getElementById('onlineWaitScreen').style.display = 'none';
+                document.getElementById('gameScreen').style.display = 'none';
+                
+                // 延遲執行加入房間，確保UI已更新
+                setTimeout(() => {
+                    joinRoom();
+                }, 500);
+            }
+        });
     </script>
 </body>
 </html>
