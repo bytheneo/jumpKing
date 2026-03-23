@@ -199,6 +199,77 @@
             color: white;
         }
 
+        .timer-toggle {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .timer-toggle label {
+            flex: 1;
+            font-size: 16px;
+            color: #333;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .checkbox {
+            position: relative;
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .checkbox input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .checkbox-checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 24px;
+            width: 24px;
+            background-color: #eee;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .checkbox:hover input ~ .checkbox-checkmark {
+            background-color: #f0f0f0;
+            border-color: #667eea;
+        }
+
+        .checkbox input:checked ~ .checkbox-checkmark {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+
+        .checkbox-checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 7px;
+            top: 3px;
+            width: 6px;
+            height: 12px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .checkbox input:checked ~ .checkbox-checkmark:after {
+            display: block;
+        }
+
         .room-setup-buttons {
             display: flex;
             gap: 10px;
@@ -234,54 +305,6 @@
 
         .btn-back:hover {
             background: #bbb;
-            transform: translateY(-2px);
-        }
-
-        /* 加入房間介面 */
-        .join-room-screen {
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 400px;
-        }
-
-        .join-room-screen h2 {
-            font-size: 32px;
-            color: #333;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .join-room-input {
-            width: 100%;
-            padding: 15px;
-            font-size: 18px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .join-room-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .join-room-buttons {
-            display: flex;
-            gap: 10px;
-            width: 100%;
-        }
-
-        .btn-join {
-            background: #4facfe;
-            color: white;
-        }
-
-        .btn-join:hover {
-            background: #3fa3ee;
             transform: translateY(-2px);
         }
 
@@ -414,25 +437,6 @@
             background: #c8e6c9;
         }
 
-        .connection-status {
-            background: #fff3cd;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 14px;
-            color: #856404;
-            margin-top: 10px;
-        }
-
-        .connection-status.connected {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .connection-status.disconnected {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
         .copy-hint {
             font-size: 12px;
             color: #999;
@@ -474,10 +478,6 @@
 
         .player-status.online {
             background: #4caf50;
-        }
-
-        .player-status.offline {
-            background: #6c757d;
         }
 
         .player-name {
@@ -885,7 +885,6 @@
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
-            100% { transform: translateY(-10px); }
         }
 
         .button-group {
@@ -966,7 +965,7 @@
 
         .legend-item {
             display: flex;
-            align-items: center;
+            alignItems: center;
             gap: 5px;
         }
 
@@ -1246,8 +1245,12 @@
             <h2 id="roomSetupTitle">房間設定</h2>
             <div class="room-setup-group">
                 <div class="room-setup-item">
-                    <label for="setupPlayerName1">玩家名稱</label>
+                    <label for="setupPlayerName1">玩家1名稱</label>
                     <input type="text" id="setupPlayerName1" placeholder="輸入您的名稱" maxlength="20">
+                </div>
+                <div class="room-setup-item" id="setupPlayerName2Item" style="display: none;">
+                    <label for="setupPlayerName2">玩家2名稱</label>
+                    <input type="text" id="setupPlayerName2" placeholder="輸入玩家2的名稱" maxlength="20">
                 </div>
                 <div class="room-setup-item">
                     <label>遊戲模式</label>
@@ -1260,28 +1263,17 @@
                         </div>
                     </div>
                 </div>
+                <div class="timer-toggle" id="setupTimerToggle" style="display: none;">
+                    <label for="setupEnableTimer">啟用時間限制</label>
+                    <label class="checkbox">
+                        <input type="checkbox" id="setupEnableTimer" checked>
+                        <span class="checkbox-checkmark"></span>
+                    </label>
+                </div>
             </div>
             <div class="room-setup-buttons">
-                <button class="btn-start" onclick="confirmRoomSetup()">創建房間</button>
-                <button class="btn-start" onclick="showJoinRoomScreen()">加入房間</button>
+                <button class="btn-start" onclick="confirmRoomSetup()">開始遊戲</button>
                 <button class="btn-back" onclick="backToStart()">返回</button>
-            </div>
-        </div>
-
-        <!-- 加入房間介面 -->
-        <div class="join-room-screen" id="joinRoomScreen">
-            <h2>加入房間</h2>
-            <div class="room-setup-item">
-                <label for="joinRoomId">房間ID或連結</label>
-                <input type="text" id="joinRoomId" placeholder="輸入房間ID或完整連結" maxlength="100">
-            </div>
-            <div class="room-setup-item">
-                <label for="joinPlayerName">您的名稱</label>
-                <input type="text" id="joinPlayerName" placeholder="輸入您的名稱" maxlength="20">
-            </div>
-            <div class="join-room-buttons">
-                <button class="btn-join" onclick="joinRoom()">加入房間</button>
-                <button class="btn-back" onclick="showRoomSetupScreen('online')">返回</button>
             </div>
         </div>
 
@@ -1338,7 +1330,6 @@
                     <span class="room-info-label">房間ID：</span>
                     <span class="room-id" id="roomId" onclick="copyRoomId()">加載中...</span>
                 </div>
-                <div class="connection-status disconnected" id="connectionStatus">未連接</div>
                 <div class="copy-hint">點擊房間ID可複製分享連結</div>
                 <div class="room-info-item" style="margin-top: 15px;">
                     <span class="room-info-label">你的名稱：</span>
@@ -1348,17 +1339,17 @@
             <div class="player-list">
                 <h3>玩家列表</h3>
                 <div class="player-item">
-                    <div class="player-status online" id="p1Status"></div>
+                    <div class="player-status online"></div>
                     <div>
                         <div class="player-name" id="onlineP1Name">加載中...</div>
                         <div class="player-id" id="onlineP1Id">玩家1</div>
                     </div>
                 </div>
                 <div class="player-item p2" id="onlineP2Item" style="opacity: 0.5;">
-                    <div class="player-status" id="p2Status"></div>
+                    <div class="player-status"></div>
                     <div>
-                        <div class="player-name" id="onlineP2Name">等待中...</div>
-                        <div class="player-id" id="onlineP2Id">玩家2</div>
+                        <div class="player-name">等待中...</div>
+                        <div class="player-id">玩家2</div>
                     </div>
                 </div>
             </div>
@@ -1397,7 +1388,7 @@
 
             <div class="status-panel">
                 <div class="status-text" id="statusText">你的回合 - 選擇棋子開始</div>
-                <div class="current-player-indicator" id="currentPlayerIndicator">
+                <div class="current-player-indicator" id="currentPlayerIndicator" style="display: none;">
                     當前玩家：<span class="current-player-name player1" id="currentPlayerName">玩家1</span>
                 </div>
                 <div class="legend" id="legend" style="display: none;">
@@ -1426,7 +1417,7 @@
             <div class="rules">
                 <h3>遊戲規則：</h3>
                 <ul>
-                    <li>🔴 紅色棋子是玩家1，其他顏色棋子是玩家2</li>
+                    <li>🔴 紅色棋子是玩家1，其他顏色棋子是玩家2/AI</li>
                     <li>⏱️ <strong>時間限制依遊戲模式而定</strong></li>
                     <li>普通移動：棋子可以向8個方位移動一步到空位（黃色高亮）</li>
                     <li>跳躍移動：跳過相鄰的另一枚棋子進行移動（橙色高亮）</li>
@@ -1557,26 +1548,6 @@
         }
     </script>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    <script>
-        // Firebase 配置 (使用公開測試配置，生產環境需替換為自己的配置)
-        const firebaseConfig = {
-            apiKey: "AIzaSyDvJg2rH2tLkqoZnQGKjVw4m3U5u6T7qZs",
-            authDomain: "chinese-checkers-game.firebaseapp.com",
-            databaseURL: "https://chinese-checkers-game-default-rtdb.firebaseio.com/",
-            projectId: "chinese-checkers-game",
-            storageBucket: "chinese-checkers-game.appspot.com",
-            messagingSenderId: "1071234567890",
-            appId: "1:1071234567890:web:abc123def456ghi789jkl"
-        };
-
-        // 初始化 Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-    </script>
-
     <script>
         // 遊戲配置
         const PLAYER1 = 1;
@@ -1623,11 +1594,7 @@
         let isHost = false; // 是否為房間主機
         let players = {}; // 存儲玩家資訊
         let gameStarted = false; // 遊戲是否開始
-        let gameRef = null; // Firebase 引用
-        let playerRef = null; // 玩家節點引用
-        let connectionsRef = null; // 連接狀態引用
-        let onlineGameRef = null; // 線上遊戲引用
-        
+
         // 追蹤已處理的被摧毀棋子，防止重複觸發特效
         let processedCaptures = new Set();
 
@@ -1654,7 +1621,6 @@
         function showStartScreen() {
             document.getElementById('startScreen').style.display = 'flex';
             document.getElementById('roomSetupScreen').style.display = 'none';
-            document.getElementById('joinRoomScreen').style.display = 'none';
             document.getElementById('rulesScreen').style.display = 'none';
             document.getElementById('onlineWaitScreen').style.display = 'none';
             document.getElementById('gameScreen').style.display = 'none';
@@ -1670,37 +1636,37 @@
             document.getElementById('roomSetupTitle').textContent = title;
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('roomSetupScreen').style.display = 'flex';
-            document.getElementById('joinRoomScreen').style.display = 'none';
             document.getElementById('rulesScreen').style.display = 'none';
             document.getElementById('onlineWaitScreen').style.display = 'none';
             document.getElementById('gameScreen').style.display = 'none';
             
             // 重置表單
             document.getElementById('setupPlayerName1').value = '';
+            document.getElementById('setupPlayerName2').value = '';
+            document.getElementById('setupEnableTimer').checked = true;
             boardMode = 'standard';
             boardRowSize = 9;
             boardColSize = 9;
             updateGameModeSelection('standard');
-        }
-
-        function showJoinRoomScreen() {
-            document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('roomSetupScreen').style.display = 'none';
-            document.getElementById('joinRoomScreen').style.display = 'flex';
-            document.getElementById('rulesScreen').style.display = 'none';
-            document.getElementById('onlineWaitScreen').style.display = 'none';
-            document.getElementById('gameScreen').style.display = 'none';
             
-            // 清空表單
-            document.getElementById('joinRoomId').value = '';
-            document.getElementById('joinPlayerName').value = '';
+            const p2Item = document.getElementById('setupPlayerName2Item');
+            const timerToggle = document.getElementById('setupTimerToggle');
+            if (mode === 'ai') {
+                p2Item.style.display = 'none';
+                timerToggle.style.display = 'none';
+            } else if (mode === 'pvp') {
+                p2Item.style.display = 'flex';
+                timerToggle.style.display = 'flex';
+            } else {
+                p2Item.style.display = 'none';
+                timerToggle.style.display = 'none';
+            }
         }
 
         function showRulesScreen() {
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('roomSetupScreen').style.display = 'none';
-            document.getElementById('joinRoomScreen').style.display = 'none';
-            document.getElementById('rulesScreen').style.display = 'flex';
+            document.getElementById('rulesScreen').style.display = 'none';
             document.getElementById('onlineWaitScreen').style.display = 'none';
             document.getElementById('gameScreen').style.display = 'none';
         }
@@ -1708,7 +1674,6 @@
         function showOnlineWaitScreen() {
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('roomSetupScreen').style.display = 'none';
-            document.getElementById('joinRoomScreen').style.display = 'none';
             document.getElementById('rulesScreen').style.display = 'none';
             document.getElementById('onlineWaitScreen').style.display = 'flex';
             document.getElementById('gameScreen').style.display = 'none';
@@ -1717,7 +1682,6 @@
         function showGameScreen() {
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('roomSetupScreen').style.display = 'none';
-            document.getElementById('joinRoomScreen').style.display = 'none';
             document.getElementById('rulesScreen').style.display = 'none';
             document.getElementById('onlineWaitScreen').style.display = 'none';
             document.getElementById('gameScreen').style.display = 'block';
@@ -1725,29 +1689,6 @@
 
         // 返回菜單
         function backToStart() {
-            // 離開房間並清理 Firebase 引用
-            if (gameRef) {
-                gameRef.off(); // 移除所有監聽器
-                gameRef = null;
-            }
-            if (playerRef) {
-                playerRef.remove();
-                playerRef = null;
-            }
-            if (connectionsRef) {
-                connectionsRef.remove();
-                connectionsRef = null;
-            }
-            if (onlineGameRef) {
-                onlineGameRef.off();
-                onlineGameRef = null;
-            }
-            
-            roomId = null;
-            playerId = null;
-            isHost = false;
-            players = {};
-            gameStarted = false;
             showStartScreen();
         }
 
@@ -1784,7 +1725,7 @@
             const name1 = document.getElementById('setupPlayerName1').value.trim();
             
             if (!name1) {
-                alert('請輸入玩家名稱');
+                alert('請輸入玩家1的名稱');
                 return;
             }
             
@@ -1795,13 +1736,20 @@
                 currentTurnTime = TURN_TIME_AI;
                 startGame();
             } else if (gameMode === 'pvp') {
-                playerName2 = '玩家2';
-                currentTurnTime = TURN_TIME_PVP;
+                const name2 = document.getElementById('setupPlayerName2').value.trim();
+                if (!name2) {
+                    alert('請輸入玩家2的名稱');
+                    return;
+                }
+                playerName2 = name2 || '玩家2';
+                enableTimer = document.getElementById('setupEnableTimer').checked;
+                currentTurnTime = enableTimer ? TURN_TIME_PVP : 999999;
                 startGame();
             } else if (gameMode === 'online') {
                 playerName2 = '等待對手';
                 playerId = generateId();
                 roomId = generateRoomId();
+                enableTimer = true;
                 currentTurnTime = TURN_TIME_ONLINE;
                 isHost = true; // 創建房間者為主機
                 players = {
@@ -1816,346 +1764,53 @@
             }
         }
 
-        // 加入房間
-        function joinRoom() {
-            const roomIdInput = document.getElementById('joinRoomId').value.trim();
-            const playerName = document.getElementById('joinPlayerName').value.trim();
-            
-            if (!roomIdInput) {
-                alert('請輸入房間ID或連結');
-                return;
-            }
-            
-            if (!playerName) {
-                alert('請輸入您的名稱');
-                return;
-            }
-            
-            // 解析連結中的房間ID
-            let extractedRoomId = roomIdInput.toUpperCase();
-            if (roomIdInput.includes('?room=')) {
-                const params = new URLSearchParams(roomIdInput.split('?')[1]);
-                extractedRoomId = params.get('room')?.toUpperCase() || extractedRoomId;
-            }
-            
-            roomId = extractedRoomId;
-            playerName1 = playerName;
-            playerId = generateId();
-            currentTurnTime = TURN_TIME_ONLINE;
-            isHost = false; // 加入房間者不是主機
-            players = {
-                [playerId]: {
-                    id: playerId,
-                    name: playerName1,
-                    role: PLAYER2
-                }
-            };
-            
-            showOnlineWaitScreen();
-            setupOnlineGame();
-        }
-
         // 設置線上遊戲
         function setupOnlineGame() {
             const p1Id = playerId.substr(0, 8);
             document.getElementById('roomId').textContent = roomId;
             document.getElementById('onlinePlayerName').textContent = playerName1;
+            document.getElementById('onlineP1Name').textContent = playerName1;
+            document.getElementById('onlineP1Id').textContent = `ID: ${p1Id}`;
             
-            if (isHost) {
-                document.getElementById('onlineP1Name').textContent = playerName1;
-                document.getElementById('onlineP1Id').textContent = `ID: ${p1Id}`;
-                document.getElementById('onlineP2Name').textContent = '等待中...';
-                document.getElementById('onlineP2Id').textContent = '玩家2';
-                document.getElementById('waitingText').textContent = '房間已創建，等待玩家2加入...';
-                
-                // 建立房間並開始監聽
-                initializeFirebaseRoom();
-            } else {
-                document.getElementById('onlineP2Name').textContent = playerName1;
-                document.getElementById('onlineP2Id').textContent = `ID: ${p1Id}`;
-                document.getElementById('onlineP1Name').textContent = '等待中...';
-                document.getElementById('onlineP1Id').textContent = '玩家1';
-                document.getElementById('waitingText').textContent = '正在加入房間...';
-                
-                // 加入現有房間
-                initializeFirebaseRoom();
-            }
+            // 模擬等待對手加入
+            document.getElementById('waitingText').textContent = '等待玩家2加入...';
+            
+            // 檢查是否有對手加入的模擬邏輯
+            // 在實際應用中，這裡應該連接到WebSocket或其他實時通信方式
+            simulateOpponentJoin();
         }
 
-        // 初始化 Firebase 房間
-        function initializeFirebaseRoom() {
-            // 修復：使用更穩定的引用方式
-            onlineGameRef = database.ref(`games/${roomId}`);
-            
-            // 檢查房間是否存在且是否已滿
-            onlineGameRef.once('value', (snapshot) => {
-                const gameData = snapshot.val();
-                
-                if (isHost) {
-                    // 主機創建房間
-                    onlineGameRef.set({
-                        board: board,
-                        currentPlayer: PLAYER1,
-                        gameOver: false,
-                        gameWinner: null,
-                        boardMode: boardMode,
-                        boardRowSize: boardRowSize,
-                        boardColSize: boardColSize,
-                        turnTime: currentTurnTime,
-                        player1: {
-                            id: playerId,
-                            name: playerName1,
-                            ready: true
-                        },
-                        player2: null,
-                        lastUpdated: Date.now()
-                    });
-                    
-                    // 監聽房間變化
-                    listenToGameChanges();
-                    
-                    // 更新 UI
-                    updateConnectionStatus(true);
-                    document.getElementById('waitingText').textContent = '房間已創建，等待玩家2加入...';
-                } else {
-                    // 加入房間
-                    if (!gameData) {
-                        alert('房間不存在！');
-                        showRoomSetupScreen('online');
-                        return;
-                    }
-                    
-                    if (gameData.player2) {
-                        alert('房間已滿！');
-                        showRoomSetupScreen('online');
-                        return;
-                    }
-                    
-                    // 加入房間
-                    onlineGameRef.update({
-                        player2: {
-                            id: playerId,
-                            name: playerName1,
-                            ready: true
-                        },
-                        lastUpdated: Date.now()
-                    });
-                    
-                    // 監聽房間變化
-                    listenToGameChanges();
-                    
-                    // 更新 UI
-                    updateConnectionStatus(true);
-                    document.getElementById('waitingText').textContent = '正在連接...';
-                }
-            });
-        }
-
-        // 監聽遊戲變化
-        function listenToGameChanges() {
-            if (!onlineGameRef) return;
-            
-            // 修復：改為更穩定的監聽方式
-            onlineGameRef.on('value', (snapshot) => {
-                const gameData = snapshot.val();
-                
-                if (!gameData) return;
-                
-                // 更新連接狀態
-                updateConnectionStatus(true);
-                
-                // 更新玩家列表
-                if (gameData.player1) {
-                    document.getElementById('onlineP1Name').textContent = gameData.player1.name;
-                    document.getElementById('p1Status').className = 'player-status online';
-                    players[gameData.player1.id] = gameData.player1;
-                }
-                
-                if (gameData.player2) {
-                    document.getElementById('onlineP2Name').textContent = gameData.player2.name;
-                    document.getElementById('p2Status').className = 'player-status online';
-                    document.getElementById('onlineP2Item').style.opacity = '1';
-                    players[gameData.player2.id] = gameData.player2;
-                    
-                    // 如果兩個玩家都在線，開始遊戲
-                    if (gameData.player1 && gameData.player2 && !gameStarted) {
-                        startOnlineGame(gameData);
-                    }
-                } else {
-                    document.getElementById('p2Status').className = 'player-status';
-                    document.getElementById('onlineP2Item').style.opacity = '0.5';
-                }
-                
-                // 如果遊戲開始，處理遊戲狀態
-                if (gameStarted) {
-                    handleGameStateUpdate(gameData);
-                }
-            });
-            
-            // 監聽房間移除事件
-            onlineGameRef.onDisconnect().remove();
-        }
-
-        // 更新連接狀態顯示
-        function updateConnectionStatus(connected) {
-            const statusElement = document.getElementById('connectionStatus');
-            if (connected) {
-                statusElement.textContent = '已連接';
-                statusElement.className = 'connection-status connected';
-            } else {
-                statusElement.textContent = '未連接';
-                statusElement.className = 'connection-status disconnected';
-            }
-        }
-
-        // 開始線上遊戲
-        function startOnlineGame(gameData) {
-            gameStarted = true;
-            
-            // 更新遊戲配置
-            boardMode = gameData.boardMode;
-            boardRowSize = gameData.boardRowSize;
-            boardColSize = gameData.boardColSize;
-            currentTurnTime = gameData.turnTime;
-            
-            // 更新玩家名稱
-            if (gameData.player1) {
-                playerName1 = gameData.player1.name;
-                document.getElementById('displayName1').textContent = playerName1;
-            }
-            
-            if (gameData.player2) {
-                playerName2 = gameData.player2.name;
-                document.getElementById('displayName2').textContent = playerName2;
-            }
-            
-            // 初始化遊戲
-            initGame();
-            
-            // 更新狀態
-            document.getElementById('waitingText').textContent = '遊戲開始！';
-            
-            // 隱藏等待界面，顯示遊戲界面
+        // 模擬對手加入
+        function simulateOpponentJoin() {
+            // 模擬對手加入房間
             setTimeout(() => {
-                showGameScreen();
-            }, 1000);
-        }
-
-        // 處理遊戲狀態更新
-        function handleGameStateUpdate(gameData) {
-            // 更新遊戲狀態
-            board = gameData.board || board;
-            currentPlayer = gameData.currentPlayer || currentPlayer;
-            gameOver = gameData.gameOver || gameOver;
-            gameWinner = gameData.gameWinner || gameWinner;
-            
-            // 更新計時器
-            if (gameData.timeLeft !== undefined) {
-                timeLeft = gameData.timeLeft;
-                updateTimerDisplay();
-            }
-            
-            // 更新玩家計數
-            if (document.getElementById('playerPieces')) {
-                const player1Pieces = countPieces(PLAYER1);
-                const player2Pieces = countPieces(PLAYER2);
-                document.getElementById('playerPieces').textContent = player1Pieces;
-                document.getElementById('aiPieces').textContent = player2Pieces;
-            }
-            
-            // 更新狀態文字
-            if (currentPlayer === PLAYER1) {
-                if (players[playerId]?.role === PLAYER1) {
-                    updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
-                } else {
-                    updateStatus(`等待${playerName1}行動...`, 'thinking');
+                if (!gameStarted) {
+                    // 如果遊戲還沒開始，假設對手加入了
+                    const opponentId = generateId();
+                    players[opponentId] = {
+                        id: opponentId,
+                        name: '玩家2',
+                        role: PLAYER2
+                    };
+                    
+                    document.getElementById('onlineP2Item').style.opacity = '1';
+                    document.getElementById('onlineP2Item').querySelector('.player-status').classList.add('online');
+                    document.getElementById('onlineP2Item').querySelector('.player-name').textContent = '玩家2';
+                    document.getElementById('onlineP2Item').querySelector('.player-id').textContent = `ID: ${opponentId.substring(0, 8)}`;
+                    document.getElementById('waitingText').textContent = '玩家2已加入，點擊按鈕開始遊戲';
+                    
+                    // 添加開始遊戲按鈕
+                    const startBtn = document.createElement('button');
+                    startBtn.className = 'btn-share';
+                    startBtn.textContent = '▶️ 開始遊戲';
+                    startBtn.onclick = () => {
+                        playerName2 = '玩家2';
+                        gameStarted = true;
+                        startGame();
+                    };
+                    document.querySelector('.online-buttons').insertBefore(startBtn, document.querySelector('.btn-leave'));
                 }
-            } else {
-                if (players[playerId]?.role === PLAYER2) {
-                    updateStatus(`${playerName2}的回合 - 選擇棋子開始`, 'waiting');
-                } else {
-                    updateStatus(`等待${playerName2}行動...`, 'thinking');
-                }
-            }
-            
-            // 更新當前玩家顯示
-            updateCurrentPlayerDisplay();
-            
-            // 渲染棋盤
-            render();
-            
-            // 檢查遊戲結束
-            if (gameOver) {
-                if (gameWinner === players[playerId]?.role) {
-                    updateStatus(`恭喜！你獲勝了！`, 'winner');
-                } else {
-                    updateStatus(`對手獲勝了！`, 'winner');
-                }
-                playSound('win');
-            }
-        }
-
-        // 發送遊戲狀態到 Firebase
-        function sendGameStateToFirebase(newState) {
-            if (!onlineGameRef || !isHost) return; // 只有主機可以更新遊戲狀態
-            
-            onlineGameRef.update({
-                ...newState,
-                lastUpdated: Date.now()
-            });
-        }
-
-        // 發送移動到遠程玩家
-        function sendMoveToRemote(fromRow, fromCol, toRow, toCol, moveData) {
-            if (gameMode !== 'online' || !gameStarted) return;
-            
-            const message = {
-                type: 'move',
-                fromRow: fromRow,
-                fromCol: fromCol,
-                toRow: toRow,
-                toCol: toCol,
-                capturedPieces: moveData.capturedPieces || [],
-                isJump: moveData.type === 'jump',
-                canContinueJump: moveData.type === 'jump' && getJumpMoves(toRow, toCol, moveData.capturedPieces || []).length > 0
-            };
-            
-            sendGameStateToFirebase({
-                board: board,
-                currentPlayer: currentPlayer,
-                timeLeft: timeLeft
-            });
-        }
-
-        // 發送回合變化到遠程玩家
-        function sendTurnChangeToRemote() {
-            if (gameMode !== 'online' || !gameStarted) return;
-            
-            sendGameStateToFirebase({
-                currentPlayer: currentPlayer,
-                timeLeft: currentTurnTime
-            });
-        }
-
-        // 發送遊戲結束到遠程玩家
-        function sendGameOverToRemote(winner) {
-            if (gameMode !== 'online' || !gameStarted) return;
-            
-            sendGameStateToFirebase({
-                gameOver: true,
-                gameWinner: winner
-            });
-        }
-
-        // 發送遊戲開始到遠程玩家
-        function sendGameStartToRemote() {
-            if (gameMode !== 'online' || !gameStarted) return;
-            
-            sendGameStateToFirebase({
-                gameStarted: true,
-                player1: { name: playerName1 },
-                player2: { name: playerName2 }
-            });
+            }, 5000);
         }
 
         // 複製房間ID
@@ -2192,20 +1847,6 @@
 
         // 離開房間
         function leaveRoom() {
-            // 離開房間並清理 Firebase 引用
-            if (onlineGameRef) {
-                onlineGameRef.off(); // 移除所有監聽器
-                onlineGameRef = null;
-            }
-            if (playerRef) {
-                playerRef.remove();
-                playerRef = null;
-            }
-            if (connectionsRef) {
-                connectionsRef.remove();
-                connectionsRef = null;
-            }
-            
             roomId = null;
             playerId = null;
             isHost = false;
@@ -2231,20 +1872,15 @@
             document.getElementById('displayName1').textContent = playerName1;
             document.getElementById('displayName2').textContent = playerName2;
             
-            // 本地主機對戰和線上對戰顯示當前玩家指示器
+            // 本地主機對戰顯示當前玩家指示器
             const indicator = document.getElementById('currentPlayerIndicator');
-            if (gameMode === 'pvp' || gameMode === 'online') {
+            if (gameMode === 'pvp') {
                 indicator.style.display = 'block';
             } else {
                 indicator.style.display = 'none';
             }
             
             initGame();
-            
-            // 如果是線上對戰，通知遠程玩家遊戲開始
-            if (gameMode === 'online' && gameStarted) {
-                sendGameStartToRemote();
-            }
         }
 
         // 初始化遊戲
@@ -2267,7 +1903,7 @@
                     }
                 }
 
-                // 放置玩家2棋子（底部 3 行）
+                // 放置玩家2/AI棋子（底部 3 行）
                 let p2Count = 0;
                 for (let row = boardRowSize - 3; row < boardRowSize && p2Count < PIECES_PER_PLAYER; row++) {
                     for (let col = 0; col < boardColSize && p2Count < PIECES_PER_PLAYER; col++) {
@@ -2301,28 +1937,13 @@
             updateCurrentPlayerDisplay();
             render();
             
-            // 更新狀態
+            // FIX: 確保初始狀態正確顯示
             if (gameMode === 'ai') {
                 updateStatus('你的回合 - 選擇棋子開始', 'waiting');
             } else if (gameMode === 'pvp') {
                 updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
             } else if (gameMode === 'online') {
-                if (currentPlayer === PLAYER1) {
-                    updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
-                } else {
-                    updateStatus(`等待${playerName2}行動...`, 'thinking');
-                }
-            }
-            
-            // 如果是線上遊戲，發送初始狀態到 Firebase
-            if (gameMode === 'online' && isHost) {
-                sendGameStateToFirebase({
-                    board: board,
-                    currentPlayer: currentPlayer,
-                    gameOver: false,
-                    gameWinner: null,
-                    timeLeft: currentTurnTime
-                });
+                updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
             }
         }
 
@@ -2346,7 +1967,7 @@
                 board[pos.row][pos.col] = PLAYER1;
             }
             
-            // 放置對方棋子（玩家2）
+            // 放置對方棋子（玩家2/AI）
             for (const pos of player2Positions) {
                 board[pos.row][pos.col] = PLAYER2;
             }
@@ -2397,6 +2018,7 @@
                     nameElement.textContent = playerName2;
                     nameElement.className = 'current-player-name player2';
                 }
+                indicator.style.display = 'block';
             }
         }
 
@@ -2426,11 +2048,6 @@
                     clearInterval(timerInterval);
                     playSound('timeout');
                     forceEndTurn();
-                }
-                
-                // 同步計時器到 Firebase
-                if (gameMode === 'online' && isHost) {
-                    sendGameStateToFirebase({ timeLeft: timeLeft });
                 }
             }, 1000);
         }
@@ -2495,12 +2112,6 @@
                 if (enableTimer) {
                     clearInterval(timerInterval);
                 }
-                
-                // 如果是線上對戰，發送遊戲結束消息
-                if (gameMode === 'online' && isHost) {
-                    sendGameOverToRemote(winner);
-                }
-                
                 render();
                 return;
             }
@@ -2525,11 +2136,6 @@
                     updateStatus(`${currentPlayerName}的回合 - 選擇棋子開始`, 'waiting');
                 } else {
                     updateStatus(`等待${currentPlayerName}行動...`, 'thinking');
-                }
-                
-                // 如果是線上對戰，發送回合變化消息
-                if (isHost) {
-                    sendTurnChangeToRemote();
                 }
             }
         }
@@ -2746,11 +2352,6 @@
             
             // 重新渲染棋盤
             render();
-            
-            // 如果是線上對戰，發送移動到遠程玩家
-            if (gameMode === 'online' && isHost) {
-                sendMoveToRemote(fromRow, fromCol, toRow, toCol, move);
-            }
         }
 
         // 創建棋子跳躍時的殘影特效
@@ -3196,7 +2797,7 @@
             if (isAIThinking) return;
 
             // 在線上模式中，確保是當前玩家才能操作
-            if (gameMode === 'online' && players[playerId]?.role !== currentPlayer) {
+            if (gameMode === 'online' && currentPlayer !== PLAYER1) {
                 return; // 不是當前玩家的操作
             }
 
@@ -3688,11 +3289,7 @@
             } else if (gameMode === 'pvp') {
                 updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
             } else if (gameMode === 'online') {
-                if (currentPlayer === PLAYER1) {
-                    updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
-                } else {
-                    updateStatus(`等待${playerName2}行動...`, 'thinking');
-                }
+                updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
             }
         }
 
@@ -3706,54 +3303,11 @@
             window.jumpClickHandler = null;
             processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
             usedJumpPaths.clear(); // 清空已使用的跳躍路徑記錄
-            // 離開房間並清理 Firebase 引用
-            if (onlineGameRef) {
-                onlineGameRef.off(); // 移除所有監聽器
-                onlineGameRef = null;
-            }
-            if (playerRef) {
-                playerRef.remove();
-                playerRef = null;
-            }
-            if (connectionsRef) {
-                connectionsRef.remove();
-                connectionsRef = null;
-            }
-            
-            roomId = null;
-            playerId = null;
-            isHost = false;
-            players = {};
-            gameStarted = false;
             showStartScreen();
         }
 
         // 初始化
         showStartScreen();
-        
-        // 檢查網址參數，自動加入房間
-        window.addEventListener('load', () => {
-            const params = new URLSearchParams(window.location.search);
-            const roomParam = params.get('room');
-            const playerParam = params.get('player');
-            
-            if (roomParam) {
-                // 自動加入房間
-                document.getElementById('joinRoomId').value = roomParam;
-                document.getElementById('joinPlayerName').value = '玩家' + Math.floor(Math.random() * 1000);
-                document.getElementById('startScreen').style.display = 'none';
-                document.getElementById('roomSetupScreen').style.display = 'none';
-                document.getElementById('joinRoomScreen').style.display = 'flex';
-                document.getElementById('rulesScreen').style.display = 'none';
-                document.getElementById('onlineWaitScreen').style.display = 'none';
-                document.getElementById('gameScreen').style.display = 'none';
-                
-                // 延遲執行加入房間，確保UI已更新
-                setTimeout(() => {
-                    joinRoom();
-                }, 500);
-            }
-        });
     </script>
 </body>
 </html>
