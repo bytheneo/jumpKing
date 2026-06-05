@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>頝單?? - 靽桀儔??/title>
+    <title>跳棋遊戲 - 修復版</title>
     <style>
         * {
             margin: 0;
@@ -31,7 +31,7 @@
             overflow-y: auto;
         }
 
-        /* ??隞璅?? */
+        /* 開始介面樣式 */
         .start-screen {
             display: flex;
             flex-direction: column;
@@ -114,7 +114,7 @@
             margin-right: 10px;
         }
 
-        /* ?輸?閮剖?隞 */
+        /* 房間設定介面 */
         .room-setup-screen {
             display: none;
             flex-direction: column;
@@ -308,7 +308,7 @@
             transform: translateY(-2px);
         }
 
-        /* 閬?隞 */
+        /* 規則介面 */
         .rules-screen {
             display: none;
             flex-direction: column;
@@ -381,7 +381,7 @@
             transform: translateY(-2px);
         }
 
-        /* 蝺?璅∪?蝑?隞 */
+        /* 線上模式等待介面 */
         .online-wait-screen {
             display: none;
             flex-direction: column;
@@ -564,7 +564,7 @@
             transform: translateY(-2px);
         }
 
-        /* ?隞璅?? */
+        /* 遊戲介面樣式 */
         .game-screen {
             display: none;
         }
@@ -745,7 +745,7 @@
         }
 
         .square.special-player::before {
-            content: '??;
+            content: '★';
             font-size: 20px;
             color: rgba(255, 255, 255, 0.8);
         }
@@ -755,7 +755,7 @@
         }
 
         .square.special-ai::before {
-            content: '??;
+            content: '★';
             font-size: 20px;
             color: rgba(255, 255, 255, 0.8);
         }
@@ -765,7 +765,7 @@
         }
 
         .square.special-pvp-p2::before {
-            content: '??;
+            content: '★';
             font-size: 20px;
             color: rgba(255, 255, 255, 0.8);
         }
@@ -1078,9 +1078,9 @@
             margin-top: 10px;
         }
         
-        /* ?啣??郎靽??*/
+        /* 新增的武俠特效 */
         
-        /* 璉?頝唾???畾蔣?寞? */
+        /* 棋子跳躍時的殘影特效 */
         .piece-trail {
             position: absolute;
             width: 80%;
@@ -1101,7 +1101,7 @@
             100% { opacity: 0; transform: scale(0.5); }
         }
         
-        /* 璉?頝唾?蝘餃?????*/
+        /* 棋子跳躍移動的動畫 */
         .piece-jumping {
             animation: jumpMove 0.3s ease-in-out forwards;
         }
@@ -1113,7 +1113,7 @@
             100% { transform: translate(var(--tx), var(--ty)) scale(1); }
         }
         
-        /* 璉?鋡急瘥???寞? */
+        /* 棋子被摧毀時的特效 */
         .piece-destroyed {
             position: absolute;
             width: 80%;
@@ -1134,7 +1134,7 @@
             100% { transform: translateY(-30px) rotate(20deg); opacity: 0; }
         }
         
-        /* 璉?鋡怠??脩??寞? */
+        /* 棋子被切割的特效 */
         .piece-cut {
             position: absolute;
             width: 80%;
@@ -1157,7 +1157,7 @@
             100% { opacity: 0; transform: scale(0.5); }
         }
         
-        /* ????*/
+        /* 刀劍特效 */
         .sword-effect {
             position: absolute;
             width: 100%;
@@ -1174,7 +1174,7 @@
             100% { transform: rotate(20deg) scaleX(1); opacity: 0; }
         }
         
-        /* ??蝎??寞? */
+        /* 星星粒子特效 */
         .star-particle {
             position: absolute;
             width: 4px;
@@ -1201,7 +1201,7 @@
             }
         }
         
-        /* ???寞? */
+        /* 靈魂特效 */
         .soul-effect {
             position: absolute;
             width: 20px;
@@ -1220,51 +1220,51 @@
 </head>
 <body>
     <div class="game-container">
-        <!-- ??隞 -->
+        <!-- 開始介面 -->
         <div class="start-screen" id="startScreen">
-            <h1>?? 頝單??</h1>
-            <p>?豢??璅∪???</p>
+            <h1>♟️ 跳棋遊戲</h1>
+            <p>選擇遊戲模式開始</p>
             <div class="mode-buttons">
                 <button class="mode-btn ai" onclick="selectMode('ai')">
-                    <span class="mode-btn-icon">??</span>?I撠
+                    <span class="mode-btn-icon">🤖</span>和AI對戰
                 </button>
                 <button class="mode-btn pvp" onclick="selectMode('pvp')">
-                    <span class="mode-btn-icon">?</span>?砍銝餅?撠
+                    <span class="mode-btn-icon">👥</span>本地主機對戰
                 </button>
                 <button class="mode-btn online" onclick="selectMode('online')">
-                    <span class="mode-btn-icon">??</span>蝺??拙振撠
+                    <span class="mode-btn-icon">🌐</span>線上玩家對戰
                 </button>
                 <button class="mode-btn rules" onclick="showRulesScreen()">
-                    <span class="mode-btn-icon">??</span>??拇?閬?
+                    <span class="mode-btn-icon">📖</span>遊戲玩法規則
                 </button>
             </div>
         </div>
 
-        <!-- ?輸?閮剖?隞 -->
+        <!-- 房間設定介面 -->
         <div class="room-setup-screen" id="roomSetupScreen">
-            <h2 id="roomSetupTitle">?輸?閮剖?</h2>
+            <h2 id="roomSetupTitle">房間設定</h2>
             <div class="room-setup-group">
                 <div class="room-setup-item">
-                    <label for="setupPlayerName1">?拙振1?迂</label>
-                    <input type="text" id="setupPlayerName1" placeholder="頛詨?函??迂" maxlength="20">
+                    <label for="setupPlayerName1">玩家1名稱</label>
+                    <input type="text" id="setupPlayerName1" placeholder="輸入您的名稱" maxlength="20">
                 </div>
                 <div class="room-setup-item" id="setupPlayerName2Item" style="display: none;">
-                    <label for="setupPlayerName2">?拙振2?迂</label>
-                    <input type="text" id="setupPlayerName2" placeholder="頛詨?拙振2??蝔? maxlength="20">
+                    <label for="setupPlayerName2">玩家2名稱</label>
+                    <input type="text" id="setupPlayerName2" placeholder="輸入玩家2的名稱" maxlength="20">
                 </div>
                 <div class="room-setup-item">
-                    <label>?璅∪?</label>
+                    <label>遊戲模式</label>
                     <div class="game-mode-selection">
                         <div class="game-mode-option selected" data-mode="standard" onclick="selectGameMode('standard', this)">
-                            ?? 9?9 璅?
+                            📐 9×9 標準
                         </div>
                         <div class="game-mode-option" data-mode="special" onclick="selectGameMode('special', this)">
-                            ???寞???
+                            ✨ 特殊戰
                         </div>
                     </div>
                 </div>
                 <div class="timer-toggle" id="setupTimerToggle" style="display: none;">
-                    <label for="setupEnableTimer">????</label>
+                    <label for="setupEnableTimer">啟用時間限制</label>
                     <label class="checkbox">
                         <input type="checkbox" id="setupEnableTimer" checked>
                         <span class="checkbox-checkmark"></span>
@@ -1272,84 +1272,84 @@
                 </div>
             </div>
             <div class="room-setup-buttons">
-                <button class="btn-start" onclick="confirmRoomSetup()">???</button>
-                <button class="btn-back" onclick="backToStart()">餈?</button>
+                <button class="btn-start" onclick="confirmRoomSetup()">開始遊戲</button>
+                <button class="btn-back" onclick="backToStart()">返回</button>
             </div>
         </div>
 
-        <!-- 閬?隞 -->
+        <!-- 規則介面 -->
         <div class="rules-screen" id="rulesScreen">
-            <h2>??拇?閬?</h2>
+            <h2>遊戲玩法規則</h2>
             <div class="rules-content">
-                <h3>? ?箸隞晶</h3>
+                <h3>🎮 基本介紹</h3>
                 <ul>
-                    <li>?銝甈曄??仿??莎???拍車璉璅∪?</li>
-                    <li>? 蝝璉??舐摰?嚗??剁?</li>
-                    <li>? ?/蝝怨璉??舐摰?/AI嚗??剁?</li>
-                    <li>瘥??寥??3??摮?/li>
+                    <li>這是一款策略遊戲，分為兩種棋盤模式</li>
+                    <li>🔴 紅色棋子是玩家1（頂部）</li>
+                    <li>🔵 青色/紫色棋子是玩家2/AI（底部）</li>
+                    <li>每一方都有13枚棋子</li>
                 </ul>
 
-                <h3>?? ?璅∪?</h3>
+                <h3>⚙️ 遊戲模式</h3>
                 <ul>
-                    <li><strong>9?9 璅?頝單?</strong>嚗蝯??9璉</li>
-                    <li><strong>?寞???/strong>嚗璈??文之撠?10-15銋?嚗?瘥?銝?</li>
+                    <li><strong>9×9 標準跳棋</strong>：傳統9×9棋盤</li>
+                    <li><strong>特殊戰</strong>：隨機棋盤大小（10-15之間），每局不同</li>
                 </ul>
 
-                <h3>? ?箸閬?</h3>
+                <h3>🎯 基本規則</h3>
                 <ul>
-                    <li><strong>璉?蝘餃?</strong>嚗?摮????宏??甇亙?賊?征雿?暺擃漁嚗?/li>
-                    <li><strong>頝唾?閬?</strong>嚗歲??啁?璉???典敺?征雿?璈擃漁嚗?/li>
-                    <li><strong>???頝唾?</strong>嚗脰?蝚砌?甈∟歲頨?嚗隞仿?匱蝥歲頨?蝯?</li>
-                    <li><strong>瘨??菜?</strong>嚗歲??寞?摮??瘥閰脫?摮?/li>
+                    <li><strong>棋子移動</strong>：棋子可向8個方向移動一步到相鄰的空位（黃色高亮）</li>
+                    <li><strong>跳躍規則</strong>：跳過相鄰的棋子著陸在其後方的空位（橙色高亮）</li>
+                    <li><strong>連續跳躍</strong>：進行第一次跳躍後，可以選擇繼續跳躍或結束</li>
+                    <li><strong>消滅敵棋</strong>：跳過敵方棋子時會摧毀該棋子</li>
                 </ul>
 
-                <h3>潃??璇辣</h3>
+                <h3>⭐ 勝利條件</h3>
                 <ul>
-                    <li>撠?摮宏??菜敺??銝剖??畾摮?</li>
-                    <li>?扳?撠?券璉?</li>
+                    <li>將棋子移動到敵方後排最中心的特殊格子★</li>
+                    <li>摧毀對方全部棋子</li>
                 </ul>
 
-                <h3>? ??撌?/h3>
+                <h3>💡 遊戲技巧</h3>
                 <ul>
-                    <li>?芸??頝唾?瘨??菜璉?</li>
-                    <li>靽風撌望璉??◤頝唾?瘨?</li>
-                    <li>??寥??脖誑?剖??圈??寞??澆?</li>
-                    <li>???頝唾???閬??楝敺誑?憭批?瘨??菜?</li>
+                    <li>優先考慮跳躍消滅敵方棋子</li>
+                    <li>保護己方棋子免被跳躍消滅</li>
+                    <li>向敵方陣營推進以爭取到達特殊格子</li>
+                    <li>連續跳躍時需要規劃路徑以最大化消滅敵棋</li>
                 </ul>
             </div>
             <div class="rules-buttons">
-                <button class="btn-back-rules" onclick="backToStart()">餈??</button>
+                <button class="btn-back-rules" onclick="backToStart()">返回菜單</button>
             </div>
         </div>
 
-        <!-- 蝺?璅∪?蝑?隞 -->
+        <!-- 線上模式等待介面 -->
         <div class="online-wait-screen" id="onlineWaitScreen">
-            <h2>蝑?撠??</h2>
+            <h2>等待對手加入</h2>
             <div class="room-info">
                 <div class="room-info-item">
-                    <span class="room-info-label">?輸?ID嚗?/span>
-                    <span class="room-id" id="roomId" onclick="copyRoomId()">??銝?..</span>
+                    <span class="room-info-label">房間ID：</span>
+                    <span class="room-id" id="roomId" onclick="copyRoomId()">加載中...</span>
                 </div>
-                <div class="copy-hint">暺??輸?ID?航?鋆賢?鈭恍??</div>
+                <div class="copy-hint">點擊房間ID可複製分享連結</div>
                 <div class="room-info-item" style="margin-top: 15px;">
-                    <span class="room-info-label">雿??迂嚗?/span>
+                    <span class="room-info-label">你的名稱：</span>
                     <span id="onlinePlayerName">-</span>
                 </div>
             </div>
             <div class="player-list">
-                <h3>?拙振?”</h3>
+                <h3>玩家列表</h3>
                 <div class="player-item">
                     <div class="player-status online"></div>
                     <div>
-                        <div class="player-name" id="onlineP1Name">??銝?..</div>
-                        <div class="player-id" id="onlineP1Id">?拙振1</div>
+                        <div class="player-name" id="onlineP1Name">加載中...</div>
+                        <div class="player-id" id="onlineP1Id">玩家1</div>
                     </div>
                 </div>
                 <div class="player-item p2" id="onlineP2Item" style="opacity: 0.5;">
                     <div class="player-status"></div>
                     <div>
-                        <div class="player-name">蝑?銝?..</div>
-                        <div class="player-id">?拙振2</div>
+                        <div class="player-name">等待中...</div>
+                        <div class="player-id">玩家2</div>
                     </div>
                 </div>
             </div>
@@ -1358,47 +1358,47 @@
                 <div class="spinner-dot"></div>
                 <div class="spinner-dot"></div>
             </div>
-            <div class="waiting-text" id="waitingText">蝑??拙振2?...</div>
+            <div class="waiting-text" id="waitingText">等待玩家2加入...</div>
             <div class="online-buttons">
-                <button class="btn-share" onclick="shareRoom()">?? 銴ˊ?澈???</button>
-                <button class="btn-leave" onclick="leaveRoom()">餈??</button>
+                <button class="btn-share" onclick="shareRoom()">📋 複製分享連結</button>
+                <button class="btn-leave" onclick="leaveRoom()">返回菜單</button>
             </div>
         </div>
 
-        <!-- ?隞 -->
+        <!-- 遊戲介面 -->
         <div class="game-screen" id="gameScreen">
-            <h1 id="gameTitle">?? 頝單??</h1>
+            <h1 id="gameTitle">♟️ 跳棋遊戲</h1>
 
             <div class="info-panel">
                 <div class="info-item player-name-info">
-                    <div class="player-name-display player1-info" id="displayName1">?拙振1</div>
-                    <div class="info-label">璉???/div>
+                    <div class="player-name-display player1-info" id="displayName1">玩家1</div>
+                    <div class="info-label">棋子數</div>
                     <div class="info-value player1-info" id="playerPieces">13</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">??</div>
+                    <div class="info-label">時間</div>
                     <div class="timer-display" id="timerDisplay">8</div>
                 </div>
                 <div class="info-item player-name-info">
-                    <div class="player-name-display player2-info" id="displayName2">?拙振2</div>
-                    <div class="info-label">璉???/div>
+                    <div class="player-name-display player2-info" id="displayName2">玩家2</div>
+                    <div class="info-label">棋子數</div>
                     <div class="info-value player2-info" id="aiPieces">13</div>
                 </div>
             </div>
 
             <div class="status-panel">
-                <div class="status-text" id="statusText">雿??? - ?豢?璉???</div>
+                <div class="status-text" id="statusText">你的回合 - 選擇棋子開始</div>
                 <div class="current-player-indicator" id="currentPlayerIndicator" style="display: none;">
-                    ?嗅??拙振嚗?span class="current-player-name player1" id="currentPlayerName">?拙振1</span>
+                    當前玩家：<span class="current-player-name player1" id="currentPlayerName">玩家1</span>
                 </div>
                 <div class="legend" id="legend" style="display: none;">
                     <div class="legend-item">
                         <div class="legend-color move"></div>
-                        <span>蝘餃?</span>
+                        <span>移動</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color jump"></div>
-                        <span>頝唾?</span>
+                        <span>跳躍</span>
                     </div>
                 </div>
             </div>
@@ -1409,44 +1409,44 @@
             <div class="board-info" id="boardInfo"></div>
 
             <div class="button-group">
-                <button class="btn-reset" onclick="resetGame()">???</button>
-                <button class="btn-menu" onclick="returnToMenu()">餈??</button>
-                <button class="btn-end-jump" id="endJumpBtn" onclick="endJumpSequence()" style="display: none;">蝯?頝唾?銝衣?????/button>
+                <button class="btn-reset" onclick="resetGame()">重新開始</button>
+                <button class="btn-menu" onclick="returnToMenu()">返回菜單</button>
+                <button class="btn-end-jump" id="endJumpBtn" onclick="endJumpSequence()" style="display: none;">結束跳躍並結束回合</button>
             </div>
 
             <div class="rules">
-                <h3>?閬?嚗?/h3>
+                <h3>遊戲規則：</h3>
                 <ul>
-                    <li>? 蝝璉??舐摰?嚗隞??脫?摮?拙振2/AI</li>
-                    <li>?梧? <strong>???靘??脫芋撘?</strong></li>
-                    <li>?桅宏??璉??臭誑???雿宏??甇亙蝛箔?嚗??脤?鈭殷?</li>
-                    <li>頝唾?蝘餃?嚗歲??啁??虫???摮脰?蝘餃?嚗??脤?鈭殷?</li>
-                    <li>?脰?蝚砌?甈∟歲頨?嚗??脣???頝唾?璅∪?</li>
-                    <li>???唳??芾?蝯???敺????孵???/li>
-                    <li>頝喲??菜璉??瘥閰脫?寞?摮?/li>
-                    <li>潃?撠?摮宏??菜敺??銝剖??畾摮?舐??餌??/li>
-                    <li>?瘥?券?萎犖璉?銋?脣?</li>
+                    <li>🔴 紅色棋子是玩家1，其他顏色棋子是玩家2/AI</li>
+                    <li>⏱️ <strong>時間限制依遊戲模式而定</strong></li>
+                    <li>普通移動：棋子可以向8個方位移動一步到空位（黃色高亮）</li>
+                    <li>跳躍移動：跳過相鄰的另一枚棋子進行移動（橙色高亮）</li>
+                    <li>進行第一次跳躍後，會進入連續跳躍模式</li>
+                    <li>時間到或自行結束回合後，換對方回合</li>
+                    <li>跳過敵方棋子會摧毀該敵方棋子</li>
+                    <li>⭐ 將棋子移動到敵方後排最中心的特殊格子即可立刻獲勝</li>
+                    <li>或摧毀全部敵人棋子也可獲勝</li>
                 </ul>
             </div>
         </div>
 
-    <!-- ?澈???璅⊥?獢?-->
+    <!-- 分享連結模態框 -->
     <div class="modal" id="shareModal">
         <div class="modal-content">
-            <h2>?澈????</h2>
-            <p>撠誑銝???澈蝯虫?????隞隞亦?亥?鋆賡????嚗?/p>
-            <div class="share-link" id="shareLink">??銝?..</div>
-            <p id="shareHint" style="font-size: 12px; color: #999;">銴ˊ???敺?鈭怎策?????喳</p>
+            <h2>分享遊戲連結</h2>
+            <p>將以下連結分享給你的朋友，他們可以直接複製連結加入遊戲：</p>
+            <div class="share-link" id="shareLink">加載中...</div>
+            <p id="shareHint" style="font-size: 12px; color: #999;">複製連結後分享給朋友開啟即可</p>
             <div class="modal-buttons">
-                <button class="btn-copy" onclick="copyShareLink()">?? 銴ˊ???</button>
-                <button class="btn-close" onclick="closeShareModal()">??</button>
+                <button class="btn-copy" onclick="copyShareLink()">📋 複製連結</button>
+                <button class="btn-close" onclick="closeShareModal()">關閉</button>
             </div>
         </div>
     </div>
 
-    <!-- ?單? -->
+    <!-- 音效 -->
     <script>
-        // ?萄遣?單?銝???
+        // 創建音效上下文
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
         function playSound(type, player = null) {
@@ -1474,7 +1474,7 @@
                         osc.stop(now + 0.15);
                         break;
                     case 'jump':
-                        // ?桅歲頨??頛????唾矽
+                        // 普通跳躍音效：較柔和的音調
                         osc.frequency.value = 500;
                         gain.gain.setValueAtTime(0.12, now);
                         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
@@ -1482,7 +1482,7 @@
                         osc.stop(now + 0.12);
                         break;
                     case 'jump_capture':
-                        // 頝唾??扳??單?嚗?撠?隤?
+                        // 跳躍摧毀音效：較尖銳的音調
                         osc.frequency.value = 800;
                         gain.gain.setValueAtTime(0.15, now);
                         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
@@ -1518,7 +1518,7 @@
                         osc.stop(now + 0.3);
                         break;
                     case 'sword':
-                        // 璅⊥??１???
+                        // 模擬刀劍碰撞音效
                         osc.type = 'square';
                         osc.frequency.setValueAtTime(800, now);
                         osc.frequency.exponentialRampToValue(400, now + 0.2);
@@ -1530,7 +1530,7 @@
                         osc.stop(now + 0.2);
                         break;
                     case 'soul':
-                        // 璅⊥??銝??單?
+                        // 模擬靈魂上升音效
                         osc.type = 'sine';
                         osc.frequency.setValueAtTime(1000, now);
                         osc.frequency.exponentialRampToValueAtTime(1500, now + 0.3);
@@ -1543,13 +1543,13 @@
                         break;
                 }
             } catch(e) {
-                // ?單?憭望?嚗蕭??
+                // 音效失敗，忽略
             }
         }
     </script>
 
     <script>
-        // ??蔭
+        // 遊戲配置
         const PLAYER1 = 1;
         const PLAYER2 = 2;
         const EMPTY = 0;
@@ -1558,7 +1558,7 @@
         const TURN_TIME_ONLINE = 8;
         const TURN_TIME_PVP = 10;
 
-        // ????
+        // 遊戲狀態
         let board = [];
         let selectedPiece = null;
         let validMoves = [];
@@ -1571,44 +1571,44 @@
         let currentJumpRow = -1;
         let currentJumpCol = -1;
         let capturedInSequence = [];
-        let visitedInJump = []; // 靽格迤嚗靘??歲頨楝敺?
-        let usedJumpPaths = new Set(); // ?啣?嚗??歇雿輻?歲頨楝敺?
+        let visitedInJump = []; // 修正：用來記錄跳躍路徑
+        let usedJumpPaths = new Set(); // 新增：記錄已使用的跳躍路徑
         
-        // 閮??賊?
+        // 計時相關
         let timeLeft = TURN_TIME_AI;
         let timerInterval = null;
         let enableTimer = true;
         let currentTurnTime = TURN_TIME_AI;
         
-        // ?璅∪?
+        // 遊戲模式
         let gameMode = 'ai'; // 'ai', 'pvp', 'online'
         let boardMode = 'standard'; // 'standard', 'special'
-        let boardRowSize = 9; // 璉銵
-        let boardColSize = 9; // 璉?
-        let playerName1 = '?拙振1';
-        let playerName2 = '?拙振2/AI';
+        let boardRowSize = 9; // 棋盤行數
+        let boardColSize = 9; // 棋盤列數
+        let playerName1 = '玩家1';
+        let playerName2 = '玩家2/AI';
         
-        // 蝺?璅∪??賊?
+        // 線上模式相關
         let roomId = null;
         let playerId = null;
-        let isHost = false; // ?臬?箸?蜓璈?
-        let players = {}; // 摮?拙振鞈?
-        let gameStarted = false; // ??臬??
+        let isHost = false; // 是否為房間主機
+        let players = {}; // 存儲玩家資訊
+        let gameStarted = false; // 遊戲是否開始
 
-        // 餈質馱撌脰???鋡急瘥璉?嚗甇ａ?銴孛?潛??
+        // 追蹤已處理的被摧毀棋子，防止重複觸發特效
         let processedCaptures = new Set();
 
-        // ???冽?ID
+        // 生成隨機ID
         function generateId() {
             return Math.random().toString(36).substr(2, 9);
         }
 
-        // ???輸?ID
+        // 生成房間ID
         function generateRoomId() {
             return Math.random().toString(36).substr(2, 6).toUpperCase();
         }
 
-        // ???冽?璉憭批? (10-15銋?)
+        // 生成隨機棋盤大小 (10-15之間)
         function generateRandomBoardSize() {
             const min = 10;
             const max = 15;
@@ -1617,7 +1617,7 @@
             return { rows, cols };
         }
 
-        // 憿舐內/?梯??恍
+        // 顯示/隱藏畫面
         function showStartScreen() {
             document.getElementById('startScreen').style.display = 'flex';
             document.getElementById('roomSetupScreen').style.display = 'none';
@@ -1628,9 +1628,9 @@
 
         function showRoomSetupScreen(mode) {
             const title = {
-                'ai': '?I撠 - ?輸?閮剖?',
-                'pvp': '?砍銝餅?撠 - ?輸?閮剖?',
-                'online': '蝺??拙振撠 - ?輸?閮剖?'
+                'ai': '和AI對戰 - 房間設定',
+                'pvp': '本地主機對戰 - 房間設定',
+                'online': '線上玩家對戰 - 房間設定'
             }[mode];
             
             document.getElementById('roomSetupTitle').textContent = title;
@@ -1640,7 +1640,7 @@
             document.getElementById('onlineWaitScreen').style.display = 'none';
             document.getElementById('gameScreen').style.display = 'none';
             
-            // ?蔭銵典
+            // 重置表單
             document.getElementById('setupPlayerName1').value = '';
             document.getElementById('setupPlayerName2').value = '';
             document.getElementById('setupEnableTimer').checked = true;
@@ -1687,18 +1687,18 @@
             document.getElementById('gameScreen').style.display = 'block';
         }
 
-        // 餈??
+        // 返回菜單
         function backToStart() {
             showStartScreen();
         }
 
-        // ?豢??璅∪?
+        // 選擇遊戲模式
         function selectMode(mode) {
             gameMode = mode;
             showRoomSetupScreen(mode);
         }
 
-        // ?湔?璅∪??豢?
+        // 更新遊戲模式選擇
         function updateGameModeSelection(mode) {
             document.querySelectorAll('.game-mode-option').forEach(el => {
                 el.classList.remove('selected');
@@ -1706,7 +1706,7 @@
             document.querySelector(`[data-mode="${mode}"]`).classList.add('selected');
         }
 
-        // ?豢??璅∪?
+        // 選擇遊戲模式
         function selectGameMode(mode, element) {
             boardMode = mode;
             if (mode === 'special') {
@@ -1720,16 +1720,16 @@
             updateGameModeSelection(mode);
         }
 
-        // 蝣箄??輸?閮剖?
+        // 確認房間設定
         function confirmRoomSetup() {
             const name1 = document.getElementById('setupPlayerName1').value.trim();
             
             if (!name1) {
-                alert('隢撓?亦摰???蝔?);
+                alert('請輸入玩家1的名稱');
                 return;
             }
             
-            playerName1 = name1 || '?拙振1';
+            playerName1 = name1 || '玩家1';
             
             if (gameMode === 'ai') {
                 playerName2 = 'AI';
@@ -1738,20 +1738,20 @@
             } else if (gameMode === 'pvp') {
                 const name2 = document.getElementById('setupPlayerName2').value.trim();
                 if (!name2) {
-                    alert('隢撓?亦摰???蝔?);
+                    alert('請輸入玩家2的名稱');
                     return;
                 }
-                playerName2 = name2 || '?拙振2';
+                playerName2 = name2 || '玩家2';
                 enableTimer = document.getElementById('setupEnableTimer').checked;
                 currentTurnTime = enableTimer ? TURN_TIME_PVP : 999999;
                 startGame();
             } else if (gameMode === 'online') {
-                playerName2 = '蝑?撠?';
+                playerName2 = '等待對手';
                 playerId = generateId();
                 roomId = generateRoomId();
                 enableTimer = true;
                 currentTurnTime = TURN_TIME_ONLINE;
-                isHost = true; // ?萄遣?輸??銝餅?
+                isHost = true; // 創建房間者為主機
                 players = {
                     [playerId]: {
                         id: playerId,
@@ -1764,7 +1764,7 @@
             }
         }
 
-        // 閮剔蔭蝺??
+        // 設置線上遊戲
         function setupOnlineGame() {
             const p1Id = playerId.substr(0, 8);
             document.getElementById('roomId').textContent = roomId;
@@ -1772,39 +1772,39 @@
             document.getElementById('onlineP1Name').textContent = playerName1;
             document.getElementById('onlineP1Id').textContent = `ID: ${p1Id}`;
             
-            // 璅⊥蝑?撠??
-            document.getElementById('waitingText').textContent = '蝑??拙振2?...';
+            // 模擬等待對手加入
+            document.getElementById('waitingText').textContent = '等待玩家2加入...';
             
-            // 瑼Ｘ?臬?????亦?璅⊥?摩
-            // ?典祕???其葉嚗ㄐ?府???訖ebSocket?隞祕?縑?孵?
+            // 檢查是否有對手加入的模擬邏輯
+            // 在實際應用中，這裡應該連接到WebSocket或其他實時通信方式
             simulateOpponentJoin();
         }
 
-        // 璅⊥撠??
+        // 模擬對手加入
         function simulateOpponentJoin() {
-            // 璅⊥撠???輸?
+            // 模擬對手加入房間
             setTimeout(() => {
                 if (!gameStarted) {
-                    // 憒??????嚗?閮剖????乩?
+                    // 如果遊戲還沒開始，假設對手加入了
                     const opponentId = generateId();
                     players[opponentId] = {
                         id: opponentId,
-                        name: '?拙振2',
+                        name: '玩家2',
                         role: PLAYER2
                     };
                     
                     document.getElementById('onlineP2Item').style.opacity = '1';
                     document.getElementById('onlineP2Item').querySelector('.player-status').classList.add('online');
-                    document.getElementById('onlineP2Item').querySelector('.player-name').textContent = '?拙振2';
+                    document.getElementById('onlineP2Item').querySelector('.player-name').textContent = '玩家2';
                     document.getElementById('onlineP2Item').querySelector('.player-id').textContent = `ID: ${opponentId.substring(0, 8)}`;
-                    document.getElementById('waitingText').textContent = '?拙振2撌脣??伐?暺??????';
+                    document.getElementById('waitingText').textContent = '玩家2已加入，點擊按鈕開始遊戲';
                     
-                    // 瘛餃??????
+                    // 添加開始遊戲按鈕
                     const startBtn = document.createElement('button');
                     startBtn.className = 'btn-share';
-                    startBtn.textContent = '?塚? ???';
+                    startBtn.textContent = '▶️ 開始遊戲';
                     startBtn.onclick = () => {
-                        playerName2 = '?拙振2';
+                        playerName2 = '玩家2';
                         gameStarted = true;
                         startGame();
                     };
@@ -1813,39 +1813,39 @@
             }, 5000);
         }
 
-        // 銴ˊ?輸?ID
+        // 複製房間ID
         function copyRoomId() {
             const url = window.location.href.split('?')[0] + `?room=${roomId}&player=${playerId}`;
             navigator.clipboard.writeText(url).then(() => {
-                alert('???撌脰?鋆賢?芾票?選?');
+                alert('連結已複製到剪貼板！');
             }).catch(() => {
-                alert('銴ˊ憭望?嚗???銴ˊ');
+                alert('複製失敗，請手動複製');
             });
         }
 
-        // ?澈?輸?
+        // 分享房間
         function shareRoom() {
             const url = window.location.href.split('?')[0] + `?room=${roomId}&player=${playerId}`;
             document.getElementById('shareLink').textContent = url;
             document.getElementById('shareModal').classList.add('show');
         }
 
-        // 銴ˊ?澈???
+        // 複製分享連結
         function copyShareLink() {
             const url = document.getElementById('shareLink').textContent;
             navigator.clipboard.writeText(url).then(() => {
-                alert('???撌脰?鋆賢?芾票?選?');
+                alert('連結已複製到剪貼板！');
             }).catch(() => {
-                alert('銴ˊ憭望?嚗???銴ˊ');
+                alert('複製失敗，請手動複製');
             });
         }
 
-        // ???澈璅⊥?獢?
+        // 關閉分享模態框
         function closeShareModal() {
             document.getElementById('shareModal').classList.remove('show');
         }
 
-        // ?ａ??輸?
+        // 離開房間
         function leaveRoom() {
             roomId = null;
             playerId = null;
@@ -1855,24 +1855,24 @@
             showStartScreen();
         }
 
-        // ???
+        // 開始遊戲
         function startGame() {
             showGameScreen();
             
-            // ?湔璅?
+            // 更新標題
             if (gameMode === 'online') {
-                document.getElementById('gameTitle').textContent = '?? 頝單?? - 蝺?撠';
+                document.getElementById('gameTitle').textContent = '♟️ 跳棋遊戲 - 線上對戰';
             } else if (gameMode === 'pvp') {
-                document.getElementById('gameTitle').textContent = '?? 頝單?? - ?砍銝餅?撠';
+                document.getElementById('gameTitle').textContent = '♟️ 跳棋遊戲 - 本地主機對戰';
             } else {
-                document.getElementById('gameTitle').textContent = '?? 頝單?? - 撠AI';
+                document.getElementById('gameTitle').textContent = '♟️ 跳棋遊戲 - 對戰AI';
             }
             
-            // ?湔?拙振?迂憿舐內
+            // 更新玩家名稱顯示
             document.getElementById('displayName1').textContent = playerName1;
             document.getElementById('displayName2').textContent = playerName2;
             
-            // ?砍銝餅?撠憿舐內?嗅??拙振?內??
+            // 本地主機對戰顯示當前玩家指示器
             const indicator = document.getElementById('currentPlayerIndicator');
             if (gameMode === 'pvp') {
                 indicator.style.display = 'block';
@@ -1883,16 +1883,16 @@
             initGame();
         }
 
-        // ??????
+        // 初始化遊戲
         function initGame() {
             board = Array(boardRowSize).fill(null).map(() => Array(boardColSize).fill(EMPTY));
             
-            // ?寞??璅∪?????摮?
+            // 根據遊戲模式初始化棋子
             if (boardMode === 'special') {
-                // ?寞??唳芋撘????∪?????摮?
+                // 特殊戰模式：生成鏡像分布的棋子
                 placePiecesMirrorStyle();
             } else {
-                // 璅?璅∪?嚗蝵桃摰?璉?嚗???3 銵?
+                // 標準模式：放置玩家1棋子（頂部 3 行）
                 let p1Count = 0;
                 for (let row = 0; row < 3 && p1Count < PIECES_PER_PLAYER; row++) {
                     for (let col = 0; col < boardColSize && p1Count < PIECES_PER_PLAYER; col++) {
@@ -1903,7 +1903,7 @@
                     }
                 }
 
-                // ?曄蔭?拙振2/AI璉?嚗???3 銵?
+                // 放置玩家2/AI棋子（底部 3 行）
                 let p2Count = 0;
                 for (let row = boardRowSize - 3; row < boardRowSize && p2Count < PIECES_PER_PLAYER; row++) {
                     for (let col = 0; col < boardColSize && p2Count < PIECES_PER_PLAYER; col++) {
@@ -1926,70 +1926,70 @@
             currentJumpRow = -1;
             currentJumpCol = -1;
             capturedInSequence = [];
-            visitedInJump = []; // 靽格迤嚗?憪?頝唾?頝臬?閮?
-            usedJumpPaths = new Set(); // ?蔭撌脖蝙?函?頝唾?頝臬?
-            processedCaptures.clear(); // 皜征撌脰???鋡急瘥璉?閮?
+            visitedInJump = []; // 修正：初始化跳躍路徑記錄
+            usedJumpPaths = new Set(); // 重置已使用的跳躍路徑
+            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
             document.getElementById('endJumpBtn').style.display = 'none';
             document.getElementById('legend').style.display = 'none';
             
-            // ??閮?
+            // 開始計時
             startTurnTimer();
             updateCurrentPlayerDisplay();
             render();
             
-            // FIX: 蝣箔?????迤蝣粹＊蝷?
+            // FIX: 確保初始狀態正確顯示
             if (gameMode === 'ai') {
-                updateStatus('雿??? - ?豢?璉???', 'waiting');
+                updateStatus('你的回合 - 選擇棋子開始', 'waiting');
             } else if (gameMode === 'pvp') {
-                updateStatus(`${playerName1}????- ?豢?璉???`, 'waiting');
+                updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
             } else if (gameMode === 'online') {
-                updateStatus(`${playerName1}????- ?豢?璉???`, 'waiting');
+                updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
             }
         }
 
-        // ?函畾璅∪?銝蝵桅??撣?璉?
+        // 在特殊戰模式下放置鏡像分布的棋子
         function placePiecesMirrorStyle() {
-            // 蝣箏?撌望???寧?敺???
-            const player1BackRows = [0, 1, 2]; // 撌望敺?????撌望??銝?嚗?
-            const player2BackRows = [boardRowSize - 3, boardRowSize - 2, boardRowSize - 1]; // 撠敺???
+            // 確定己方和對方的後三排
+            const player1BackRows = [0, 1, 2]; // 己方後三排（靠近己方的前三排）
+            const player2BackRows = [boardRowSize - 3, boardRowSize - 2, boardRowSize - 1]; // 對方後三排
             
-            // ?典楛?孵?銝??冽???璉?雿蔭
+            // 在己方後三排隨機生成棋子位置
             const player1Positions = generateRandomPositionsInArea(PIECES_PER_PLAYER, player1BackRows, boardColSize);
             
-            // ?寞?撌望??蝵桃???銝??撠雿蔭
+            // 根據己方的位置生成上下鏡像的對方位置
             const player2Positions = player1Positions.map(pos => ({
                 row: boardRowSize - 1 - pos.row,
-                col: pos.col  // ?芸?銝??∪?嚗?撌血?∪?
+                col: pos.col  // 只做上下鏡像，不左右鏡像
             }));
             
-            // ?曄蔭撌望璉?嚗摰?嚗?
+            // 放置己方棋子（玩家1）
             for (const pos of player1Positions) {
                 board[pos.row][pos.col] = PLAYER1;
             }
             
-            // ?曄蔭撠璉?嚗摰?/AI嚗?
+            // 放置對方棋子（玩家2/AI）
             for (const pos of player2Positions) {
                 board[pos.row][pos.col] = PLAYER2;
             }
         }
 
-        // ?冽?摰?????冽?雿蔭嚗Ⅱ靽???銴?
+        // 在指定區域內生成隨機位置（確保不會重複）
         function generateRandomPositionsInArea(count, rows, cols) {
             const positions = [];
             const occupied = new Set();
             
-            // 撱箇??舐雿蔭?”
+            // 建立可用位置列表
             const availablePositions = [];
             for (const row of rows) {
                 for (let col = 0; col < cols; col++) {
-                    // ?芣??冽??斗摮憟雿蔭???曄蔭璉?嚗?隡潭璅?頝單?????
+                    // 只有在棋盤格子為奇數位置時才放置棋子（類似於標準跳棋的規則）
                     if ((row + col) % 2 === 1) {
                         availablePositions.push({ row, col });
                     }
                 }
             }
             
-            // ?冽??詨?雿蔭
+            // 隨機選取位置
             while (positions.length < count && availablePositions.length > 0) {
                 const randomIndex = Math.floor(Math.random() * availablePositions.length);
                 const pos = availablePositions[randomIndex];
@@ -1999,14 +1999,14 @@
                     occupied.add(`${pos.row},${pos.col}`);
                 }
                 
-                // 蝘駁撌脤??雿蔭
+                // 移除已選取的位置
                 availablePositions.splice(randomIndex, 1);
             }
             
             return positions;
         }
 
-        // ?湔?嗅??拙振憿舐內
+        // 更新當前玩家顯示
         function updateCurrentPlayerDisplay() {
             if (gameMode === 'pvp' || gameMode === 'online') {
                 const indicator = document.getElementById('currentPlayerIndicator');
@@ -2022,7 +2022,7 @@
             }
         }
 
-        // ????閮?
+        // 開始回合計時
         function startTurnTimer() {
             if (timerInterval) {
                 clearInterval(timerInterval);
@@ -2052,14 +2052,14 @@
             }, 1000);
         }
 
-        // ?湔閮??券＊蝷?
+        // 更新計時器顯示
         function updateTimerDisplay() {
             const timerDisplay = document.getElementById('timerDisplay');
             const boardContainer = document.getElementById('boardContainer');
             
             if (!enableTimer) {
                 timerDisplay.className = 'timer-display disabled';
-                timerDisplay.textContent = '??;
+                timerDisplay.textContent = '∞';
                 boardContainer.classList.remove('critical-time');
                 return;
             }
@@ -2078,22 +2078,22 @@
             }
         }
 
-        // 撘瑕蝯???
+        // 強制結束回合
         function forceEndTurn() {
             if (gameOver || !enableTimer) return;
             endPlayerTurn();
         }
 
-        // 蝯??嗅??拙振?? - FIX嚗耨敺拚＊蝷箏?憿?
+        // 結束當前玩家回合 - FIX：修復顯示問題
         function endPlayerTurn() {
-            // ?蔭???頝唾?摨??賊?????
+            // 重置所有與跳躍序列相關的變量
             inJumpSequence = false;
             currentJumpRow = -1;
             currentJumpCol = -1;
             capturedInSequence = [];
-            visitedInJump = []; // 靽格迤嚗?蝵株歲頨楝敺???
-            usedJumpPaths.clear(); // ?蔭撌脖蝙?函?頝唾?頝臬?
-            processedCaptures.clear(); // 皜征撌脰???鋡急瘥璉?閮?
+            visitedInJump = []; // 修正：重置跳躍路徑記錄
+            usedJumpPaths.clear(); // 重置已使用的跳躍路徑
+            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
             selectedPiece = null;
             validMoves = [];
             document.getElementById('endJumpBtn').style.display = 'none';
@@ -2104,9 +2104,9 @@
                 gameOver = true;
                 gameWinner = winner;
                 if (winner === PLAYER1) {
-                    updateStatus(`?剖?嚗?{playerName1}?脣?鈭?`, 'winner');
+                    updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
                 } else {
-                    updateStatus(`?剖?嚗?{playerName2}?脣?鈭?`, 'winner');
+                    updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
                 }
                 playSound('win');
                 if (enableTimer) {
@@ -2116,31 +2116,31 @@
                 return;
             }
 
-            // ???拙振
+            // 切換玩家
             currentPlayer = (currentPlayer === PLAYER1) ? PLAYER2 : PLAYER1;
             updateCurrentPlayerDisplay();
             startTurnTimer();
             
-            // FIX嚗???拙振??皜征????嗅??皜脫?
+            // FIX：在切換玩家前先清空狀態，然後重新渲染
             render();
             
             if (gameMode === 'ai' && currentPlayer === PLAYER2) {
-                updateStatus('AI 甇???..', 'thinking');
+                updateStatus('AI 正在思考...', 'thinking');
                 setTimeout(() => makeAIMove(), 500);
             } else if (gameMode === 'pvp') {
                 const currentPlayerName = (currentPlayer === PLAYER1) ? playerName1 : playerName2;
-                updateStatus(`${currentPlayerName}????- ?豢?璉???`, 'waiting');
+                updateStatus(`${currentPlayerName}的回合 - 選擇棋子開始`, 'waiting');
             } else if (gameMode === 'online') {
                 const currentPlayerName = (currentPlayer === PLAYER1) ? playerName1 : playerName2;
                 if (currentPlayer === PLAYER1) {
-                    updateStatus(`${currentPlayerName}????- ?豢?璉???`, 'waiting');
+                    updateStatus(`${currentPlayerName}的回合 - 選擇棋子開始`, 'waiting');
                 } else {
-                    updateStatus(`蝑?${currentPlayerName}銵?...`, 'thinking');
+                    updateStatus(`等待${currentPlayerName}行動...`, 'thinking');
                 }
             }
         }
 
-        // ?脣??桅宏??
+        // 獲取普通移動
         function getNormalMoves(row, col) {
             const moves = [];
             const piece = getBoardCell(row, col);
@@ -2172,7 +2172,7 @@
             return moves;
         }
 
-        // ?脣?頝唾?蝘餃? - 靽桀儔?嚗溶?歲頨楝敺???
+        // 獲取跳躍移動 - 修復版本，添加跳躍路徑限制
         function getJumpMoves(row, col, capturedList = [], visitedList = []) {
             const moves = [];
             const piece = getBoardCell(row, col);
@@ -2185,8 +2185,8 @@
                 [1, -1],  [1, 0],  [1, 1]
             ];
 
-            // 靽格迤嚗??歇鋡怨歲??璉?雿蔭嚗??航歲頨???
-            // ?見?臭誑?迂璉?頝喲?????寞?摮?甈∴?雿??賢??????????蝵?
+            // 修正：記錄已被跳過的棋子位置，而不是跳躍的邊
+            // 這樣可以允許棋子跳過同一個敵方棋子多次，但不能在同一個回合內回到同一個位置
             const visitedPositions = new Set();
             for (const pos of visitedList) {
                 visitedPositions.add(`${pos.row},${pos.col}`);
@@ -2206,11 +2206,11 @@
                     if (alreadyJumped) continue;
 
                     if (isInBoundsCell(landRow, landCol) && getBoardCell(landRow, landCol) === EMPTY) {
-                        // 瑼Ｘ?格?雿蔭?臬撌脰◤閮芸????脫迫敺芰頝唾?嚗?
+                        // 檢查目標位置是否已被訪問過（防止循環跳躍）
                         const targetPosKey = `${landRow},${landCol}`;
                         if (visitedPositions.has(targetPosKey)) continue;
 
-                        // 瑼Ｘ頝唾?頝臬??臬撌脰◤雿輻嚗甇Ｗ?????批?餈歲頨?
+                        // 檢查跳躍路徑是否已被使用（防止在同一回合內往返跳躍）
                         const pathKey1 = `${row},${col}-${landRow},${landCol}`;
                         const pathKey2 = `${landRow},${landCol}-${row},${col}`;
                         if (usedJumpPaths.has(pathKey1) || usedJumpPaths.has(pathKey2)) continue;
@@ -2237,7 +2237,7 @@
             return moves;
         }
 
-        // ?脣?璉?澆?
+        // 獲取棋盤格子
         function getBoardCell(row, col) {
             if (row >= 0 && row < boardRowSize && col >= 0 && col < boardColSize) {
                 return board[row][col];
@@ -2245,19 +2245,19 @@
             return undefined;
         }
 
-        // 閮剔蔭璉?澆?
+        // 設置棋盤格子
         function setBoardCell(row, col, value) {
             if (row >= 0 && row < boardRowSize && col >= 0 && col < boardColSize) {
                 board[row][col] = value;
             }
         }
 
-        // 瑼Ｘ雿蔭?臬?冽??文
+        // 檢查位置是否在棋盤內
         function isInBoundsCell(row, col) {
             return row >= 0 && row < boardRowSize && col >= 0 && col < boardColSize;
         }
 
-        // 蝘餃?璉? - 撣嗆?甇虫??寞?
+        // 移動棋子 - 帶有武俠特效
         async function movePiece(fromRow, fromCol, toRow, toCol, move) {
             const piece = getBoardCell(fromRow, fromCol);
             const fromSquare = document.querySelector(`[data-row="${fromRow}"][data-col="${fromCol}"]`);
@@ -2265,54 +2265,54 @@
             
             if (!fromSquare || !toSquare) return;
             
-            // ?曉??璉???
+            // 找到原始棋子元素
             const pieceElement = fromSquare.querySelector('.piece');
             if (!pieceElement) return;
             
-            // 瑼Ｘ?臬?◤????摮?
+            // 檢查是否有被捕捉的棋子
             const hasCapture = move.capturedPieces.length > 0;
             
-            // ?寞?蝘餃?憿??剜銝??單?
+            // 根據移動類型播放不同音效
             if (hasCapture) {
                 playSound('jump_capture', piece);
             } else {
                 playSound('jump', piece);
             }
             
-            // 憒??航歲頨瘥嚗撱箇??
+            // 如果是跳躍摧毀，創建特效
             if (hasCapture) {
                 for (const captured of move.capturedPieces) {
-                    // ?萄遣?臭?璅?蝚虫?餈質馱?◤?扳???摮?
+                    // 創建唯一標識符來追蹤這個被摧毀的棋子
                     const captureKey = `${captured.row},${captured.col}`;
                     
-                    // 瑼Ｘ??摮?血歇蝬◤????
+                    // 檢查這個棋子是否已經被處理過
                     if (processedCaptures.has(captureKey)) continue;
                     
-                    // 璅??箏歇??
+                    // 標記為已處理
                     processedCaptures.add(captureKey);
                     
                     const capturedSquare = document.querySelector(`[data-row="${captured.row}"][data-col="${captured.col}"]`);
                     
                     if (capturedSquare) {
-                        // ?萄遣????
+                        // 創建刀劍特效
                         createSwordEffect(captured.row, captured.col);
                         
-                        // ?剜??１???
+                        // 播放刀劍碰撞音效
                         playSound('sword');
                         
-                        // ?萄遣璉?鋡急瘥?寞?
+                        // 創建棋子被摧毀特效
                         createDestroyedPieceEffect(captured.row, captured.col, getBoardCell(captured.row, captured.col));
                         
-                        // ?萄遣??銝??寞?
+                        // 創建靈魂上升特效
                         createSoulEffect(captured.row, captured.col);
                         
-                        // ?剜???單?
+                        // 播放靈魂音效
                         playSound('soul');
                     }
                 }
             }
             
-            // 閮?頝唾???蝘駁?
+            // 計算跳躍的位移量
             const fromRect = fromSquare.getBoundingClientRect();
             const toRect = toSquare.getBoundingClientRect();
             const boardRect = document.getElementById('board').getBoundingClientRect();
@@ -2322,24 +2322,24 @@
             const toX = toRect.left - boardRect.left + toRect.width / 2;
             const toY = toRect.top - boardRect.top + toRect.height / 2;
             
-            // 閮??詨?雿宏
+            // 計算相對位移
             const tx = toX - fromX;
             const ty = toY - fromY;
             
-            // 閮剔蔭CSS霈?
+            // 設置CSS變量
             pieceElement.style.setProperty('--tx', `${tx}px`);
             pieceElement.style.setProperty('--ty', `${ty}px`);
             
-            // 瘛餃?頝唾??憿?
+            // 添加跳躍動畫類
             pieceElement.classList.add('piece-jumping');
             
-            // ?萄遣畾蔣?寞?
+            // 創建殘影特效
             createPieceTrails(fromRow, fromCol, toRow, toCol, piece);
             
-            // 蝑??摰?
+            // 等待動畫完成
             await new Promise(resolve => setTimeout(resolve, 300));
             
-            // 撖阡?蝘餃?璉?
+            // 實際移動棋子
             setBoardCell(toRow, toCol, piece);
             setBoardCell(fromRow, fromCol, EMPTY);
 
@@ -2347,55 +2347,55 @@
                 setBoardCell(captured.row, captured.col, EMPTY);
             }
             
-            // 蝘駁頝唾??憿?
+            // 移除跳躍動畫類
             pieceElement.classList.remove('piece-jumping');
             
-            // ?皜脫?璉
+            // 重新渲染棋盤
             render();
         }
 
-        // ?萄遣璉?頝唾???畾蔣?寞?
+        // 創建棋子跳躍時的殘影特效
         function createPieceTrails(fromRow, fromCol, toRow, toCol, pieceType) {
             const fromSquare = document.querySelector(`[data-row="${fromRow}"][data-col="${fromCol}"]`);
             const toSquare = document.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
             
             if (!fromSquare || !toSquare) return;
             
-            // 閮?敺絲暺蝯??葉??
+            // 計算從起點到終點的中間點
             const centerX = (parseInt(fromSquare.getAttribute('data-col')) + parseInt(toSquare.getAttribute('data-col'))) / 2;
             const centerY = (parseInt(fromSquare.getAttribute('data-row')) + parseInt(toSquare.getAttribute('data-row'))) / 2;
             
-            // ?萄遣憭?敶梁??
+            // 創建多個殘影特效
             for (let i = 0; i < 5; i++) {
                 setTimeout(() => {
                     const trail = document.createElement('div');
                     trail.className = 'piece-trail';
                     
-                    // ?寞?璉?憿?閮剔蔭憿
+                    // 根據棋子類型設置顏色
                     if (pieceType === PLAYER1) {
                         trail.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a5a)';
                     } else if (pieceType === PLAYER2) {
                         trail.style.background = 'linear-gradient(135deg, #4ecdc4, #44a3a0)';
                     }
                     
-                    trail.textContent = '??;
+                    trail.textContent = '●';
                     trail.style.color = 'white';
                     trail.style.fontSize = '18px';
                     
-                    // 瘛餃??啗絲暺憛?
+                    // 添加到起點方塊
                     fromSquare.appendChild(trail);
                     
-                    // ?其?摰???蝘駁畾蔣?寞?
+                    // 在一定時間後移除殘影特效
                     setTimeout(() => {
                         if (trail.parentNode) {
                             trail.parentNode.removeChild(trail);
                         }
                     }, 300);
-                }, i * 60); // ?撓憿舐內畾蔣
+                }, i * 60); // 逐漸顯示殘影
             }
         }
 
-        // ?萄遣????
+        // 創建刀劍特效
         function createSwordEffect(row, col) {
             const square = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
             if (!square) return;
@@ -2405,7 +2405,7 @@
             
             square.appendChild(swordEffect);
             
-            // ?典??怠???蝘駁?寞?
+            // 在動畫完成後移除特效
             setTimeout(() => {
                 if (swordEffect.parentNode) {
                     swordEffect.parentNode.removeChild(swordEffect);
@@ -2413,18 +2413,18 @@
             }, 300);
         }
 
-        // ?萄遣鋡急瘥璉??寞?
+        // 創建被摧毀棋子特效
         function createDestroyedPieceEffect(row, col, pieceType) {
             const square = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
             if (!square) return;
             
-            // 蝘駁閰脖?蝵桐???摮?
+            // 移除該位置上的棋子
             const pieceToRemove = square.querySelector('.piece');
             if (pieceToRemove) {
                 pieceToRemove.remove();
             }
             
-            // ?萄遣??寞? - 撠?摮????典?
+            // 創建切割特效 - 將棋子分成四部分
             const colors = {
                 [PLAYER1]: 'linear-gradient(135deg, #ff6b6b, #ee5a5a)',
                 [PLAYER2]: (gameMode === 'pvp' || gameMode === 'online') ? 
@@ -2434,30 +2434,30 @@
             
             const baseColor = colors[pieceType] || 'linear-gradient(135deg, #aaa, #888)';
             
-            // ?萄遣????
+            // 創建四個碎片
             for (let i = 0; i < 4; i++) {
                 const part = document.createElement('div');
                 part.className = 'piece-cut-part';
                 part.style.background = baseColor;
                 
-                // 閮剔蔭蝣???蝵?
+                // 設置碎片的位置
                 switch(i) {
-                    case 0: // 撌虫?
+                    case 0: // 左上
                         part.style.top = '0%';
                         part.style.left = '0%';
                         part.style.transform = 'translate(-25%, -25%)';
                         break;
-                    case 1: // ?喃?
+                    case 1: // 右上
                         part.style.top = '0%';
                         part.style.left = '100%';
                         part.style.transform = 'translate(-75%, -25%)';
                         break;
-                    case 2: // 撌虫?
+                    case 2: // 左下
                         part.style.top = '100%';
                         part.style.left = '0%';
                         part.style.transform = 'translate(-25%, -75%)';
                         break;
-                    case 3: // ?喃?
+                    case 3: // 右下
                         part.style.top = '100%';
                         part.style.left = '100%';
                         part.style.transform = 'translate(-75%, -75%)';
@@ -2468,7 +2468,7 @@
                 
                 square.appendChild(part);
                 
-                // ?典??怠???蝘駁蝣?
+                // 在動畫完成後移除碎片
                 setTimeout(() => {
                     if (part.parentNode) {
                         part.parentNode.removeChild(part);
@@ -2477,7 +2477,7 @@
             }
         }
 
-        // ?萄遣???寞?
+        // 創建靈魂特效
         function createSoulEffect(row, col) {
             const square = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
             if (!square) return;
@@ -2487,7 +2487,7 @@
             
             square.appendChild(soulEffect);
             
-            // ?典??怠???蝘駁?寞?
+            // 在動畫完成後移除特效
             setTimeout(() => {
                 if (soulEffect.parentNode) {
                     soulEffect.parentNode.removeChild(soulEffect);
@@ -2495,11 +2495,11 @@
             }, 1000);
         }
 
-        // 瑼Ｘ?臬?脣?
+        // 檢查是否獲勝
         function checkWin() {
             const centerCol = Math.floor(boardColSize / 2);
             
-            // 瑼Ｘ?寞??澆?
+            // 檢查特殊格子
             if (getBoardCell(boardRowSize - 1, centerCol) === PLAYER1) {
                 return PLAYER1;
             }
@@ -2507,7 +2507,7 @@
                 return PLAYER2;
             }
 
-            // 瑼Ｘ璉??賊?
+            // 檢查棋子數量
             const player1Pieces = countPieces(PLAYER1);
             const player2Pieces = countPieces(PLAYER2);
 
@@ -2521,7 +2521,7 @@
             return null;
         }
 
-        // 閮?璉??賊?
+        // 計算棋子數量
         function countPieces(player) {
             let count = 0;
             for (let row = 0; row < boardRowSize; row++) {
@@ -2532,11 +2532,11 @@
             return count;
         }
 
-        // ?脣????賜?蝘餃?
+        // 獲取所有可能的移動
         function getAllPossibleMoves(player) {
             const moves = [];
 
-            // ?園???歲頨宏??
+            // 收集所有跳躍移動
             for (let row = 0; row < boardRowSize; row++) {
                 for (let col = 0; col < boardColSize; col++) {
                     if (getBoardCell(row, col) === player) {
@@ -2561,7 +2561,7 @@
                 return moves;
             }
 
-            // ?園????宏??
+            // 收集所有普通移動
             for (let row = 0; row < boardRowSize; row++) {
                 for (let col = 0; col < boardColSize; col++) {
                     if (getBoardCell(row, col) === player) {
@@ -2583,7 +2583,7 @@
             return moves;
         }
 
-        // 閰摯蝘餃?
+        // 評估移動
         function evaluateMove(moveInfo, player) {
             let score = 0;
 
@@ -2606,7 +2606,7 @@
             return score + Math.random() * 10;
         }
 
-        // AI蝘餃?
+        // AI移動
         async function makeAIMove() {
             if (isAIThinking || gameOver || currentPlayer !== PLAYER2 || gameMode !== 'ai') return;
             isAIThinking = true;
@@ -2616,7 +2616,7 @@
             if (allMoves.length === 0) {
                 gameOver = true;
                 gameWinner = PLAYER1;
-                updateStatus(`${playerName1}?脣?鈭?AI ?⊥?蝘餃?`, 'winner');
+                updateStatus(`${playerName1}獲勝了！AI 無法移動`, 'winner');
                 playSound('win');
                 if (enableTimer) {
                     clearInterval(timerInterval);
@@ -2642,7 +2642,7 @@
             isAIThinking = false;
         }
 
-        // ?瑁?AI蝘餃?
+        // 執行AI移動
         async function performAIMove(moveInfo) {
             await movePiece(moveInfo.fromRow, moveInfo.fromCol, moveInfo.toRow, moveInfo.toCol, moveInfo.move);
             let finalRow = moveInfo.toRow;
@@ -2650,14 +2650,14 @@
             let capturedPieces = [...moveInfo.move.capturedPieces];
             let visitedPositions = moveInfo.move.visitedInJump || [];
 
-            // 瘛餃?頝唾?頝臬??啣歇雿輻????
+            // 添加跳躍路徑到已使用的集合
             usedJumpPaths.add(`${moveInfo.fromRow},${moveInfo.fromCol}-${finalRow},${finalCol}`);
 
-            // 瑼Ｘ?璇辣
+            // 檢查勝利條件
             if (checkWinCondition(finalRow, finalCol)) {
                 gameOver = true;
                 gameWinner = PLAYER2;
-                updateStatus('AI ?脣?鈭?', 'winner');
+                updateStatus('AI 獲勝了！', 'winner');
                 playSound('win');
                 if (enableTimer) {
                     clearInterval(timerInterval);
@@ -2672,9 +2672,9 @@
                     gameOver = true;
                     gameWinner = winner;
                     if (winner === PLAYER1) {
-                        updateStatus(`${playerName1}?脣?鈭?`, 'winner');
+                        updateStatus(`${playerName1}獲勝了！`, 'winner');
                     } else {
-                        updateStatus('AI ?脣?鈭?', 'winner');
+                        updateStatus('AI 獲勝了！', 'winner');
                     }
                     playSound('win');
                     if (enableTimer) {
@@ -2723,13 +2723,13 @@
                     finalRow = bestJump.row;
                     finalCol = bestJump.col;
 
-                    // 瘛餃?頝唾?頝臬??啣歇雿輻????
+                    // 添加跳躍路徑到已使用的集合
                     usedJumpPaths.add(`${finalRow - (bestJump.row - finalRow)},${finalCol - (bestJump.col - finalCol)}-${finalRow},${finalCol}`);
 
                     if (checkWinCondition(finalRow, finalCol)) {
                         gameOver = true;
                         gameWinner = PLAYER2;
-                        updateStatus('AI ?脣?鈭?', 'winner');
+                        updateStatus('AI 獲勝了！', 'winner');
                         playSound('win');
                         if (enableTimer) {
                             clearInterval(timerInterval);
@@ -2749,9 +2749,9 @@
                 gameOver = true;
                 gameWinner = winner;
                 if (winner === PLAYER1) {
-                    updateStatus(`${playerName1}?脣?鈭?`, 'winner');
+                    updateStatus(`${playerName1}獲勝了！`, 'winner');
                 } else {
-                    updateStatus('AI ?脣?鈭?', 'winner');
+                    updateStatus('AI 獲勝了！', 'winner');
                 }
                 playSound('win');
                 if (enableTimer) {
@@ -2762,50 +2762,50 @@
             }
         }
 
-        // 瑼Ｘ?璇辣
+        // 檢查勝利條件
         function checkWinCondition(row, col) {
             const centerCol = Math.floor(boardColSize / 2);
             return (getBoardCell(row, col) === PLAYER1 && row === boardRowSize - 1 && col === centerCol) ||
                    (getBoardCell(row, col) === PLAYER2 && row === 0 && col === centerCol);
         }
 
-        // 蝯?頝唾?
+        // 結束跳躍
         function endJumpSequence() {
             if (!inJumpSequence) return;
 
-            // ?蔭???頝唾?摨??賊?????
+            // 重置所有與跳躍序列相關的變量
             inJumpSequence = false;
             currentJumpRow = -1;
             currentJumpCol = -1;
             capturedInSequence = [];
-            visitedInJump = []; // 靽格迤嚗?蝵株歲頨楝敺???
-            usedJumpPaths.clear(); // ?蔭撌脖蝙?函?頝唾?頝臬?
-            processedCaptures.clear(); // 皜征撌脰???鋡急瘥璉?閮?
+            visitedInJump = []; // 修正：重置跳躍路徑記錄
+            usedJumpPaths.clear(); // 重置已使用的跳躍路徑
+            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
             selectedPiece = null;
             validMoves = [];
             document.getElementById('endJumpBtn').style.display = 'none';
             document.getElementById('legend').style.display = 'none';
 
-            // 蝯??嗅??拙振??
+            // 結束當前玩家回合
             endPlayerTurn();
         }
 
-        // ??暺?
+        // 處理點擊
         async function handleSquareClick(row, col) {
             if (gameOver || waitingForJump) return;
             
             if (isAIThinking) return;
 
-            // ?函?銝芋撘葉嚗Ⅱ靽?嗅??拙振???
+            // 在線上模式中，確保是當前玩家才能操作
             if (gameMode === 'online' && currentPlayer !== PLAYER1) {
-                return; // 銝?嗅??拙振??雿?
+                return; // 不是當前玩家的操作
             }
 
-            // 靽格迤嚗??迤?券脰?頝唾?摨?嚗?賣?雿?銝憿?摮?蝯?頝唾?
+            // 修正：如果正在進行跳躍序列，只能操作同一顆棋子或結束跳躍
             if (inJumpSequence) {
-                // 憒?暺???嗅?頝唾???摮??迂蝜潛???
+                // 如果點擊的是當前跳躍的棋子，允許繼續操作
                 if (row === currentJumpRow && col === currentJumpCol) {
-                    // ?閮??嗅?璉????宏??
+                    // 重新計算當前棋子的有效移動
                     const jumpMoves = getJumpMoves(row, col, capturedInSequence, visitedInJump);
                     
                     validMoves = [];
@@ -2815,12 +2815,12 @@
                     
                     render();
                 } else if (validMoves.some(m => m.row === row && m.col === col)) {
-                    // 憒?暺?????歲頨?蝵殷??瑁?蝘餃?
+                    // 如果點擊的是有效的跳躍位置，執行移動
                     const move = validMoves.find(m => m.row === row && m.col === col);
                     if (move) {
                         await movePiece(currentJumpRow, currentJumpCol, row, col, move);
                         
-                        // 瘛餃?頝唾?頝臬??啣歇雿輻????
+                        // 添加跳躍路徑到已使用的集合
                         usedJumpPaths.add(`${currentJumpRow},${currentJumpCol}-${row},${col}`);
                         
                         let finalRow = row;
@@ -2830,35 +2830,35 @@
                             gameOver = true;
                             gameWinner = currentPlayer;
                             if (currentPlayer === PLAYER1) {
-                                updateStatus(`?剖?嚗?{playerName1}?脣?鈭?`, 'winner');
+                                updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
                             } else {
-                                updateStatus(`?剖?嚗?{playerName2}?脣?鈭?`, 'winner');
+                                updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
                             }
                             playSound('win');
                             if (enableTimer) {
                                 clearInterval(timerInterval);
                             }
-                            // ?蔭?????
+                            // 重置所有狀態
                             selectedPiece = null;
                             validMoves = [];
                             inJumpSequence = false;
                             currentJumpRow = -1;
                             currentJumpCol = -1;
                             capturedInSequence = [];
-                            visitedInJump = []; // 靽格迤嚗?蝵株歲頨楝敺???
-                            usedJumpPaths.clear(); // ?蔭撌脖蝙?函?頝唾?頝臬?
-                            processedCaptures.clear(); // 皜征撌脰???鋡急瘥璉?閮?
+                            visitedInJump = []; // 修正：重置跳躍路徑記錄
+                            usedJumpPaths.clear(); // 重置已使用的跳躍路徑
+                            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
                             document.getElementById('endJumpBtn').style.display = 'none';
                             document.getElementById('legend').style.display = 'none';
                             render();
                             return;
                         }
 
-                        // 瑼Ｘ?臬?臭誑蝜潛?頝唾?
+                        // 檢查是否可以繼續跳躍
                         const furtherMoves = getJumpMoves(finalRow, finalCol, [...capturedInSequence, ...move.capturedPieces], move.visitedInJump || []);
 
                         if (furtherMoves.length > 0) {
-                            // ?憭歲頨隞仿脰?
+                            // 有更多跳躍可以進行
                             validMoves = [];
                             for (const jumpMove of furtherMoves) {
                                 validMoves.push({...jumpMove, moveType: 'jump'});
@@ -2870,17 +2870,17 @@
                             visitedInJump = move.visitedInJump || visitedInJump;
                             
                             document.getElementById('endJumpBtn').style.display = 'inline-block';
-                            updateStatus('???頝唾?銝?- ?豢?銝??歲頨?蝵格?暺?蝯?', 'jumping');
+                            updateStatus('連續跳躍中 - 選擇下一個跳躍位置或點擊結束', 'jumping');
                             render();
                         } else {
-                            // 瘝??游?頝唾??臭誑?脰?
+                            // 沒有更多跳躍可以進行
                             inJumpSequence = false;
                             currentJumpRow = -1;
                             currentJumpCol = -1;
                             capturedInSequence = [];
-                            visitedInJump = []; // 靽格迤嚗?蝵株歲頨楝敺???
-                            usedJumpPaths.clear(); // ?蔭撌脖蝙?函?頝唾?頝臬?
-                            processedCaptures.clear(); // 皜征撌脰???鋡急瘥璉?閮?
+                            visitedInJump = []; // 修正：重置跳躍路徑記錄
+                            usedJumpPaths.clear(); // 重置已使用的跳躍路徑
+                            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
                             selectedPiece = null;
                             validMoves = [];
                             document.getElementById('endJumpBtn').style.display = 'none';
@@ -2891,9 +2891,9 @@
                                 gameOver = true;
                                 gameWinner = winner;
                                 if (winner === PLAYER1) {
-                                    updateStatus(`?剖?嚗?{playerName1}?脣?鈭?`, 'winner');
+                                    updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
                                 } else {
-                                    updateStatus(`?剖?嚗?{playerName2}?脣?鈭?`, 'winner');
+                                    updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
                                 }
                                 playSound('win');
                                 if (enableTimer) {
@@ -2907,18 +2907,18 @@
                         }
                     }
                 } else {
-                    // 暺?鈭隞?蝵殷?銝霈?歲頨???
-                    // 靽??嗅?璉??歲頨楝敺?
+                    // 點擊了其他位置，不改變當前跳躍狀態
+                    // 保持當前棋子的跳躍路徑
                     return;
                 }
             } else {
-                // ?歲頨??????迤撣貉???
+                // 非跳躍序列狀態下的正常處理
                 if (selectedPiece) {
                     const move = validMoves.find(m => m.row === row && m.col === col);
                     if (move) {
                         await movePiece(selectedPiece.row, selectedPiece.col, row, col, move);
                         
-                        // 瘛餃?頝唾?頝臬??啣歇雿輻????
+                        // 添加跳躍路徑到已使用的集合
                         usedJumpPaths.add(`${selectedPiece.row},${selectedPiece.col}-${row},${col}`);
                         
                         let finalRow = row;
@@ -2928,24 +2928,24 @@
                             gameOver = true;
                             gameWinner = currentPlayer;
                             if (currentPlayer === PLAYER1) {
-                                updateStatus(`?剖?嚗?{playerName1}?脣?鈭?`, 'winner');
+                                updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
                             } else {
-                                updateStatus(`?剖?嚗?{playerName2}?脣?鈭?`, 'winner');
+                                updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
                             }
                             playSound('win');
                             if (enableTimer) {
                                 clearInterval(timerInterval);
                             }
-                            // ?蔭?????
+                            // 重置所有狀態
                             selectedPiece = null;
                             validMoves = [];
                             inJumpSequence = false;
                             currentJumpRow = -1;
                             currentJumpCol = -1;
                             capturedInSequence = [];
-                            visitedInJump = []; // 靽格迤嚗?蝵株歲頨楝敺???
-                            usedJumpPaths.clear(); // ?蔭撌脖蝙?函?頝唾?頝臬?
-                            processedCaptures.clear(); // 皜征撌脰???鋡急瘥璉?閮?
+                            visitedInJump = []; // 修正：重置跳躍路徑記錄
+                            usedJumpPaths.clear(); // 重置已使用的跳躍路徑
+                            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
                             document.getElementById('endJumpBtn').style.display = 'none';
                             document.getElementById('legend').style.display = 'none';
                             render();
@@ -2953,16 +2953,16 @@
                         }
 
                         if (!move.isCapture) {
-                            // ?歲頨宏???湔蝯???
+                            // 非跳躍移動，直接結束回合
                             selectedPiece = null;
                             validMoves = [];
                             inJumpSequence = false;
                             currentJumpRow = -1;
                             currentJumpCol = -1;
                             capturedInSequence = [];
-                            visitedInJump = []; // 靽格迤嚗?蝵株歲頨楝敺???
-                            usedJumpPaths.clear(); // ?蔭撌脖蝙?函?頝唾?頝臬?
-                            processedCaptures.clear(); // 皜征撌脰???鋡急瘥璉?閮?
+                            visitedInJump = []; // 修正：重置跳躍路徑記錄
+                            usedJumpPaths.clear(); // 重置已使用的跳躍路徑
+                            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
                             document.getElementById('endJumpBtn').style.display = 'none';
                             document.getElementById('legend').style.display = 'none';
 
@@ -2971,9 +2971,9 @@
                                 gameOver = true;
                                 gameWinner = winner;
                                 if (winner === PLAYER1) {
-                                    updateStatus(`?剖?嚗?{playerName1}?脣?鈭?`, 'winner');
+                                    updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
                                 } else {
-                                    updateStatus(`?剖?嚗?{playerName2}?脣?鈭?`, 'winner');
+                                    updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
                                 }
                                 playSound('win');
                                 if (enableTimer) {
@@ -2987,7 +2987,7 @@
                             return;
                         }
 
-                        // 頝唾?蝘餃?嚗炎?交?血隞亦匱蝥歲頨?
+                        // 跳躍移動，檢查是否可以繼續跳躍
                         let capturedPieces = [...move.capturedPieces];
                         let visitedPositions = move.visitedInJump || [];
 
@@ -3000,7 +3000,7 @@
                         const furtherMoves = getJumpMoves(finalRow, finalCol, capturedPieces, visitedPositions);
 
                         if (furtherMoves.length > 0) {
-                            // ?憭歲頨隞仿脰?
+                            // 有更多跳躍可以進行
                             validMoves = [];
                             for (const jumpMove of furtherMoves) {
                                 validMoves.push({...jumpMove, moveType: 'jump'});
@@ -3009,18 +3009,18 @@
                             selectedPiece = { row: finalRow, col: finalCol };
                             document.getElementById('endJumpBtn').style.display = 'inline-block';
                             document.getElementById('legend').style.display = 'none';
-                            updateStatus('???頝唾?銝?- ?豢?銝??歲頨?蝵格?暺?蝯?', 'jumping');
+                            updateStatus('連續跳躍中 - 選擇下一個跳躍位置或點擊結束', 'jumping');
                             render();
-                            return; // 蝑??拙振?豢?銝?甇交?蝯?頝唾?
+                            return; // 等待玩家選擇下一步或結束跳躍
                         } else {
-                            // 瘝??游?頝唾??臭誑?脰?
+                            // 沒有更多跳躍可以進行
                             inJumpSequence = false;
                             currentJumpRow = -1;
                             currentJumpCol = -1;
                             capturedInSequence = [];
-                            visitedInJump = []; // 靽格迤嚗?蝵株歲頨楝敺???
-                            usedJumpPaths.clear(); // ?蔭撌脖蝙?函?頝唾?頝臬?
-                            processedCaptures.clear(); // 皜征撌脰???鋡急瘥璉?閮?
+                            visitedInJump = []; // 修正：重置跳躍路徑記錄
+                            usedJumpPaths.clear(); // 重置已使用的跳躍路徑
+                            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
                             selectedPiece = null;
                             validMoves = [];
                             document.getElementById('endJumpBtn').style.display = 'none';
@@ -3031,9 +3031,9 @@
                                 gameOver = true;
                                 gameWinner = winner;
                                 if (winner === PLAYER1) {
-                                    updateStatus(`?剖?嚗?{playerName1}?脣?鈭?`, 'winner');
+                                    updateStatus(`恭喜！${playerName1}獲勝了！`, 'winner');
                                 } else {
-                                    updateStatus(`?剖?嚗?{playerName2}?脣?鈭?`, 'winner');
+                                    updateStatus(`恭喜！${playerName2}獲勝了！`, 'winner');
                                 }
                                 playSound('win');
                                 if (enableTimer) {
@@ -3071,18 +3071,18 @@
 
                         if (normalMoves.length > 0 && jumpMoves.length > 0) {
                             document.getElementById('legend').style.display = 'flex';
-                            updateStatus('?豢?蝘餃?嚗??莎??歲頨?璈嚗?, 'waiting');
+                            updateStatus('選擇移動（黃色）或跳躍（橙色）', 'waiting');
                         } else if (jumpMoves.length > 0) {
                             document.getElementById('legend').style.display = 'none';
-                            updateStatus('?豢?頝唾?雿蔭', 'waiting');
+                            updateStatus('選擇跳躍位置', 'waiting');
                         } else if (normalMoves.length > 0) {
                             document.getElementById('legend').style.display = 'none';
-                            updateStatus('?豢?蝘餃?雿蔭', 'waiting');
+                            updateStatus('選擇移動位置', 'waiting');
                         } else {
                             selectedPiece = null;
                             validMoves = [];
                             document.getElementById('legend').style.display = 'none';
-                            updateStatus('甇斗?摮瘜宏??, 'waiting');
+                            updateStatus('此棋子無法移動', 'waiting');
                         }
                     }
                 } else {
@@ -3095,34 +3095,34 @@
             render();
         }
 
-        // ?湔???
+        // 更新狀態
         function updateStatus(text, className = '') {
             const statusText = document.getElementById('statusText');
             statusText.textContent = text;
             statusText.className = 'status-text ' + className;
         }
 
-        // 皜脫?璉
+        // 渲染棋盤
         function render() {
             const boardElement = document.getElementById('board');
             boardElement.innerHTML = '';
 
-            // ??閮剔蔭 grid-template-columns
+            // 動態設置 grid-template-columns
             boardElement.style.gridTemplateColumns = `repeat(${boardColSize}, 1fr)`;
             
             renderBoard(boardElement);
 
-            // ?湔璉?閮
+            // 更新棋子計數
             const player1Pieces = countPieces(PLAYER1);
             const player2Pieces = countPieces(PLAYER2);
             document.getElementById('playerPieces').textContent = player1Pieces;
             document.getElementById('aiPieces').textContent = player2Pieces;
 
-            // ?寞??唬?憿舐內璉憭批?靽⊥
+            // 特殊戰不顯示棋盤大小信息
             document.getElementById('boardInfo').textContent = '';
         }
 
-        // 皜脫?璉
+        // 渲染棋盤
         function renderBoard(boardElement) {
             const centerCol = Math.floor(boardColSize / 2);
 
@@ -3136,17 +3136,17 @@
                         } else {
                             square.classList.add('square', 'special-tile', 'special-ai');
                         }
-                        // 瘛餃???蝎??寞?
+                        // 添加星星粒子特效
                         createStarParticles(square, 20);
                     } else if (row === boardRowSize - 1 && col === centerCol) {
                         square.classList.add('square', 'special-tile', 'special-player');
-                        // 瘛餃???蝎??寞?
+                        // 添加星星粒子特效
                         createStarParticles(square, 20);
                     } else {
                         square.classList.add('square');
                     }
 
-                    // 瘛餃??豢?撅祆找誑靘踵摰?
+                    // 添加數據屬性以便於定位
                     square.setAttribute('data-row', row);
                     square.setAttribute('data-col', col);
 
@@ -3160,9 +3160,9 @@
             }
         }
 
-        // ?萄遣??蝎??寞?
+        // 創建星星粒子特效
         function createStarParticles(container, count) {
-            // 皜?暹???摮?
+            // 清除現有的粒子
             const existingParticles = container.querySelectorAll('.star-particle');
             existingParticles.forEach(particle => particle.remove());
             
@@ -3170,25 +3170,25 @@
                 const particle = document.createElement('div');
                 particle.classList.add('star-particle');
                 
-                // ?冽?雿蔭
+                // 隨機位置
                 const x = Math.random() * 100;
                 const y = Math.random() * 100;
                 particle.style.left = `${x}%`;
                 particle.style.top = `${y}%`;
                 
-                // ?冽?憭批?
+                // 隨機大小
                 const size = 2 + Math.random() * 3;
                 particle.style.width = `${size}px`;
                 particle.style.height = `${size}px`;
                 
-                // ?冽???摨?
+                // 隨機透明度
                 particle.style.opacity = 0.6 + Math.random() * 0.4;
                 
-                // ?冽?憿
+                // 隨機顏色
                 const colors = ['#FFD700', '#FFA500', '#FFFF00', '#F0E68C', '#FFFACD'];
                 particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                 
-                // ?冽??撱園
+                // 隨機動畫延遲
                 const delay = Math.random() * 3;
                 particle.style.animationDelay = `${delay}s`;
                 
@@ -3196,14 +3196,14 @@
             }
         }
 
-        // ?萄遣?澆???
+        // 創建格子元素
         function createSquareElement(row, col) {
             const square = document.createElement('div');
             square.className = 'square';
             return square;
         }
 
-        // 瘛餃?暺?????
+        // 添加點擊處理器
         function addSquareClickHandler(square, row, col) {
             square.onclick = () => {
                 if (window.jumpClickHandler) {
@@ -3214,7 +3214,7 @@
             };
         }
 
-        // 瘛餃???蝘餃?擃漁
+        // 添加有效移動高亮
         function addValidMoveHighlight(square, row, col) {
             if (validMoves.length > 0) {
                 const moveAtPosition = validMoves.find(m => m.row === row && m.col === col);
@@ -3228,52 +3228,52 @@
             }
         }
 
-        // 瘛餃?璉?憿舐內
+        // 添加棋子顯示
         function addPieceDisplay(square, row, col) {
             const piece = getBoardCell(row, col);
             if (piece === PLAYER1) {
                 const pieceDiv = document.createElement('div');
                 pieceDiv.className = 'piece player';
                 
-                // 瑼Ｘ?臬?函畾摮?嚗???矽?揀-index
+                // 檢查是否在特殊格子上，如果是則調整z-index
                 const centerCol = Math.floor(boardColSize / 2);
                 if ((row === boardRowSize - 1 && col === centerCol) || (row === 0 && col === centerCol)) {
-                    pieceDiv.style.zIndex = '20'; // 蝣箔?璉??冽???銝?
-                    pieceDiv.style.position = 'absolute'; // 雿輻蝯?摰?蝣箔?璉??其葉敹?
+                    pieceDiv.style.zIndex = '20'; // 確保棋子在星星之上
+                    pieceDiv.style.position = 'absolute'; // 使用絕對定位確保棋子在中心
                     pieceDiv.style.top = '50%';
                     pieceDiv.style.left = '50%';
                     pieceDiv.style.transform = 'translate(-50%, -50%)';
                 }
                 
-                pieceDiv.textContent = '??;
+                pieceDiv.textContent = '●';
                 square.appendChild(pieceDiv);
             } else if (piece === PLAYER2) {
                 const pieceDiv = document.createElement('div');
                 pieceDiv.className = `piece ${(gameMode === 'pvp' || gameMode === 'online') ? 'pvp-p2' : 'ai'}`;
                 
-                // 瑼Ｘ?臬?函畾摮?嚗???矽?揀-index
+                // 檢查是否在特殊格子上，如果是則調整z-index
                 const centerCol = Math.floor(boardColSize / 2);
                 if ((row === boardRowSize - 1 && col === centerCol) || (row === 0 && col === centerCol)) {
-                    pieceDiv.style.zIndex = '20'; // 蝣箔?璉??冽???銝?
-                    pieceDiv.style.position = 'absolute'; // 雿輻蝯?摰?蝣箔?璉??其葉敹?
+                    pieceDiv.style.zIndex = '20'; // 確保棋子在星星之上
+                    pieceDiv.style.position = 'absolute'; // 使用絕對定位確保棋子在中心
                     pieceDiv.style.top = '50%';
                     pieceDiv.style.left = '50%';
                     pieceDiv.style.transform = 'translate(-50%, -50%)';
                 }
                 
-                pieceDiv.textContent = '??;
+                pieceDiv.textContent = '●';
                 square.appendChild(pieceDiv);
             }
         }
 
-        // 瘛餃??訾葉擃漁
+        // 添加選中高亮
         function addSelectedHighlight(square, row, col) {
             if (selectedPiece && selectedPiece.row === row && selectedPiece.col === col) {
                 square.classList.add('selected');
             }
         }
 
-        // ?蔭?
+        // 重置遊戲
         function resetGame() {
             if (timerInterval) {
                 clearInterval(timerInterval);
@@ -3281,19 +3281,19 @@
             isAIThinking = false;
             waitingForJump = false;
             window.jumpClickHandler = null;
-            processedCaptures.clear(); // 皜征撌脰???鋡急瘥璉?閮?
-            usedJumpPaths.clear(); // 皜征撌脖蝙?函?頝唾?頝臬?閮?
+            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
+            usedJumpPaths.clear(); // 清空已使用的跳躍路徑記錄
             initGame();
             if (gameMode === 'ai') {
-                updateStatus('雿??? - ?豢?璉???', 'waiting');
+                updateStatus('你的回合 - 選擇棋子開始', 'waiting');
             } else if (gameMode === 'pvp') {
-                updateStatus(`${playerName1}????- ?豢?璉???`, 'waiting');
+                updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
             } else if (gameMode === 'online') {
-                updateStatus(`${playerName1}????- ?豢?璉???`, 'waiting');
+                updateStatus(`${playerName1}的回合 - 選擇棋子開始`, 'waiting');
             }
         }
 
-        // 餈??
+        // 返回菜單
         function returnToMenu() {
             if (timerInterval) {
                 clearInterval(timerInterval);
@@ -3301,90 +3301,13 @@
             isAIThinking = false;
             waitingForJump = false;
             window.jumpClickHandler = null;
-            processedCaptures.clear(); // 皜征撌脰???鋡急瘥璉?閮?
-            usedJumpPaths.clear(); // 皜征撌脖蝙?函?頝唾?頝臬?閮?
+            processedCaptures.clear(); // 清空已處理的被摧毀棋子記錄
+            usedJumpPaths.clear(); // 清空已使用的跳躍路徑記錄
             showStartScreen();
         }
 
-        // ????
+        // 初始化
         showStartScreen();
     </script>
-
-<!-- 真正連線功能 -->
-<script>
-// 房間管理
-const roomId = new URLSearchParams(location.search).get('room') || 'room1';
-const playerId = 'player_' + Math.random().toString(36).substr(2, 9);
-let isMyTurn = true;
-
-// 顯示連線狀態
-const roomInfo = document.createElement('div');
-roomInfo.style.cssText = 'position:fixed;top:10px;right:10px;background:#fff;padding:8px;border:2px solid #667eea;border-radius:8px;z-index:9999;font-weight:bold;';
-roomInfo.innerHTML = `房間：${roomId} | 玩家：${playerId.substr(0,6)} | <span id="turnStatus">你的回合</span>`;
-document.body.appendChild(roomInfo);
-
-// 攔截遊戲移動
-const originalHandleSquareClick = window.handleSquareClick;
-window.handleSquareClick = async function(row, col) {
-    if (!isMyTurn && gameMode === 'online') {
-        alert('不是你的回合！');
-        return;
-    }
-    
-    // 執行原移動邏輯
-    if (originalHandleSquareClick) {
-        await originalHandleSquareClick(row, col);
-    }
-    
-    // 發送移動給對手
-    if (gameMode === 'online') {
-        sendGameMove({
-            type: 'move',
-            from: selectedPiece ? {row: selectedPiece.row, col: selectedPiece.col} : null,
-            to: {row, col},
-            player: playerId,
-            room: roomId
-        });
-    }
-};
-
-// 發送遊戲移動
-function sendGameMove(data) {
-    localStorage.setItem('game_move_' + roomId, JSON.stringify({
-        ...data,
-        time: Date.now(),
-        sender: playerId
-    }));
-}
-
-// 接收遊戲移動
-window.addEventListener('storage', function(e) {
-    if (e.key === 'game_move_' + roomId) {
-        const data = JSON.parse(e.newValue);
-        
-        // 忽略自己的訊息
-        if (data.sender === playerId) return;
-        
-        // 處理對手移動
-        if (data.type === 'move' && data.room === roomId) {
-            console.log('收到對手移動:', data);
-            
-            // 切換回合狀態
-            isMyTurn = true;
-            document.getElementById('turnStatus').textContent = '你的回合';
-            
-            // 這裡可以加入實際的移動執行邏輯
-            alert(`對手移動：從(${data.from.row},${data.from.col}) 到 (${data.to.row},${data.to.col})`);
-        }
-    }
-});
-
-// 初始化連線
-console.log('🎮 真正連線已啟動！');
-console.log('🏠 房間：' + roomId);
-console.log('👤 玩家：' + playerId.substr(0, 6));
-console.log('📡 開啟另一個分頁測試連線功能');
-</script></body>
+</body>
 </html>
-
-

@@ -3310,81 +3310,47 @@
         showStartScreen();
     </script>
 
-<!-- 真正連線功能 -->
+<!-- 極簡連線功能 -->
 <script>
-// 房間管理
+// 取得房間號碼
 const roomId = new URLSearchParams(location.search).get('room') || 'room1';
-const playerId = 'player_' + Math.random().toString(36).substr(2, 9);
-let isMyTurn = true;
 
-// 顯示連線狀態
+// 顯示房間資訊
 const roomInfo = document.createElement('div');
 roomInfo.style.cssText = 'position:fixed;top:10px;right:10px;background:#fff;padding:8px;border:2px solid #667eea;border-radius:8px;z-index:9999;font-weight:bold;';
-roomInfo.innerHTML = `房間：${roomId} | 玩家：${playerId.substr(0,6)} | <span id="turnStatus">你的回合</span>`;
+roomInfo.innerHTML = `房間：${roomId} | <button onclick="testOnlineMove()" style="padding:2px 8px;cursor:pointer;">測試連線</button>`;
 document.body.appendChild(roomInfo);
 
-// 攔截遊戲移動
-const originalHandleSquareClick = window.handleSquareClick;
-window.handleSquareClick = async function(row, col) {
-    if (!isMyTurn && gameMode === 'online') {
-        alert('不是你的回合！');
-        return;
-    }
-    
-    // 執行原移動邏輯
-    if (originalHandleSquareClick) {
-        await originalHandleSquareClick(row, col);
-    }
-    
-    // 發送移動給對手
-    if (gameMode === 'online') {
-        sendGameMove({
-            type: 'move',
-            from: selectedPiece ? {row: selectedPiece.row, col: selectedPiece.col} : null,
-            to: {row, col},
-            player: playerId,
-            room: roomId
-        });
-    }
-};
-
-// 發送遊戲移動
-function sendGameMove(data) {
-    localStorage.setItem('game_move_' + roomId, JSON.stringify({
-        ...data,
+// 發送移動
+function sendOnlineMove(move) {
+    localStorage.setItem('room_' + roomId + '_move', JSON.stringify({
+        move: move,
         time: Date.now(),
-        sender: playerId
+        from: location.href
     }));
 }
 
-// 接收遊戲移動
+// 接收移動
 window.addEventListener('storage', function(e) {
-    if (e.key === 'game_move_' + roomId) {
+    if (e.key === 'room_' + roomId + '_move') {
         const data = JSON.parse(e.newValue);
-        
-        // 忽略自己的訊息
-        if (data.sender === playerId) return;
-        
-        // 處理對手移動
-        if (data.type === 'move' && data.room === roomId) {
-            console.log('收到對手移動:', data);
-            
-            // 切換回合狀態
-            isMyTurn = true;
-            document.getElementById('turnStatus').textContent = '你的回合';
-            
-            // 這裡可以加入實際的移動執行邏輯
-            alert(`對手移動：從(${data.from.row},${data.from.col}) 到 (${data.to.row},${data.to.col})`);
+        if (data.from !== location.href) { // 不處理自己的訊息
+            console.log('收到連線移動:', data.move);
+            alert('連線成功！收到對手移動：' + JSON.stringify(data.move));
         }
     }
 });
 
-// 初始化連線
-console.log('🎮 真正連線已啟動！');
-console.log('🏠 房間：' + roomId);
-console.log('👤 玩家：' + playerId.substr(0, 6));
-console.log('📡 開啟另一個分頁測試連線功能');
+// 測試函數
+function testOnlineMove() {
+    const testMove = { from: [0,0], to: [1,1], piece: 'player' };
+    sendOnlineMove(testMove);
+    alert('已發送測試移動：' + JSON.stringify(testMove));
+}
+
+// 顯示連線狀態
+console.log('極簡連線已啟動 - 房間：' + roomId);
+console.log('開啟另一個分頁並使用相同房間號測試連線');
 </script></body>
 </html>
-
 
