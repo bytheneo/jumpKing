@@ -1125,6 +1125,37 @@
             </div>
         </div>
 
+
+        <!-- 線上模式：建立/加入房間選擇 -->
+        <div class="room-setup-screen" id="onlineModeScreen" style="display:none;">
+            <h2>🌐 線上玩家對戰</h2>
+            <div class="room-setup-group">
+                <div class="room-setup-item">
+                    <label for="onlineNameInput">你的名稱</label>
+                    <input type="text" id="onlineNameInput" placeholder="輸入您的名稱" maxlength="20">
+                </div>
+                <div class="room-setup-item">
+                    <label>遊戲模式</label>
+                    <div class="game-mode-selection">
+                        <div class="game-mode-option selected" data-mode="standard" onclick="selectGameMode('standard', this)">
+                            📐 9×9 標準
+                        </div>
+                        <div class="game-mode-option" data-mode="special" onclick="selectGameMode('special', this)">
+                            ✨ 特殊戰
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="room-setup-buttons" style="gap:15px;">
+                <button class="btn-start" onclick="createRoom()" style="background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%);">🏠 建立房間</button>
+                <div class="room-setup-item" style="margin:0;">
+                    <input type="text" id="joinRoomIdInput" placeholder="輸入房間ID" maxlength="6" style="text-transform:uppercase;">
+                </div>
+                <button class="btn-start" onclick="joinRoom()" style="background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);">🚪 加入房間</button>
+                <button class="btn-back" onclick="backToStart()">返回</button>
+            </div>
+        </div>
+
         <!-- 規則介面 -->
         <div class="rules-screen" id="rulesScreen">
             <h2>遊戲玩法規則</h2>
@@ -1493,7 +1524,12 @@
         // 選擇遊戲模式
         function selectMode(mode) {
             gameMode = mode;
-            showRoomSetupScreen(mode);
+            if (mode === 'online') {
+                document.getElementById('startScreen').style.display = 'none';
+                document.getElementById('onlineModeScreen').style.display = 'flex';
+            } else {
+                showRoomSetupScreen(mode);
+            }
         }
 
         // 更新遊戲模式選擇
@@ -1542,55 +1578,228 @@
                 currentTurnTime = enableTimer ? TURN_TIME_PVP : 999999;
                 startGame();
             } else if (gameMode === 'online') {
-                playerName2 = '等待對手';
-                playerId = generateId();
-                roomId = generateRoomId();
-                enableTimer = true;
-                currentTurnTime = TURN_TIME_ONLINE;
-                showOnlineWaitScreen();
-                setupOnlineGame();
+                // 線上模式已由 onlineModeScreen 處理
             }
         }
 
-        // 設置線上遊戲
+        // 設置線上遊戲 (已由 WebSocket 處理)
         function setupOnlineGame() {
-            const p1Id = playerId.substr(0, 8);
-            document.getElementById('roomId').textContent = roomId;
-            document.getElementById('onlinePlayerName').textContent = playerName1;
-            document.getElementById('onlineP1Name').textContent = playerName1;
-            document.getElementById('onlineP1Id').textContent = `ID: ${p1Id}`;
-            
-            // 模擬等待
-            setTimeout(() => {
-                document.getElementById('onlineP2Item').style.opacity = '1';
-                document.getElementById('onlineP2Item').querySelector('.player-status').classList.add('online');
-                document.getElementById('waitingText').textContent = '玩家2已加入，點擊按鈕開始遊戲';
-                
-                const startBtn = document.createElement('button');
-                startBtn.className = 'btn-share';
-                startBtn.textContent = '▶️ 開始遊戲';
-                startBtn.onclick = () => {
-                    playerName2 = '玩家2';
+            // 此函數已不再使用，連線邏輯移至 WebSocket 管理
+        }
+
+        // ========== WebSocket 連線管理 ==========
+        let ws = null;
+        let myPlayerNumber = 0;
+        let isOnlineGame = false;
+
+        function getWsUrl() {
+            const loc = window.location;
+            const protocol = loc.protocol === 'https:' ? 'wss:' : 'ws:';
+            return protocol + '//' + loc.hostname + ':8765';
+        }
+
+        function connectWebSocket(callback) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                callback();
+                return;
+            }
+            ws = new WebSocket(getWsUrl());
+            ws.onopen = () => {
+                console.log('WebSocket 已連線');
+                callback();
+            };
+            ws.onmessage = (event) => {
+                const msg = JSON.parse(event.data);
+                handleServerMessage(msg);
+            };
+            ws.onclose = () => {
+                console.log('WebSocket 已斷線');
+                if (isOnlineGame && !gameOver) {
+                    alert('對手已斷線！遊戲將返回菜單。');
+                    isOnlineGame = false;
+                    myPlayerNumber = 0;
+                    if (timerInterval) clearInterval(timerInterval);
+                    showStartScreen();
+                }
+            };
+            ws.onerror = (err) => {
+                console.error('WebSocket 錯誤:', err);
+                alert('無法連線伺服器！請確認 server.py 已啟動。');
+            };
+        }
+
+        function handleServerMessage(msg) {
+            switch (msg.type) {
+                case 'room_created':
+                    myPlayerNumber = 1;
+                    roomId = msg.roomId;
+                    playerId = generateId();
+                    playerName1 = document.getElementById('onlineNameInput').value.trim() || '玩家1';
+                    playerName2 = '等待對手';
+                    enableTimer = true;
+                    currentTurnTime = TURN_TIME_ONLINE;
+                    document.getElementById('onlineModeScreen').style.display = 'none';
+                    document.getElementById('onlineWaitScreen').style.display = 'flex';
+                    document.getElementById('roomId').textContent = roomId;
+                    document.getElementById('onlinePlayerName').textContent = playerName1;
+                    document.getElementById('onlineP1Name').textContent = playerName1;
+                    document.getElementById('onlineP1Id').textContent = 'ID: ' + playerId.substr(0, 8);
+                    document.getElementById('waitingText').textContent = '等待玩家2加入...';
+                    document.getElementById('onlineP2Item').style.opacity = '0.5';
+                    document.getElementById('onlineP2Item').querySelector('.player-name').textContent = '等待中...';
+                    // 清除舊的開始按鈕
+                    document.querySelectorAll('.online-buttons .btn-start').forEach(b => b.remove());
+                    break;
+
+                case 'room_joined':
+                    myPlayerNumber = 2;
+                    roomId = msg.roomId;
+                    playerId = generateId();
+                    playerName1 = msg.opponentName;
+                    playerName2 = document.getElementById('onlineNameInput').value.trim() || '玩家2';
+                    enableTimer = true;
+                    currentTurnTime = TURN_TIME_ONLINE;
+                    gameMode = 'online';
+                    isOnlineGame = true;
                     startGame();
+                    break;
+
+                case 'opponent_joined':
+                    playerName2 = msg.opponentName;
+                    document.getElementById('onlineP2Item').style.opacity = '1';
+                    document.getElementById('onlineP2Item').querySelector('.player-status').classList.add('online');
+                    document.getElementById('onlineP2Item').querySelector('.player-name').textContent = playerName2;
+                    document.getElementById('waitingText').textContent = '玩家2已加入，點擊開始遊戲';
+                    document.querySelectorAll('.online-buttons .btn-start').forEach(b => b.remove());
+                    const startBtn = document.createElement('button');
+                    startBtn.className = 'btn-start';
+                    startBtn.id = 'startGameBtn';
+                    startBtn.textContent = '▶️ 開始遊戲';
+                    startBtn.onclick = () => {
+                        gameMode = 'online';
+                        isOnlineGame = true;
+                        ws.send(JSON.stringify({ type: 'start_game', boardSize: boardSize, boardMode: boardMode }));
+                    };
+                    document.querySelector('.online-buttons').insertBefore(startBtn, document.querySelector('.btn-leave'));
+                    break;
+
+                case 'game_started':
+                    gameMode = 'online';
+                    isOnlineGame = true;
+                    playerName1 = msg.player1Name;
+                    playerName2 = msg.player2Name;
+                    boardSize = msg.boardSize || 9;
+                    boardMode = msg.boardMode || 'standard';
+                    startGame();
+                    break;
+
+                case 'game_action':
+                    applyRemoteAction(msg);
+                    break;
+
+                case 'turn_ended':
+                    endPlayerTurn();
+                    break;
+
+                case 'opponent_left':
+                    alert('對手已離開房間！');
+                    isOnlineGame = false;
+                    if (timerInterval) clearInterval(timerInterval);
+                    showStartScreen();
+                    break;
+
+                case 'opponent_disconnected':
+                    alert('對手已斷線！遊戲將返回菜單。');
+                    isOnlineGame = false;
+                    myPlayerNumber = 0;
+                    if (timerInterval) clearInterval(timerInterval);
+                    showStartScreen();
+                    break;
+
+                case 'error':
+                    alert('錯誤: ' + msg.message);
+                    break;
+            }
+        }
+
+        function createRoom() {
+            const name = document.getElementById('onlineNameInput').value.trim();
+            if (!name) { alert('請輸入您的名稱'); return; }
+            connectWebSocket(() => {
+                ws.send(JSON.stringify({ type: 'create_room', playerName: name }));
+            });
+        }
+
+        function joinRoom() {
+            const name = document.getElementById('onlineNameInput').value.trim();
+            if (!name) { alert('請輸入您的名稱'); return; }
+            const inputRoomId = document.getElementById('joinRoomIdInput').value.trim().toUpperCase();
+            if (!inputRoomId) { alert('請輸入房間ID'); return; }
+            connectWebSocket(() => {
+                ws.send(JSON.stringify({ type: 'join_room', roomId: inputRoomId, playerName: name }));
+            });
+        }
+
+        function applyRemoteAction(msg) {
+            const action = msg.action;
+            const data = msg.data;
+            if (action === 'move_piece') {
+                const move = {
+                    row: data.toRow, col: data.toCol,
+                    isCapture: data.isCapture || false,
+                    capturedPieces: data.capturedPieces || [],
+                    visitedInJump: data.visitedInJump || [],
+                    moveType: data.isCapture ? 'jump' : 'move'
                 };
-                document.querySelector('.online-buttons').insertBefore(startBtn, document.querySelector('.btn-leave'));
-            }, 3000);
+                movePiece(data.fromRow, data.fromCol, data.toRow, data.toCol, move);
+                if (!move.isCapture) {
+                    selectedPiece = null;
+                    validMoves = [];
+                    inJumpSequence = false;
+                    currentJumpRow = -1;
+                    currentJumpCol = -1;
+                    capturedInSequence = [];
+                    visitedInJump = [];
+                    document.getElementById('endJumpBtn').style.display = 'none';
+                    document.getElementById('legend').style.display = 'none';
+                    const winner = checkWin();
+                    if (winner) {
+                        gameOver = true;
+                        gameWinner = winner;
+                        updateStatus((winner === PLAYER1 ? playerName1 : playerName2) + '獲勝！', 'winner');
+                        playSound('win');
+                        if (enableTimer) clearInterval(timerInterval);
+                        render();
+                        return;
+                    }
+                    endPlayerTurn();
+                } else {
+                    // 跳躍移動，繼續等待對手的下一步或 end_turn
+                    render();
+                }
+            }
+        }
+
+        function sendGameAction(action, data) {
+            if (ws && ws.readyState === WebSocket.OPEN && isOnlineGame) {
+                ws.send(JSON.stringify({ type: 'game_action', action: action, data: data }));
+            }
         }
 
         // 複製房間ID
         function copyRoomId() {
-            const url = window.location.href.split('?')[0] + `?room=${roomId}&player=${playerId}`;
-            navigator.clipboard.writeText(url).then(() => {
-                alert('連結已複製到剪貼板！');
+            const roomUrl = window.location.href.split('?')[0] + '?room=' + roomId;
+            navigator.clipboard.writeText(roomUrl).then(() => {
+                alert('房間ID 已複製！請將 ID 告知對手：' + roomId);
             }).catch(() => {
-                alert('複製失敗，請手動複製');
+                alert('複製失敗，請手動複製房間ID: ' + roomId);
             });
         }
 
         // 分享房間
         function shareRoom() {
-            const url = window.location.href.split('?')[0] + `?room=${roomId}&player=${playerId}`;
-            document.getElementById('shareLink').textContent = url;
+            const shareUrl = window.location.href.split('?')[0] + '?room=' + roomId;
+            document.getElementById('shareLink').textContent = shareUrl;
             document.getElementById('shareModal').classList.add('show');
         }
 
@@ -1611,8 +1820,15 @@
 
         // 離開房間
         function leaveRoom() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'leave_room' }));
+                ws.close();
+            }
+            ws = null;
             roomId = null;
             playerId = null;
+            myPlayerNumber = 0;
+            isOnlineGame = false;
             showStartScreen();
         }
 
@@ -1640,7 +1856,7 @@
             
             // 本地主機對戰顯示當前玩家指示器
             const indicator = document.getElementById('currentPlayerIndicator');
-            if (gameMode === 'pvp') {
+            if (gameMode === 'pvp' || gameMode === 'online') {
                 indicator.style.display = 'block';
             } else {
                 indicator.style.display = 'none';
@@ -1815,8 +2031,15 @@
                 const currentPlayerName = (currentPlayer === PLAYER1) ? playerName1 : playerName2;
                 updateStatus(`${currentPlayerName}的回合 - 選擇棋子開始`, 'waiting');
             } else if (gameMode === 'online') {
-                const currentPlayerName = (currentPlayer === PLAYER1) ? playerName1 : playerName2;
-                updateStatus(`等待${currentPlayerName}行動...`, 'thinking');
+                if (isOnlineGame) {
+                    const nextPlayerNum = currentPlayer === PLAYER1 ? 2 : 1;
+                    if (nextPlayerNum === myPlayerNumber) {
+                        updateStatus('你的回合 - 選擇棋子開始', 'waiting');
+                    } else {
+                        const cpn = (currentPlayer === PLAYER1) ? playerName1 : playerName2;
+                        updateStatus(`等待${cpn}行動...`, 'thinking');
+                    }
+                }
             }
         }
 
@@ -2238,10 +2461,23 @@
             
             if (isAIThinking) return;
 
+            // 線上模式：只有輪到自己時才能操作
+            if (isOnlineGame && myPlayerNumber !== currentPlayer) return;
+
             if (selectedPiece) {
                 const move = validMoves.find(m => m.row === row && m.col === col);
                 if (move) {
                     movePiece(selectedPiece.row, selectedPiece.col, row, col, move);
+                    // 線上模式：傳送移動資訊給對手
+                    if (isOnlineGame) {
+                        sendGameAction('move_piece', {
+                            fromRow: selectedPiece.row, fromCol: selectedPiece.col,
+                            toRow: row, toCol: col,
+                            isCapture: move.isCapture || false,
+                            capturedPieces: move.capturedPieces || [],
+                            visitedInJump: move.visitedInJump || []
+                        });
+                    }
                     let finalRow = row;
                     let finalCol = col;
 
@@ -2399,6 +2635,10 @@
 
             if (getBoardCell(row, col) === currentPlayer) {
                 selectedPiece = { row, col };
+                // 線上模式：通知對手選擇了哪個棋子
+                if (isOnlineGame) {
+                    sendGameAction('select_piece', { row, col });
+                }
 
                 const normalMoves = getNormalMoves(row, col);
                 const jumpMoves = getJumpMoves(row, col, [], []);
